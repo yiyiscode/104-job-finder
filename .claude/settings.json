@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/Scripts/python.exe -m pytest tests/ -q)",
+      "Bash(.venv/Scripts/python.exe -m pytest tests/test_notify.py -q)",
+      "Bash(.venv/Scripts/python.exe -m pytest tests/test_scoring.py -q)",
+      "Bash(.venv/Scripts/python.exe -m ruff check tests/test_scripts.py --fix --output-format=concise)",
+      "Bash(.venv/Scripts/python.exe -m ruff format -q tests/test_scripts.py)",
+      "Bash(.venv/Scripts/python.exe -m ruff check scripts tests --output-format=concise)",
+      "Bash(.venv/Scripts/python.exe -m ruff format -q scripts tests)",
+      "Bash(.venv/Scripts/python.exe scripts/check_models.py)",
+      "Bash(.venv/Scripts/python.exe scripts/send_test_message.py --help)",
+      "Bash(.venv/Scripts/python.exe scripts/send_test_message.py --dry-run)"
+    ]
+  }
+}

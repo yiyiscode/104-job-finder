@@ -1,0 +1,53 @@
+[project]
+name = "jobfinder"
+version = "0.1.0"
+description = "104 人力銀行每日職缺日報 — 抓取、AI 評分、Telegram 推送"
+requires-python = ">=3.12"
+dependencies = [
+    # 抓取:Patchright 是 playwright 的 drop-in stealth fork(playwright-stealth 已停更於 2023)
+    "patchright>=1.49",
+    "httpx>=0.27",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "pyyaml>=6.0",
+    "tenacity>=8.3",
+    "python-dateutil>=2.9",
+    # Windows 沒有系統 tzdata,ZoneInfo("Asia/Taipei") 會直接炸
+    "tzdata>=2024.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.5",
+]
+# Modal 只在部署端需要,跑 pipeline 本身不需要
+deploy = ["modal>=0.64"]
+
+[project.scripts]
+jobfinder = "jobfinder.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jobfinder"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    # 會真的連線 104 的測試。預設 skip,必須 `pytest -m live` 才跑。
+    # 見 CLAUDE.md 硬性規則 6:開發期絕不反覆打 104。
+    "live: hits the real 104 site (deselected by default)",
+]
+addopts = "-m 'not live'"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

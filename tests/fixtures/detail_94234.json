@@ -1,0 +1,137 @@
+{
+  "data": {
+    "corpImageRight": {
+      "corpImageRight": {
+        "imageUrl": "",
+        "link": ""
+      }
+    },
+    "header": {
+      "corpImageTop": {
+        "imageUrl": "",
+        "link": ""
+      },
+      "jobName": "資訊維運專員（系統整合 / 快速建置專案）",
+      "appearDate": "2026/08/17",
+      "custName": "財團法人祐生研究基金會",
+      "custUrl": "https://www.104.com.tw/company/1wmpsm0",
+      "analysisType": 3,
+      "analysisUrl": "//www.104.com.tw/jobs/apply/analysis/94234",
+      "isSaved": false,
+      "isFollowed": false,
+      "isApplied": false,
+      "applyDate": "",
+      "userApplyCount": 0,
+      "hrBehaviorPR": 0.9927606331039808
+    },
+    "contact": {
+      "hrName": "游惠芬",
+      "email": "job@archilife.org",
+      "visit": "",
+      "phone": [],
+      "other": "應徵人員請將履歷表、最高學歷證明\n寄至：job@archilife.org\n合適者將於5個工作天內主動聯繫面試時間，不合適者將不另行通知",
+      "reply": "合適者將於5個工作天內主動聯繫，不合適者將不另行通知"
+    },
+    "environmentPic": {
+      "environmentPic": [],
+      "corpImageBottom": {
+        "imageUrl": "",
+        "link": ""
+      }
+    },
+    "condition": {
+      "acceptRole": {
+        "role": [],
+        "disRole": {
+          "needHandicapCompendium": false,
+          "disability": []
+        }
+      },
+      "workExp": "不拘",
+      "edu": "大學",
+      "major": [],
+      "language": [],
+      "localLanguage": [],
+      "specialty": [],
+      "skill": [],
+      "certificate": [],
+      "driverLicense": [],
+      "other": ""
+    },
+    "welfare": {
+      "tag": [],
+      "welfare": "勞保、健保、勞工退休金提撥、特休假等均遵照現行法規辦理。\n\n並額外提供員工福利：\n\n- 三節禮品。\n- 結婚禮金、喪葬慰問金。\n- 年終獎金：視公司整體營運與個人績效表現發放。\n- 每日提供午茶水果、咖啡及茶包享用。\n- 可參加每月一次聯誼會(於台北市各大飯店舉辦)，供應 Buffet 午餐。\n- 辦公室為新建辦公大樓，內部工作環境舒適。",
+      "legalTag": []
+    },
+    "jobDetail": {
+      "jobDescription": "本職務為可以運用AI協作推進各種小型專案網站，\n並能負責快速建置、開發交付與技術驗證。\n我們期待喜歡學新東西、接觸新科技，具備資訊適應力的「潛力通才」加入。\n\n工作內容：\n1.運用現代化構建工具與AI輔助（本會付費提供AI工具），快速搭建、測試並維運會\n   內各類短期、小型專案網站（視需求可能為Headless CMS或Monolithic CMS）。\n2.針對專案站台之特定需求（如視訊、直播、串流、搜尋引擎優化等），評估、引進\n   並測試現有付費或開源套件，以支援提升現有網站之使用者體驗。\n3.協助主管與會內核心系統（PHP/MariaDB架構為主）維護委外服務廠商聯繫、需求\n   轉譯、功能追蹤與驗收。\n4.建立小型內部專案之基礎資訊軟硬體操作、安裝與維護，落實基本的資安與備份規範\n   ，並將AI 協作流程與系統架構建立紀錄文件。\n\n徵求條件：\n1.大學畢業生。\n2.對 PHP / MySQL (或 MariaDB) 生態系有基礎認識，理解現代網頁運作基礎架構（前\n   端 HTML/CSS/JavaScript 與後端資料庫、API 的互動邏輯），並能運用 AI 工具生成\n   程式碼進行除錯、套件安裝與版面微調。\n3.具備伺服器基礎操作概念，了解資訊安全、權限控管與資料備份的基礎重要性。\n4.英語讀、寫具備一定基礎（能閱讀英文技術文件與套件說明）。\n\n加分條件：\n1. 曾親手架設、優化或維護過任一主流 CMS（如Strapi , Drupal, Joomla等）。\n2. 熟悉任一前端框架。\n3. 具備使用AI協作工具（如 ChatGPT、Cursor、GitHub Copilot）加速網頁開發或解\n    決技術問題的實際經驗。\n4. 具GCP或 AWS雲端產品使用與部署經驗。\n5. 具備基礎的 API 串接概念。\n\n工作時間：\n周一至周五：10:00～18:00\n周六、日固定休假及人事行政局公告之國定假日休假\n",
+      "jobCategory": [
+        {
+          "code": "2007001017",
+          "description": "全端工程師"
+        },
+        {
+          "code": "2007002001",
+          "description": "MIS／網管主管"
+        },
+        {
+          "code": "2007001007",
+          "description": "系統分析師"
+        }
+      ],
+      "salary": "月薪45,000~55,000元",
+      "salaryMin": 45000,
+      "salaryMax": 55000,
+      "salaryType": 50,
+      "jobType": 1,
+      "workType": [],
+      "addressNo": "6001001003",
+      "addressRegion": "台北市中山區",
+      "addressArea": "台北市",
+      "addressDetail": "長安東路一段4號2樓",
+      "industryArea": "",
+      "longitude": "121.5220143",
+      "latitude": "25.049561",
+      "manageResp": "不需負擔管理責任",
+      "businessTrip": "無需出差外派",
+      "workPeriod": {
+        "shifts": {
+          "日班": [
+            "10:00~18:00"
+          ]
+        },
+        "note": "可彈性於9:40~10:00到班(下班時間為17:40~18:00)"
+      },
+      "workPeriodTags": [],
+      "vacationPolicy": "依公司規定",
+      "startWorkingDay": "不限",
+      "hireType": 0,
+      "delegatedRecruit": "",
+      "needEmp": "1人",
+      "landmark": "距捷運中山站約380公尺",
+      "remoteWork": null
+    },
+    "switch": "on",
+    "custLogo": "",
+    "postalCode": "104",
+    "closeDate": "",
+    "industry": "其他專業／科學及技術業",
+    "custNo": "1wmpsm0",
+    "reportUrl": "https://www.104.com.tw/feedback?category=2&custName=%E8%B2%A1%E5%9C%98%E6%B3%95%E4%BA%BA%E7%A5%90%E7%94%9F%E7%A0%94%E7%A9%B6%E5%9F%BA%E9%87%91%E6%9C%83&jobName=%E8%B3%87%E8%A8%8A%E7%B6%AD%E9%81%8B%E5%B0%88%E5%93%A1%EF%BC%88%E7%B3%BB%E7%B5%B1%E6%95%B4%E5%90%88+%2F+%E5%BF%AB%E9%80%9F%E5%BB%BA%E7%BD%AE%E5%B0%88%E6%A1%88%EF%BC%89",
+    "industryNo": "1008003006",
+    "employees": "24人",
+    "chinaCorp": false,
+    "interactionRecord": {
+      "lastProcessedResumeAtTime": 1787218347,
+      "lastCustReplyTimestamp": 1787205565,
+      "nowTimestamp": 1787303990
+    }
+  },
+  "metadata": {
+    "enableHTML": false,
+    "hiddenBanner": false,
+    "seo": {
+      "noindex": false
+    }
+  }
+}

@@ -1,0 +1,4285 @@
+{
+  "data": [
+    {
+      "appearDate": "20260819",
+      "applyCnt": 30,
+      "coIndustry": 1001001003,
+      "coIndustryDesc": "網際網路相關業",
+      "custName": "SHOPLINE Technology Corp., Ltd._商線科技股份有限公司",
+      "custNo": "130000000059443",
+      "description": "因分析（Root Cause Analysis），追蹤與落實改善進度，降低問題重演的機率。\n- 資料導向的改善推手：善用歷史數據、Log 紀錄與埋點分析等工具追蹤問題線索，協助產品與工程團隊精準定位系統問題與瓶頸，持續提升平台的可用性與韌性。\n\n【",
+      "descSnippet": "因分析（Root Cause Analysis），追蹤與落實改善進度，降低問題重演的機率。\n- 資料導向的改善推手：善用歷史數據、Log 紀錄與埋點分析等工具追蹤問題線索，協助產品與[[[工程]]]團隊精準定位系統問題與瓶頸，持續提升平台的可用性與韌性。\n\n【",
+      "mrtDist": 0,
+      "jobAddress": "敦化北路168號9樓",
+      "jobAddrNo": 6001001004,
+      "jobAddrNoDesc": "台北市松山區",
+      "jobName": "【TPMO0301】Product Operation Manager",
+      "jobNameSnippet": "【TPMO0301】Product Operation Manager",
+      "jobNo": "14621165",
+      "jobRo": 1,
+      "jobType": 1,
+      "lat": 25.05644,
+      "lon": 121.54857,
+      "link": {
+        "job": "https://www.104.com.tw/job/8pdrh",
+        "cust": "https://www.104.com.tw/company/1a2x6bj96b",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/8pdrh?channel=104rpt"
+      },
+      "major": [],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 2,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "zoneForeign": {
+          "desc": "外商公司",
+          "param": 5
+        },
+        "remote": {
+          "desc": "遠端工作"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf12": {
+          "desc": "",
+          "param": "wf12"
+        },
+        "wf31": {
+          "desc": "",
+          "param": "wf31"
+        },
+        "wf13": {
+          "desc": "",
+          "param": "wf13"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf14": {
+          "desc": "",
+          "param": "wf14"
+        },
+        "wf11": {
+          "desc": "",
+          "param": "wf11"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.8695506051729228,
+      "jobCat": [
+        2004003003,
+        2004003006,
+        2005001010
+      ],
+      "labels": [
+        "c@wf7",
+        "indexjob@ij017",
+        "c@wf12",
+        "indexjob@ij001",
+        "c@wf31",
+        "indexjob@ij009",
+        "c@wf13",
+        "c@wf1",
+        "c@wf26",
+        "c@wf29",
+        "indexjob@ij008",
+        "c@wf14",
+        "indexjob@ij010",
+        "c@new_company_job",
+        "c@wf11",
+        "indexjob@ij048",
+        "association@j00021"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 500,
+      "pcSkills": [
+        {
+          "code": "12001003095",
+          "description": "SaaS"
+        },
+        {
+          "code": "12001011014",
+          "description": "Looker studio"
+        },
+        {
+          "code": "12001006045",
+          "description": "JIRA"
+        }
+      ],
+      "pddScore": 0.05143738,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/9443/130000000059443/logo.gif?v=20260701170859",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787296190,
+        "lastCustReplyTimestamp": 1787293940,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260821",
+      "applyCnt": 30,
+      "coIndustry": 1001001002,
+      "coIndustryDesc": "電腦軟體服務業",
+      "custName": "科爾迪股份有限公司",
+      "custNo": "130000000194354",
+      "description": "・協助研發軟體新技術與新工具\n・金融系統開發\n・負責軟體之分析、設計以及程式撰寫\n・進行軟體之測試與修改",
+      "descSnippet": "・協助研發軟體新技術與新工具\n・金融系統開發\n・負責軟體之分析、設計以及程式撰寫\n・進行軟體之測試與修改",
+      "mrtDist": 0.09,
+      "jobAddress": "松江路318號8樓",
+      "jobAddrNo": 6001001003,
+      "jobAddrNoDesc": "台北市中山區",
+      "jobName": "軟體工程師(中階以上)",
+      "jobNameSnippet": "軟體[[[工程師]]](中階以上)",
+      "jobNo": "12927313",
+      "jobRo": 1,
+      "jobType": 1,
+      "lat": 25.0604699,
+      "lon": 121.5328567,
+      "link": {
+        "job": "https://www.104.com.tw/job/7p2s1",
+        "cust": "https://www.104.com.tw/company/1a2x6bm59u",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/7p2s1?channel=104rpt"
+      },
+      "major": [],
+      "mrt": "99001004009",
+      "mrtDesc": "捷運行天宮站",
+      "optionEdu": [
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 50,
+      "salaryHigh": 9999999,
+      "salaryLow": 70000,
+      "tags": {
+        "wf33": {
+          "desc": "",
+          "param": "wf33"
+        },
+        "wf9": {
+          "desc": "",
+          "param": "wf9"
+        },
+        "wf31": {
+          "desc": "",
+          "param": "wf31"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf12": {
+          "desc": "",
+          "param": "wf12"
+        },
+        "wf32": {
+          "desc": "",
+          "param": "wf32"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf17": {
+          "desc": "",
+          "param": "wf17"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "landmark": {
+          "desc": "距捷運行天宮站約90公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "09:00-18:00",
+      "hrBehaviorPR": 0.8957036128709949,
+      "jobCat": [
+        2007001004,
+        2007002006,
+        2007001009
+      ],
+      "labels": [
+        "foreigners@fc_emp5m_jbs",
+        "c@graduates_welcome",
+        "association@j00014",
+        "c@wf33",
+        "c@wf9",
+        "indexjob@ij010",
+        "foreigners@foreigners_tick",
+        "c@wf31",
+        "indexjob@ij014",
+        "c@wf29",
+        "c@wf2",
+        "c@wf26",
+        "association@j00018",
+        "joblist_search@jl_j0003_004.5",
+        "association@j00001",
+        "c@wf12",
+        "c@wf32",
+        "c@wf7",
+        "c@wf17",
+        "c@wf1",
+        "c@rdss_welcome"
+      ],
+      "languageRequirements": [
+        {
+          "language": 18,
+          "ability": {
+            "listening": 2,
+            "speaking": 2,
+            "reading": 2,
+            "writing": 2
+          }
+        },
+        {
+          "language": 1,
+          "ability": {
+            "listening": 8,
+            "speaking": 8,
+            "reading": 8,
+            "writing": 8
+          }
+        }
+      ],
+      "acceptRole": [
+        2,
+        16,
+        32,
+        64,
+        2048
+      ],
+      "employeeCount": 21,
+      "pcSkills": [
+        {
+          "code": "12001003009",
+          "description": "C#"
+        },
+        {
+          "code": "12001003025",
+          "description": "Java"
+        }
+      ],
+      "pddScore": 0.43874177,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/4354/130000000194354/logo.png?v=20260603155157",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787286289,
+        "lastCustReplyTimestamp": 1787301031,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260820",
+      "applyCnt": 2,
+      "coIndustry": 1001001001,
+      "coIndustryDesc": "電腦系統整合服務業",
+      "custName": "台灣富力思泰科技股份有限公司",
+      "custNo": "130000000039631",
+      "description": "【工作內容】\n• 用軟體工程讓再生能源更穩定：把資料與雲端能力用在 Solar PV／BESS／EV 的實際場域。\n• 全流程產品開發與平台維運：資料收集 → 資料庫設計與調校 → 商業邏輯／規則 → 後端 API 設計 → 雲端部署／監控。\n•",
+      "descSnippet": "【工作內容】\n• 用軟體[[[工程]]]讓再生能源更穩定：把資料與雲端能力用在 Solar PV／BESS／EV 的實際場域。\n• 全流程產品開發與平台維運：資料收集 → 資料庫設計與調校 → 商業邏輯／規則 → 後端 API 設計 → 雲端部署／監控。\n•",
+      "mrtDist": 0.28,
+      "jobAddress": "115 三重路19-13號E棟411室",
+      "jobAddrNo": 6001001011,
+      "jobAddrNoDesc": "台北市南港區",
+      "jobName": "EMS 軟體工程師",
+      "jobNameSnippet": "EMS 軟體[[[工程師]]]",
+      "jobNo": "10723190",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.058303,
+      "lon": 121.613953,
+      "link": {
+        "job": "https://www.104.com.tw/job/6du2e",
+        "cust": "https://www.104.com.tw/company/1a2x6bitvz",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/6du2e?channel=104rpt"
+      },
+      "major": [
+        "資訊工程相關",
+        "資訊管理相關",
+        "電機電子工程相關"
+      ],
+      "mrt": "99001001023",
+      "mrtDesc": "捷運南港軟體園區站",
+      "optionEdu": [
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 2,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "zoneForeign": {
+          "desc": "外商公司",
+          "param": 5
+        },
+        "remote": {
+          "desc": "遠端工作"
+        },
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf8": {
+          "desc": "",
+          "param": "wf8"
+        },
+        "wf4": {
+          "desc": "",
+          "param": "wf4"
+        },
+        "landmark": {
+          "desc": "距捷運南港軟體園區站約280公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.7940913322887572,
+      "jobCat": [
+        2007001006,
+        2007001004,
+        2007001007
+      ],
+      "labels": [
+        "c@wf10",
+        "association@j00022",
+        "association@j00001",
+        "c@intern_welcome",
+        "association@j00018",
+        "c@wf8",
+        "association@j00026",
+        "c@wf4",
+        "green_collar@green_collar_job",
+        "indexjob@ij005",
+        "c@graduates_welcome",
+        "indexjob@ij023",
+        "foreigners@foreigners_tick",
+        "indexjob@ij003",
+        "c@rdss_welcome",
+        "association@j00014",
+        "joblist_search@jl_j0003_004.5"
+      ],
+      "languageRequirements": [
+        {
+          "language": 1,
+          "ability": {
+            "listening": 8,
+            "speaking": 8,
+            "reading": 8,
+            "writing": 8
+          }
+        }
+      ],
+      "acceptRole": [
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        1024,
+        2048
+      ],
+      "employeeCount": 0,
+      "pcSkills": [
+        {
+          "code": "12001002018",
+          "description": "Git"
+        },
+        {
+          "code": "12001003004",
+          "description": "AJAX"
+        },
+        {
+          "code": "12001003025",
+          "description": "Java"
+        },
+        {
+          "code": "12001003045",
+          "description": "Python"
+        },
+        {
+          "code": "12001004031",
+          "description": "MS SQL"
+        },
+        {
+          "code": "12001004032",
+          "description": "MySQL"
+        },
+        {
+          "code": "12001004039",
+          "description": "PostgreSQL"
+        },
+        {
+          "code": "12001005023",
+          "description": "AWS"
+        },
+        {
+          "code": "12001006013",
+          "description": "HTML"
+        },
+        {
+          "code": "12001006017",
+          "description": "JavaScript"
+        },
+        {
+          "code": "12001006030",
+          "description": "jQuery"
+        },
+        {
+          "code": "12001006036",
+          "description": "ReactJS"
+        },
+        {
+          "code": "12001006043",
+          "description": "Django"
+        },
+        {
+          "code": "12003001003",
+          "description": "GIS"
+        },
+        {
+          "code": "12001003094",
+          "description": "IoT"
+        },
+        {
+          "code": "12001007026",
+          "description": "HTTP"
+        },
+        {
+          "code": "12001006032",
+          "description": "CSS"
+        },
+        {
+          "code": "12001002016",
+          "description": "Github"
+        }
+      ],
+      "pddScore": 4.523392,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/9631/130000000039631/logo.gif?v=20220111154404",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787287826,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260807",
+      "applyCnt": 4,
+      "coIndustry": 1002007008,
+      "coIndustryDesc": "其他化學相關製造業",
+      "custName": "台灣肥料股份有限公司",
+      "custNo": "3795101000",
+      "description": "主要工作內容：\n1.工程發包文件研擬及發包作業。\n2.熟悉五大系統設備運作流程，並能判斷故障因素。\n3.施工估驗審查、工程進度管控及預算成本管理。\n4.建築、機電施工界面整合、施工圖說檢討及修正。\n5.其他機電工程業務之執行。",
+      "descSnippet": "主要工作內容：\n1.[[[工程]]]發包文件研擬及發包作業。\n2.熟悉五大系統設備運作流程，並能判斷故障因素。\n3.施工估驗審查、[[[工程]]]進度管控及預算成本管理。\n4.建築、機電施工界面整合、施工圖說檢討及修正。\n5.其他機電[[[工程]]]業務之執行。",
+      "mrtDist": 0,
+      "jobAddress": "",
+      "jobAddrNo": 6001001011,
+      "jobAddrNoDesc": "台北市南港區",
+      "jobName": "機電工程師",
+      "jobNameSnippet": "機電[[[工程師]]]",
+      "jobNo": "15331624",
+      "jobRo": 1,
+      "jobType": 2,
+      "lat": 25.0312347,
+      "lon": 121.6111949,
+      "link": {
+        "job": "https://www.104.com.tw/job/94lyg",
+        "cust": "https://www.104.com.tw/company/1qri6o8",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/94lyg?channel=104rpt"
+      },
+      "major": [
+        "電機電子工程相關",
+        "機械工程相關",
+        "冷凍空調相關"
+      ],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        4
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "zone": {
+          "desc": "上市上櫃",
+          "param": 16
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf3": {
+          "desc": "",
+          "param": "wf3"
+        },
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf9": {
+          "desc": "",
+          "param": "wf9"
+        },
+        "wf28": {
+          "desc": "",
+          "param": "wf28"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.4499511774189886,
+      "jobCat": [
+        2008001008
+      ],
+      "labels": [
+        "c@wf7",
+        "association@j00021",
+        "c@wf2",
+        "c@wf1",
+        "c@wf3",
+        "c@wf10",
+        "c@wf9",
+        "c@wf28"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 680,
+      "pcSkills": [
+        {
+          "code": "12001008003",
+          "description": "Excel"
+        },
+        {
+          "code": "12001008012",
+          "description": "PowerPoint"
+        },
+        {
+          "code": "12001008016",
+          "description": "Word"
+        },
+        {
+          "code": "12002003001",
+          "description": "AutoCAD"
+        }
+      ],
+      "pddScore": 4.502502,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/1000/3795101000/logo.gif?v=20260505104751",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1786949054,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260820",
+      "applyCnt": 2,
+      "coIndustry": 1001001002,
+      "coIndustryDesc": "電腦軟體服務業",
+      "custName": "威凜科技股份有限公司",
+      "custNo": "130000000237673",
+      "description": " Machine Learning Fishing Ground Prediction\n  ・整合衛星環境資料（SST、葉綠素、洋流）與船載感測器訊號（聲納、雷達），設計 ETL 與特徵工程管線\n     Integrate satellite",
+      "descSnippet": " Machine Learning Fishing Ground Prediction\n  ・整合衛星環境資料（SST、葉綠素、洋流）與船載感測器訊號（聲納、雷達），設計 ETL 與特徵[[[工程]]]管線\n     Integrate satellite",
+      "mrtDist": 0.09,
+      "jobAddress": "南京東路四段2號4樓(Taiwan Tech Arena)",
+      "jobAddrNo": 6001001004,
+      "jobAddrNoDesc": "台北市松山區",
+      "jobName": "AI 工程師 / AI Engineer",
+      "jobNameSnippet": "AI [[[工程師]]] / AI Engineer",
+      "jobNo": "15351296",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0519235,
+      "lon": 121.5510605,
+      "link": {
+        "job": "https://www.104.com.tw/job/9514w",
+        "cust": "https://www.104.com.tw/company/1a2x6bn2p5",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/9514w?channel=104rpt"
+      },
+      "major": [
+        "資訊工程相關",
+        "電機電子工程相關",
+        "統計學相關"
+      ],
+      "mrt": "99001003018",
+      "mrtDesc": "捷運台北小巨蛋站",
+      "optionEdu": [
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 60,
+      "salaryHigh": 9999999,
+      "salaryLow": 1200000,
+      "tags": {
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf34": {
+          "desc": "",
+          "param": "wf34"
+        },
+        "wf4": {
+          "desc": "",
+          "param": "wf4"
+        },
+        "landmark": {
+          "desc": "距捷運台北小巨蛋站約90公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "9:00 - 17:00 (彈性上下班 1.5 小時 / Flexible start and end times within a 1.5-hour window)",
+      "hrBehaviorPR": 0.6441923836773622,
+      "jobCat": [
+        2007001004,
+        2007001012
+      ],
+      "labels": [
+        "c@wf26",
+        "indexjob@ij003",
+        "c@wf29",
+        "association@j00025",
+        "c@wf34",
+        "c@wf4"
+      ],
+      "languageRequirements": [
+        {
+          "language": 1,
+          "ability": {
+            "listening": 8,
+            "speaking": 8,
+            "reading": 8,
+            "writing": 8
+          }
+        }
+      ],
+      "acceptRole": [],
+      "employeeCount": 0,
+      "pcSkills": [
+        {
+          "code": "12001003045",
+          "description": "Python"
+        },
+        {
+          "code": "12001002018",
+          "description": "Git"
+        }
+      ],
+      "pddScore": 4.1426816,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/7673/130000000237673/logo.png?v=20260202103156",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787218001,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260716",
+      "applyCnt": 1,
+      "coIndustry": 1008003006,
+      "coIndustryDesc": "其他專業／科學及技術業",
+      "custName": "遠海集團_遠海商業股份有限公司",
+      "custNo": "25149319000",
+      "description": "法規和規範要求；\n4.   根據船東或設計公司的輪機系統要求, 進行設備採購；\n5.   負責設計、監督和修理船舶設備之專業動力技術人員；\n6.   業務支援工程師、協助業務及客戶售後服務；\n7.   具船舶專業英文--聽(精通)、說(精通)、讀(",
+      "descSnippet": "法規和規範要求；\n4.   根據船東或設計公司的輪機系統要求, 進行設備採購；\n5.   負責設計、監督和修理船舶設備之專業動力技術人員；\n6.   業務支援[[[工程師]]]、協助業務及客戶售後服務；\n7.   具船舶專業英文--聽(精通)、說(精通)、讀(",
+      "mrtDist": 0,
+      "jobAddress": "",
+      "jobAddrNo": 6001001004,
+      "jobAddrNoDesc": "台北市松山區",
+      "jobName": "輪機工程師",
+      "jobNameSnippet": "輪機[[[工程師]]]",
+      "jobNo": "12773770",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0541591,
+      "lon": 121.5638621,
+      "link": {
+        "job": "https://www.104.com.tw/job/7lsay",
+        "cust": "https://www.104.com.tw/company/bjx96qg",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/7lsay?channel=104rpt"
+      },
+      "major": [
+        "航海相關",
+        "河海或船舶工程相關",
+        "機械維護相關"
+      ],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf34": {
+          "desc": "",
+          "param": "wf34"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "09:00~18:00",
+      "hrBehaviorPR": 0.725685219247451,
+      "jobCat": [
+        2005003005,
+        2010002002,
+        2004003004
+      ],
+      "labels": [
+        "indexjob@ij070",
+        "c@wf34",
+        "c@wf1",
+        "indexjob@ij044",
+        "c@wf26"
+      ],
+      "languageRequirements": [
+        {
+          "language": 1,
+          "ability": {
+            "listening": 2,
+            "speaking": 2,
+            "reading": 2,
+            "writing": 2
+          }
+        }
+      ],
+      "acceptRole": [],
+      "employeeCount": 30,
+      "pcSkills": [
+        {
+          "code": "12001001046",
+          "description": "Windows 10"
+        },
+        {
+          "code": "12001008011",
+          "description": "Outlook"
+        },
+        {
+          "code": "12001008012",
+          "description": "PowerPoint"
+        }
+      ],
+      "pddScore": 3.6812842,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/9000/25149319000/logo.gif?v=20250714151021",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787293151,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260821",
+      "applyCnt": 1,
+      "coIndustry": 1002015002,
+      "coIndustryDesc": "醫療器材製造業",
+      "custName": "博泰醫療器材股份有限公司",
+      "custNo": "28476907000",
+      "description": "1.韓國總部與台灣之間技術相關的溝通窗口\n2.負責工程團隊之管理與日常運作安排\n3.對台灣工程團隊提供技術支援與培訓\n4.協助各部門進行軟體應用與技術問題處理",
+      "descSnippet": "1.韓國總部與台灣之間技術相關的溝通窗口\n2.負責[[[工程]]]團隊之管理與日常運作安排\n3.對台灣[[[工程]]]團隊提供技術支援與培訓\n4.協助各部門進行軟體應用與技術問題處理",
+      "mrtDist": 0.28,
+      "jobAddress": "洲子街62號5樓",
+      "jobAddrNo": 6001001010,
+      "jobAddrNoDesc": "台北市內湖區",
+      "jobName": "技術支援工程師",
+      "jobNameSnippet": "技術支援[[[工程師]]]",
+      "jobNo": "15146924",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0793743,
+      "lon": 121.5724825,
+      "link": {
+        "job": "https://www.104.com.tw/job/90nfw",
+        "cust": "https://www.104.com.tw/company/d2yey2g",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/90nfw?channel=104rpt"
+      },
+      "major": [],
+      "mrt": "99001001017",
+      "mrtDesc": "捷運港墘站",
+      "optionEdu": [
+        3,
+        4,
+        5
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf4": {
+          "desc": "",
+          "param": "wf4"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "landmark": {
+          "desc": "距捷運港墘站約280公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.6441923836773622,
+      "jobCat": [
+        2010002001
+      ],
+      "labels": [
+        "joblist_search@jl_j0003_004.5",
+        "foreigners@overseasStudents_tick",
+        "foreigners@foreigners_tick",
+        "association@j00026",
+        "association@j00031",
+        "association@j00030",
+        "foreigners@fc_emp5m_jbs",
+        "c@wf4",
+        "c@wf7",
+        "c@rdss_welcome",
+        "association@j00014",
+        "indexjob@ij003",
+        "c@wf1",
+        "c@intern_welcome",
+        "association@j00022",
+        "c@graduates_welcome",
+        "senior@senior_job_E",
+        "c@wf2",
+        "association@j00018"
+      ],
+      "languageRequirements": [
+        {
+          "language": 1,
+          "ability": {
+            "listening": 8,
+            "speaking": 8,
+            "reading": 8,
+            "writing": 8
+          }
+        }
+      ],
+      "acceptRole": [
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        1024,
+        2048,
+        4096,
+        8192,
+        16384,
+        32768,
+        65536,
+        131072
+      ],
+      "employeeCount": 27,
+      "pcSkills": [],
+      "pddScore": 3.20789,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/7000/28476907000/logo.gif?v=20260514101440",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787281994,
+        "lastCustReplyTimestamp": 1787188732,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260820",
+      "applyCnt": 2,
+      "coIndustry": 1001001003,
+      "coIndustryDesc": "網際網路相關業",
+      "custName": "立紘數位科技股份有限公司",
+      "custNo": "28651708000",
+      "description": "我們是一家承接政府機關資訊系統建置與維護的資訊服務公司。\n\n正在尋找一位具實戰經驗的 IT 技術人才，協助處理 IT 基礎架構、系統維運、資安及技術問題。\n\n如果你不只是「維持系統運作」，而是遇到問題能分析原因、找出解法，也能與工程師、PM 及客",
+      "descSnippet": "我們是一家承接政府機關資訊系統建置與維護的資訊服務公司。\n\n正在尋找一位具實戰經驗的 IT 技術人才，協助處理 IT 基礎架構、系統維運、資安及技術問題。\n\n如果你不只是「維持系統運作」，而是遇到問題能分析原因、找出解法，也能與[[[工程師]]]、PM 及客",
+      "mrtDist": 0.26,
+      "jobAddress": "重慶南路一段10號8樓808室",
+      "jobAddrNo": 6001001001,
+      "jobAddrNoDesc": "台北市中正區",
+      "jobName": "資深IT(MIS)工程師",
+      "jobNameSnippet": "資深IT(MIS)[[[工程師]]]",
+      "jobNo": "15351133",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0466478,
+      "lon": 121.5128678,
+      "link": {
+        "job": "https://www.104.com.tw/job/9510d",
+        "cust": "https://www.104.com.tw/company/d5uhjds",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/9510d?channel=104rpt"
+      },
+      "major": [
+        "資訊管理相關"
+      ],
+      "mrt": "99002001001",
+      "mrtDesc": "捷運台北車站",
+      "optionEdu": [
+        3,
+        4
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf31": {
+          "desc": "",
+          "param": "wf31"
+        },
+        "wf4": {
+          "desc": "",
+          "param": "wf4"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "landmark": {
+          "desc": "距捷運台北車站約260公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.8161909303540205,
+      "jobCat": [
+        2007002005,
+        2007002001,
+        2007001009
+      ],
+      "labels": [
+        "c@wf29",
+        "c@wf1",
+        "c@wf2",
+        "c@wf31",
+        "indexjob@ij003",
+        "c@wf4",
+        "c@wf7"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 25,
+      "pcSkills": [],
+      "pddScore": 3.1709728,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/8000/28651708000/logo.png?v=20250519110712",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787272366,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260820",
+      "applyCnt": 1,
+      "coIndustry": 1001001003,
+      "coIndustryDesc": "網際網路相關業",
+      "custName": "摩速科技有限公司",
+      "custNo": "130000000099226",
+      "description": "享主動擴散 AI 輔助開發實踐，讓身邊的工程師一起變快。\n- 能以中文／華語與團隊溝通會是明顯加分。\n\n\n【你可能不適合，如果你...】\n- 你只想做 greenfield，比起理解與改善成熟系統，更想直接重寫。\n- 你把 AI coding",
+      "descSnippet": "享主動擴散 AI 輔助開發實踐，讓身邊的[[[工程師]]]一起變快。\n- 能以中文／華語與團隊溝通會是明顯加分。\n\n\n【你可能不適合，如果你...】\n- 你只想做 greenfield，比起理解與改善成熟系統，更想直接重寫。\n- 你把 AI coding",
+      "mrtDist": 0.38,
+      "jobAddress": "仁愛路三段17號3樓",
+      "jobAddrNo": 6001001005,
+      "jobAddrNoDesc": "台北市大安區",
+      "jobName": "Senior Backend Engineer, Decisive Engine 後端工程師",
+      "jobNameSnippet": "Senior Backend Engineer, Decisive Engine 後端[[[工程師]]]",
+      "jobNo": "15351900",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0385547,
+      "lon": 121.5339207,
+      "link": {
+        "job": "https://www.104.com.tw/job/951lo",
+        "cust": "https://www.104.com.tw/company/1a2x6bk3ve",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/951lo?channel=104rpt"
+      },
+      "major": [],
+      "mrt": "99001004007",
+      "mrtDesc": "捷運忠孝新生站",
+      "optionEdu": [
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf4": {
+          "desc": "",
+          "param": "wf4"
+        },
+        "wf31": {
+          "desc": "",
+          "param": "wf31"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf33": {
+          "desc": "",
+          "param": "wf33"
+        },
+        "wf13": {
+          "desc": "",
+          "param": "wf13"
+        },
+        "wf9": {
+          "desc": "",
+          "param": "wf9"
+        },
+        "wf14": {
+          "desc": "",
+          "param": "wf14"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf12": {
+          "desc": "",
+          "param": "wf12"
+        },
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf22": {
+          "desc": "",
+          "param": "wf22"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf28": {
+          "desc": "",
+          "param": "wf28"
+        },
+        "landmark": {
+          "desc": "距捷運忠孝新生站約380公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.4790199150714172,
+      "jobCat": [
+        2007001016
+      ],
+      "labels": [
+        "c@wf4",
+        "c@wf31",
+        "indexjob@ij009",
+        "c@wf7",
+        "indexjob@ij003",
+        "c@wf1",
+        "c@wf29",
+        "c@wf33",
+        "c@wf13",
+        "indexjob@ij011",
+        "c@wf9",
+        "c@wf14",
+        "indexjob@ij008",
+        "association@j00021",
+        "c@wf2",
+        "c@wf12",
+        "c@wf10",
+        "indexjob@ij014",
+        "c@wf22",
+        "c@wf26",
+        "indexjob@ij010",
+        "c@wf28"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 40,
+      "pcSkills": [
+        {
+          "code": "12001003080",
+          "description": "Go"
+        },
+        {
+          "code": "12001003045",
+          "description": "Python"
+        },
+        {
+          "code": "12001008030",
+          "description": "ChatGPT"
+        },
+        {
+          "code": "12001002016",
+          "description": "Github"
+        },
+        {
+          "code": "12001005025",
+          "description": "Kubernetes"
+        },
+        {
+          "code": "12001005023",
+          "description": "AWS"
+        },
+        {
+          "code": "12001002021",
+          "description": "Claude"
+        }
+      ],
+      "pddScore": 3.102105,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/9226/130000000099226/logo.png?v=20260803170836",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787222313,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260817",
+      "applyCnt": 5,
+      "coIndustry": 1009001001,
+      "coIndustryDesc": "人力仲介代徵",
+      "custName": "LRS_英屬維京群島商杰恒國際有限公司台灣分公司",
+      "custNo": "130000000228438",
+      "description": "職位說明\n\n我們希望尋找一位具備實戰經驗、能獨立作業並主動解決問題的資訊安全工程師。\n此職位不僅負責資安維運，更需要具備從問題識別、規劃到實際執行與落地的能力，能獨立推動並持續優化企業資安專案。\n\n期待您曾於軟體公司或產品型公司實際參與資安治理，",
+      "descSnippet": "職位說明\n\n我們希望尋找一位具備實戰經驗、能獨立作業並主動解決問題的資訊安全[[[工程師]]]。\n此職位不僅負責資安維運，更需要具備從問題識別、規劃到實際執行與落地的能力，能獨立推動並持續優化企業資安專案。\n\n期待您曾於軟體公司或產品型公司實際參與資安治理，",
+      "mrtDist": 0,
+      "jobAddress": "",
+      "jobAddrNo": 6001001010,
+      "jobAddrNoDesc": "台北市內湖區",
+      "jobName": "Security Engineer 資訊安全工程師",
+      "jobNameSnippet": "Security Engineer 資訊安全[[[工程師]]]",
+      "jobNo": "15346158",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0689422,
+      "lon": 121.5909027,
+      "link": {
+        "job": "https://www.104.com.tw/job/94x66",
+        "cust": "https://www.104.com.tw/company/1a2x6bmvkm",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/94x66?channel=104rpt"
+      },
+      "major": [],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        4
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 60,
+      "salaryHigh": 1500000,
+      "salaryLow": 1200000,
+      "tags": {
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf28": {
+          "desc": "",
+          "param": "wf28"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf32": {
+          "desc": "",
+          "param": "wf32"
+        },
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf12": {
+          "desc": "",
+          "param": "wf12"
+        },
+        "wf35": {
+          "desc": "",
+          "param": "wf35"
+        },
+        "wf30": {
+          "desc": "",
+          "param": "wf30"
+        },
+        "wf14": {
+          "desc": "",
+          "param": "wf14"
+        },
+        "wf8": {
+          "desc": "",
+          "param": "wf8"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.8733678497626995,
+      "jobCat": [
+        2007002009,
+        2007002008,
+        2007002005
+      ],
+      "labels": [
+        "c@wf7",
+        "c@wf28",
+        "c@wf29",
+        "indexjob@ij008",
+        "foreigners@full_fc_em_jbs",
+        "c@wf32",
+        "indexjob@ij010",
+        "indexjob@ij005",
+        "c@wf10",
+        "c@wf12",
+        "association@j00002_002",
+        "indexjob@ij013",
+        "association@j00021",
+        "c@wf35",
+        "c@wf30",
+        "c@wf14",
+        "indexjob@ij015",
+        "c@wf8",
+        "c@wf26",
+        "association@j00025"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 50,
+      "pcSkills": [],
+      "pddScore": 2.9477673,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/8438/130000000228438/logo.png?v=20251230142258",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787110274,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260626",
+      "applyCnt": 0,
+      "coIndustry": 1011003001,
+      "coIndustryDesc": "建築及工程技術服務業",
+      "custName": "台灣久允工程股份有限公司",
+      "custNo": "130000000018710",
+      "description": "1.各產業工廠電氣工程之規劃、設計與繪圖。\n2.電氣工程計算分析、撿料 。\n3.執行工程估報價、 預算編製、設備規範制定及採購發包作業。\n4.施工案現場，品管、監造、工程品質及進度管理。",
+      "descSnippet": "1.各產業工廠電氣[[[工程]]]之規劃、設計與繪圖。\n2.電氣[[[工程]]]計算分析、撿料 。\n3.執行[[[工程]]]估報價、 預算編製、設備規範制定及採購發包作業。\n4.施工案現場，品管、監造、[[[工程]]]品質及進度管理。",
+      "mrtDist": 0.39,
+      "jobAddress": "中山北路2段112號12樓之2",
+      "jobAddrNo": 6001001003,
+      "jobAddrNoDesc": "台北市中山區",
+      "jobName": "電機工程師",
+      "jobNameSnippet": "電機[[[工程師]]]",
+      "jobNo": "13148179",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0606959,
+      "lon": 121.522738,
+      "link": {
+        "job": "https://www.104.com.tw/job/7tt77",
+        "cust": "https://www.104.com.tw/company/1a2x6bidqu",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/7tt77?channel=104rpt"
+      },
+      "major": [
+        "電機電子工程相關",
+        "其他工程相關"
+      ],
+      "mrt": "99001002011",
+      "mrtDesc": "捷運雙連站",
+      "optionEdu": [
+        3,
+        4,
+        5
+      ],
+      "period": 9,
+      "remoteWorkType": 0,
+      "s10": 50,
+      "salaryHigh": 65000,
+      "salaryLow": 45000,
+      "tags": {
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf4": {
+          "desc": "",
+          "param": "wf4"
+        },
+        "landmark": {
+          "desc": "距捷運雙連站約390公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.4197470309058292,
+      "jobCat": [
+        2008001008,
+        2010001003
+      ],
+      "labels": [
+        "c@wf10",
+        "c@wf1",
+        "c@wf4",
+        "indexjob@ij003"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 0,
+      "pcSkills": [
+        {
+          "code": "12002003001",
+          "description": "AutoCAD"
+        },
+        {
+          "code": "12002003002",
+          "description": "AutoCad 2D"
+        }
+      ],
+      "pddScore": 2.9033418,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/8710/130000000018710/logo.gif?v=20200730224425",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1786931029,
+        "lastCustReplyTimestamp": 1786931024,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260814",
+      "applyCnt": 4,
+      "coIndustry": 1001003001,
+      "coIndustryDesc": "電腦及其週邊設備製造業",
+      "custName": "洞見未來科技股份有限公司",
+      "custNo": "130000000151021",
+      "description": "本公司核心為 AI 技術解決方案，致力於透過科技改善人們的生活品質，目前專注於智慧助聽技術及人工智慧視覺應用等產品的研發與創新。\n我們正在尋找一位【品保工程師 Quality Assurance Engineer】，參與新產品從開發、測試驗證、產",
+      "descSnippet": "本公司核心為 AI 技術解決方案，致力於透過科技改善人們的生活品質，目前專注於智慧助聽技術及人工智慧視覺應用等產品的研發與創新。\n我們正在尋找一位【品保[[[工程師]]] Quality Assurance Engineer】，參與新產品從開發、測試驗證、產",
+      "mrtDist": 0,
+      "jobAddress": "民生東路四段133號4樓",
+      "jobAddrNo": 6001001004,
+      "jobAddrNoDesc": "台北市松山區",
+      "jobName": "QA Engineer 品保工程師",
+      "jobNameSnippet": "QA Engineer 品保[[[工程師]]]",
+      "jobNo": "15331705",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0586156,
+      "lon": 121.5549457,
+      "link": {
+        "job": "https://www.104.com.tw/job/94m0p",
+        "cust": "https://www.104.com.tw/company/1a2x6bl7u5",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/94m0p?channel=104rpt"
+      },
+      "major": [
+        "工程學科類",
+        "工業管理相關",
+        "其他相關科系"
+      ],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        3,
+        4
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf34": {
+          "desc": "",
+          "param": "wf34"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf8": {
+          "desc": "",
+          "param": "wf8"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "09:30-19:00 (上下班有彈性時間)",
+      "hrBehaviorPR": 0.8644889524717851,
+      "jobCat": [
+        2009003002,
+        2009003009,
+        2009003001
+      ],
+      "labels": [
+        "c@wf34",
+        "c@wf2",
+        "c@wf10",
+        "c@wf8",
+        "association@j00021",
+        "c@wf26",
+        "indexjob@ij005",
+        "indexjob@ij017",
+        "c@wf29",
+        "c@wf7",
+        "c@wf1"
+      ],
+      "languageRequirements": [
+        {
+          "language": 1,
+          "ability": {
+            "listening": 4,
+            "speaking": 4,
+            "reading": 4,
+            "writing": 4
+          }
+        }
+      ],
+      "acceptRole": [],
+      "employeeCount": 50,
+      "pcSkills": [
+        {
+          "code": "12001008003",
+          "description": "Excel"
+        },
+        {
+          "code": "12001008012",
+          "description": "PowerPoint"
+        },
+        {
+          "code": "12001008016",
+          "description": "Word"
+        }
+      ],
+      "pddScore": 2.6179414,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/1021/130000000151021/logo.png?v=20260721103446",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787292236,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260821",
+      "applyCnt": 0,
+      "coIndustry": 1011003001,
+      "coIndustryDesc": "建築及工程技術服務業",
+      "custName": "劉培森建築師事務所",
+      "custNo": "76942678000",
+      "description": "(1) 依據建築法規、政府相關工程規範及契約文件，協助公共工程監造建築師事務所辦理監造及品管相關作業。\n(2) 負責監造內業文件之製作、審查、彙整及管理，包括施工計畫、品質計畫、施工日誌、查驗紀錄、工程照片及相關工程文件。\n(3) 辦理工程估驗計",
+      "descSnippet": "(1) 依據建築法規、政府相關[[[工程]]]規範及契約文件，協助公共[[[工程]]]監造建築師事務所辦理監造及品管相關作業。\n(2) 負責監造內業文件之製作、審查、彙整及管理，包括施工計畫、品質計畫、施工日誌、查驗紀錄、[[[工程]]]照片及相關[[[工程]]]文件。\n(3) 辦理[[[工程]]]估驗計",
+      "mrtDist": 0,
+      "jobAddress": "民生東路四段54號11樓之1",
+      "jobAddrNo": 6001001004,
+      "jobAddrNoDesc": "台北市松山區",
+      "jobName": "內業工程師",
+      "jobNameSnippet": "內業[[[工程師]]]",
+      "jobNo": "15333957",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0577614,
+      "lon": 121.5510708,
+      "link": {
+        "job": "https://www.104.com.tw/job/94nr9",
+        "cust": "https://www.104.com.tw/company/zchomb4",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/94nr9?channel=104rpt"
+      },
+      "major": [
+        "土木工程相關",
+        "建築相關"
+      ],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        3,
+        4,
+        5
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf3": {
+          "desc": "",
+          "param": "wf3"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "08:30~17:30",
+      "hrBehaviorPR": 0.44156050593818835,
+      "jobCat": [
+        2012001009,
+        2012001010
+      ],
+      "labels": [
+        "c@wf10",
+        "c@wf1",
+        "c@wf7",
+        "c@wf2",
+        "c@wf29",
+        "foreigners@chineseDiasporas",
+        "c@wf3",
+        "association@j00014",
+        "association@j00002_001"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [
+        64
+      ],
+      "employeeCount": 130,
+      "pcSkills": [
+        {
+          "code": "12001008003",
+          "description": "Excel"
+        },
+        {
+          "code": "12001008012",
+          "description": "PowerPoint"
+        },
+        {
+          "code": "12001008016",
+          "description": "Word"
+        }
+      ],
+      "pddScore": 2.6012454,
+      "custLogo": "",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": null,
+        "lastCustReplyTimestamp": 1787022759,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260317",
+      "applyCnt": 0,
+      "coIndustry": 1011003001,
+      "coIndustryDesc": "建築及工程技術服務業",
+      "custName": "派利台灣有限公司",
+      "custNo": "130000000214888",
+      "description": "以提升市場佔有率。\n3. 追蹤重大工程標案與建案進度，分析決標資訊並制定銷售策略。\n4. 維護既有客戶關係並建立長期合作夥伴關係。\n5. 閱讀與分析工程圖面，提供初步模板與支撐系統技術方案。\n6. 準備報價文件，向客戶說明商務與合約條款並跟進簽約流",
+      "descSnippet": "以提升市場佔有率。\n3. 追蹤重大[[[工程]]]標案與建案進度，分析決標資訊並制定銷售策略。\n4. 維護既有客戶關係並建立長期合作夥伴關係。\n5. 閱讀與分析[[[工程]]]圖面，提供初步模板與支撐系統技術方案。\n6. 準備報價文件，向客戶說明商務與合約條款並跟進簽約流",
+      "mrtDist": 0,
+      "jobAddress": "",
+      "jobAddrNo": 6001001007,
+      "jobAddrNoDesc": "台北市信義區",
+      "jobName": "銷售工程師 Sales Engineer",
+      "jobNameSnippet": "銷售[[[工程師]]] Sales Engineer",
+      "jobNo": "14451940",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0409201,
+      "lon": 121.5720055,
+      "link": {
+        "job": "https://www.104.com.tw/job/8lr6s",
+        "cust": "https://www.104.com.tw/company/1a2x6bml48",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/8lr6s?channel=104rpt"
+      },
+      "major": [],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        3,
+        4,
+        5
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 50,
+      "salaryHigh": 9999999,
+      "salaryLow": 40000,
+      "tags": {
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf13": {
+          "desc": "",
+          "param": "wf13"
+        },
+        "wf9": {
+          "desc": "",
+          "param": "wf9"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf12": {
+          "desc": "",
+          "param": "wf12"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "08:30-17:30",
+      "hrBehaviorPR": 0.5130435769920748,
+      "jobCat": [
+        2005003004,
+        2005003017,
+        2005003001
+      ],
+      "labels": [
+        "foreigners@fc_empmidchinese_jbs",
+        "c@wf26",
+        "c@wf29",
+        "c@wf13",
+        "indexjob@ij010",
+        "indexjob@ij009",
+        "c@wf9",
+        "c@wf1",
+        "indexjob@ij044",
+        "c@wf12",
+        "foreigners@pt_fc_em_jbs",
+        "45plus@45invited",
+        "c@wf7",
+        "association@j00004"
+      ],
+      "languageRequirements": [
+        {
+          "language": 1,
+          "ability": {
+            "listening": 8,
+            "speaking": 8,
+            "reading": 8,
+            "writing": 8
+          }
+        },
+        {
+          "language": 18,
+          "ability": {
+            "listening": 2,
+            "speaking": 2,
+            "reading": 2,
+            "writing": 2
+          }
+        }
+      ],
+      "acceptRole": [],
+      "employeeCount": 0,
+      "pcSkills": [],
+      "pddScore": 2.4407828,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/4888/130000000214888/logo.png?v=20251014111237",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1786085703,
+        "lastCustReplyTimestamp": 1787214047,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260811",
+      "applyCnt": 4,
+      "coIndustry": 1001001001,
+      "coIndustryDesc": "電腦系統整合服務業",
+      "custName": "欣坊股份有限公司",
+      "custNo": "130000000208344",
+      "description": "我們正在尋找一位資深硬體研發工程師，將參與智慧自動化機器人項目的硬體開發，負責將各種感測器與軟體控制端對接整合。這個職位需要在硬體研發領域具有豐富經驗的專業人士，能夠設計並整合不同類型的感測器硬體，確保其與軟體系統的順暢協同運作。\n\n主要職責:",
+      "descSnippet": "我們正在尋找一位資深硬體研發[[[工程師]]]，將參與智慧自動化機器人項目的硬體開發，負責將各種感測器與軟體控制端對接整合。這個職位需要在硬體研發領域具有豐富經驗的專業人士，能夠設計並整合不同類型的感測器硬體，確保其與軟體系統的順暢協同運作。\n\n主要職責:",
+      "mrtDist": 0.18,
+      "jobAddress": "信義路2段211號1樓",
+      "jobAddrNo": 6001001001,
+      "jobAddrNoDesc": "台北市中正區",
+      "jobName": "Senior Hardware Engineer 資深硬體研發工程師",
+      "jobNameSnippet": "Senior Hardware Engineer 資深硬體研發[[[工程師]]]",
+      "jobNo": "13806688",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0339219,
+      "lon": 121.5302763,
+      "link": {
+        "job": "https://www.104.com.tw/job/87xb4",
+        "cust": "https://www.104.com.tw/company/1a2x6bmg2g",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/87xb4?channel=104rpt"
+      },
+      "major": [
+        "資訊工程相關",
+        "電機電子工程相關",
+        "機械工程相關"
+      ],
+      "mrt": "99001002006",
+      "mrtDesc": "捷運東門站",
+      "optionEdu": [
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf31": {
+          "desc": "",
+          "param": "wf31"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "landmark": {
+          "desc": "距捷運東門站約180公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.4508890251379522,
+      "jobCat": [
+        2008001006,
+        2008001011,
+        2008001001
+      ],
+      "labels": [
+        "c@wf31",
+        "indexjob@ij026",
+        "c@wf7",
+        "c@wf1",
+        "c@wf29",
+        "c@new_company_job",
+        "indexjob@ij001"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 15,
+      "pcSkills": [
+        {
+          "code": "12001001007",
+          "description": "Linux"
+        },
+        {
+          "code": "12001002018",
+          "description": "Git"
+        },
+        {
+          "code": "12001003045",
+          "description": "Python"
+        }
+      ],
+      "pddScore": 2.4258456,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/8344/130000000208344/logo.jpg?v=20260224093847",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787238754,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260821",
+      "applyCnt": 1,
+      "coIndustry": 1011003001,
+      "coIndustryDesc": "建築及工程技術服務業",
+      "custName": "崇安工程顧問股份有限公司",
+      "custNo": "130000000114189",
+      "description": "1.具備結構相關工程碩士學位，7年以上設計經驗(RC、鋼構建築及大型廠房)\n2.需具備相當管理經驗與專案控管能力。\n3.具技師資格者(結構技師尤佳)。\n4.年薪百萬以上(依學經歷面議)。",
+      "descSnippet": "1.具備結構相關[[[工程]]]碩士學位，7年以上設計經驗(RC、鋼構建築及大型廠房)\n2.需具備相當管理經驗與專案控管能力。\n3.具技師資格者(結構技師尤佳)。\n4.年薪百萬以上(依學經歷面議)。",
+      "mrtDist": 0,
+      "jobAddress": "長安東路二段142號2樓之2",
+      "jobAddrNo": 6001001003,
+      "jobAddrNoDesc": "台北市中山區",
+      "jobName": "資深結構工程師",
+      "jobNameSnippet": "資深結構[[[工程師]]]",
+      "jobNo": "13814083",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0482462,
+      "lon": 121.537477,
+      "link": {
+        "job": "https://www.104.com.tw/job/8830j",
+        "cust": "https://www.104.com.tw/company/1a2x6bkff1",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/8830j?channel=104rpt"
+      },
+      "major": [
+        "土木工程相關"
+      ],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        5
+      ],
+      "period": 8,
+      "remoteWorkType": 0,
+      "s10": 60,
+      "salaryHigh": 9999999,
+      "salaryLow": 1300000,
+      "tags": {
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf8": {
+          "desc": "",
+          "param": "wf8"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "09:00~18:00",
+      "hrBehaviorPR": 0.5311056611485796,
+      "jobCat": [
+        2012001004,
+        2012001005,
+        2012002001
+      ],
+      "labels": [
+        "indexjob@ij015",
+        "association@j00002_002",
+        "indexjob@ij005",
+        "c@wf7",
+        "c@wf26",
+        "c@wf8",
+        "foreigners@full_fc_em_jbs",
+        "c@wf2"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 10,
+      "pcSkills": [],
+      "pddScore": 2.3681448,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/4189/130000000114189/logo.gif?v=20260611193425",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787296796,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260814",
+      "applyCnt": 3,
+      "coIndustry": 1001001006,
+      "coIndustryDesc": "其它軟體及網路相關業",
+      "custName": "您好健康網路科技股份有限公司",
+      "custNo": "130000000121244",
+      "description": "【工作內容Responsibilities】\n本專案目標是開發 新世代 AI ERP 系統。後端工程師將在 前中期 負責重建既有 ERP 功能模組（CRUD、交易邏輯、API），確保基礎穩定完整；並在 中後期 參與新功能與 AI 模組（如 AI",
+      "descSnippet": "【工作內容Responsibilities】\n本專案目標是開發 新世代 AI ERP 系統。後端[[[工程師]]]將在 前中期 負責重建既有 ERP 功能模組（CRUD、交易邏輯、API），確保基礎穩定完整；並在 中後期 參與新功能與 AI 模組（如 AI",
+      "mrtDist": 0,
+      "jobAddress": "松隆路102號5樓之一",
+      "jobAddrNo": 6001001007,
+      "jobAddrNoDesc": "台北市信義區",
+      "jobName": "後端工程師 Back-end Engineer",
+      "jobNameSnippet": "後端[[[工程師]]] Back-end Engineer",
+      "jobNo": "14811466",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0458657,
+      "lon": 121.5709184,
+      "link": {
+        "job": "https://www.104.com.tw/job/8tglm",
+        "cust": "https://www.104.com.tw/company/1a2x6bkkv0",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/8tglm?channel=104rpt"
+      },
+      "major": [
+        "資訊工程相關",
+        "電機電子工程相關",
+        "資訊管理相關"
+      ],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 60,
+      "salaryHigh": 1150000,
+      "salaryLow": 740000,
+      "tags": {
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf9": {
+          "desc": "",
+          "param": "wf9"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf14": {
+          "desc": "",
+          "param": "wf14"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.03717328610032473,
+      "jobCat": [
+        2007001016
+      ],
+      "labels": [
+        "c@wf7",
+        "c@wf26",
+        "c@rdss_welcome",
+        "c@wf9",
+        "c@intern_welcome",
+        "senior@senior_job_H",
+        "association@j00014",
+        "indexjob@ij019",
+        "c@wf2",
+        "c@wf14",
+        "c@wf1",
+        "indexjob@ij008",
+        "association@j00021",
+        "c@wf29",
+        "association@j00030",
+        "association@j00018",
+        "indexjob@ij017"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [
+        16,
+        64,
+        1024,
+        2048,
+        32768,
+        131072
+      ],
+      "employeeCount": 20,
+      "pcSkills": [
+        {
+          "code": "12001003041",
+          "description": "PHP"
+        },
+        {
+          "code": "12001002018",
+          "description": "Git"
+        },
+        {
+          "code": "12001004032",
+          "description": "MySQL"
+        },
+        {
+          "code": "12001004039",
+          "description": "PostgreSQL"
+        }
+      ],
+      "pddScore": 2.3218534,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/1244/130000000121244/logo.jpg?v=20260130162814",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": null,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260815",
+      "applyCnt": 0,
+      "coIndustry": 1008003001,
+      "coIndustryDesc": "工商顧問服務業",
+      "custName": "新加坡商易呈有限公司臺灣分公司",
+      "custNo": "130000000233400",
+      "description": "1.產險應用系統開發。\n2.系統整合測試與功能檢測。\n3.產險核心系統維運。\n4.協助一般工程師，管理與指導駐點廠商團隊。\n5.參與車險相關新專案系統架構、分析與新技術評估。",
+      "descSnippet": "1.產險應用系統開發。\n2.系統整合測試與功能檢測。\n3.產險核心系統維運。\n4.協助一般[[[工程師]]]，管理與指導駐點廠商團隊。\n5.參與車險相關新專案系統架構、分析與新技術評估。",
+      "mrtDist": 0,
+      "jobAddress": "",
+      "jobAddrNo": 6001001004,
+      "jobAddrNoDesc": "台北市松山區",
+      "jobName": "資深JAVA工程師",
+      "jobNameSnippet": "資深JAVA[[[工程師]]]",
+      "jobNo": "14729322",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0541591,
+      "lon": 121.5638621,
+      "link": {
+        "job": "https://www.104.com.tw/job/8rp7u",
+        "cust": "https://www.104.com.tw/company/1a2x6bmzeg",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/8rp7u?channel=104rpt"
+      },
+      "major": [],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        4,
+        5,
+        6
+      ],
+      "period": 7,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf31": {
+          "desc": "",
+          "param": "wf31"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.4790199150714172,
+      "jobCat": [
+        2007001004,
+        2007001016
+      ],
+      "labels": [
+        "c@wf2",
+        "c@wf7",
+        "c@wf1",
+        "c@wf31"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 40,
+      "pcSkills": [
+        {
+          "code": "12001003025",
+          "description": "Java"
+        },
+        {
+          "code": "12001003053",
+          "description": "Spring"
+        },
+        {
+          "code": "12001003029",
+          "description": "JSF"
+        }
+      ],
+      "pddScore": 2.3100998,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/3400/130000000233400/logo.jpg?v=20260520101407",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787044725,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260818",
+      "applyCnt": 2,
+      "coIndustry": 1011004001,
+      "coIndustryDesc": "不動產經營業",
+      "custName": "東亞建築經理股份有限公司",
+      "custNo": "22661399000",
+      "description": "1.工程進度查核、造價評估、工地現場專案管理。\n2.曾有建築工程完整經歷(從假設工程到交屋階段)可於工地執行現場管理，如進度、品質、成本管控、界面協調等工作。\n3.有建築規劃設計檢討經驗尤佳。\n4.需熟悉Windows文書工具。要精通(excel",
+      "descSnippet": "1.[[[工程]]]進度查核、造價評估、工地現場專案管理。\n2.曾有建築[[[工程]]]完整經歷(從假設[[[工程]]]到交屋階段)可於工地執行現場管理，如進度、品質、成本管控、界面協調等工作。\n3.有建築規劃設計檢討經驗尤佳。\n4.需熟悉Windows文書工具。要精通(excel",
+      "mrtDist": 0,
+      "jobAddress": "或工地(雙北地區)",
+      "jobAddrNo": 6001001001,
+      "jobAddrNoDesc": "台北市中正區",
+      "jobName": "建築營建專案管理 主任工程師/副主任工程師",
+      "jobNameSnippet": "建築營建專案管理 主任[[[工程師]]]/副主任[[[工程師]]]",
+      "jobNo": "8839602",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0421407,
+      "lon": 121.5198716,
+      "link": {
+        "job": "https://www.104.com.tw/job/59goi",
+        "cust": "https://www.104.com.tw/company/aes0fdk",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/59goi?channel=104rpt"
+      },
+      "major": [
+        "建築及都市規劃學科類",
+        "土木工程相關"
+      ],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf3": {
+          "desc": "",
+          "param": "wf3"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf12": {
+          "desc": "",
+          "param": "wf12"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.6669482480641279,
+      "jobCat": [
+        2012002001,
+        2012002002
+      ],
+      "labels": [
+        "c@wf2",
+        "indexjob@ij010",
+        "c@wf3",
+        "c@wf7",
+        "c@wf1",
+        "c@wf12",
+        "c@wf26",
+        "c@wf29"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 27,
+      "pcSkills": [
+        {
+          "code": "12001001046",
+          "description": "Windows 10"
+        },
+        {
+          "code": "12001008003",
+          "description": "Excel"
+        },
+        {
+          "code": "12001008012",
+          "description": "PowerPoint"
+        },
+        {
+          "code": "12001008013",
+          "description": "Project"
+        },
+        {
+          "code": "12001008016",
+          "description": "Word"
+        }
+      ],
+      "pddScore": 2.2491205,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/9000/22661399000/logo.png?v=20220816175956",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787023072,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260802",
+      "applyCnt": 4,
+      "coIndustry": 1001001001,
+      "coIndustryDesc": "電腦系統整合服務業",
+      "custName": "電電數位股份有限公司",
+      "custNo": "130000000217802",
+      "description": "通過3個 “最準” 打造成全臺最好用、最精準、也最好玩的電動車旅行規劃App。\n\n\n\nϟ 關於這個職位：\n\n我們正在尋找一位充滿成長動能的後端工程師，加入我們充滿活力和創意的團隊！專責支援投資夥伴之核心系統開發與技術優化。 \n\n這個職位將讓你負責設",
+      "descSnippet": "通過3個 “最準” 打造成全臺最好用、最精準、也最好玩的電動車旅行規劃App。\n\n\n\nϟ 關於這個職位：\n\n我們正在尋找一位充滿成長動能的後端[[[工程師]]]，加入我們充滿活力和創意的團隊！專責支援投資夥伴之核心系統開發與技術優化。 \n\n這個職位將讓你負責設",
+      "mrtDist": 0,
+      "jobAddress": "瑞光路210號8樓",
+      "jobAddrNo": 6001001010,
+      "jobAddrNoDesc": "台北市內湖區",
+      "jobName": "資深後端工程師 Senior Back-End Developer - Java",
+      "jobNameSnippet": "資深後端[[[工程師]]] Senior Back-End Developer - Java",
+      "jobNo": "15263103",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0751495,
+      "lon": 121.5762621,
+      "link": {
+        "job": "https://www.104.com.tw/job/93533",
+        "cust": "https://www.104.com.tw/company/1a2x6bmnd6",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/93533?channel=104rpt"
+      },
+      "major": [
+        "資訊管理相關",
+        "資訊工程相關",
+        "其他數學及電算機科學相關"
+      ],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        4,
+        5
+      ],
+      "period": 9,
+      "remoteWorkType": 0,
+      "s10": 60,
+      "salaryHigh": 1400000,
+      "salaryLow": 1000000,
+      "tags": {
+        "wf34": {
+          "desc": "",
+          "param": "wf34"
+        },
+        "wf31": {
+          "desc": "",
+          "param": "wf31"
+        },
+        "wf13": {
+          "desc": "",
+          "param": "wf13"
+        },
+        "wf4": {
+          "desc": "",
+          "param": "wf4"
+        },
+        "wf14": {
+          "desc": "",
+          "param": "wf14"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf22": {
+          "desc": "",
+          "param": "wf22"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.5130435769920748,
+      "jobCat": [
+        2007001016,
+        2007001004
+      ],
+      "labels": [
+        "indexjob@ij025",
+        "c@wf34",
+        "c@wf31",
+        "c@wf13",
+        "c@wf4",
+        "c@wf14",
+        "association@j00021",
+        "c@wf7",
+        "green_collar@green_collar_job",
+        "c@wf2",
+        "indexjob@ij003",
+        "indexjob@ij008",
+        "c@wf22",
+        "c@wf26",
+        "indexjob@ij011",
+        "indexjob@ij009",
+        "indexjob@ij015",
+        "c@wf29"
+      ],
+      "languageRequirements": [
+        {
+          "language": 1,
+          "ability": {
+            "listening": 4,
+            "speaking": 4,
+            "reading": 4,
+            "writing": 4
+          }
+        }
+      ],
+      "acceptRole": [],
+      "employeeCount": 14,
+      "pcSkills": [
+        {
+          "code": "12001003041",
+          "description": "PHP"
+        },
+        {
+          "code": "12001003053",
+          "description": "Spring"
+        },
+        {
+          "code": "12001005023",
+          "description": "AWS"
+        },
+        {
+          "code": "12001002018",
+          "description": "Git"
+        },
+        {
+          "code": "12001003025",
+          "description": "Java"
+        },
+        {
+          "code": "12001002016",
+          "description": "Github"
+        },
+        {
+          "code": "12001002017",
+          "description": "Jenkins"
+        },
+        {
+          "code": "12001004039",
+          "description": "PostgreSQL"
+        }
+      ],
+      "pddScore": 2.2336888,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/7802/130000000217802/logo.jpg?v=20260411165450",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1786699969,
+        "lastCustReplyTimestamp": 1783069216,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260809",
+      "applyCnt": 1,
+      "coIndustry": 1001005003,
+      "coIndustryDesc": "其他電子零組件相關業",
+      "custName": "酷特科技股份有限公司",
+      "custNo": "130000000182418",
+      "description": " 具備散熱元件設計經驗（如散熱片、熱導管、風扇模組）\n- 能進行熱阻測試、溫度分佈分析與報告撰寫\n- 熟悉材料熱性質（如導熱係數、熱膨脹係數）與選材原則\n- 了解電子產品或工業設備的熱管理需求與設計流程\n\n二、跨部門協作能力\n- 能與電子工程師、機",
+      "descSnippet": " 具備散熱元件設計經驗（如散熱片、熱導管、風扇模組）\n- 能進行熱阻測試、溫度分佈分析與報告撰寫\n- 熟悉材料熱性質（如導熱係數、熱膨脹係數）與選材原則\n- 了解電子產品或工業設備的熱管理需求與設計流程\n\n二、跨部門協作能力\n- 能與電子[[[工程師]]]、機",
+      "mrtDist": 0.27,
+      "jobAddress": "承德路一段17號10樓之8",
+      "jobAddrNo": 6001001002,
+      "jobAddrNoDesc": "台北市大同區",
+      "jobName": "熱傳機構工程師",
+      "jobNameSnippet": "熱傳機構[[[工程師]]]",
+      "jobNo": "14911558",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0502021,
+      "lon": 121.517103,
+      "link": {
+        "job": "https://www.104.com.tw/job/8vlty",
+        "cust": "https://www.104.com.tw/company/1a2x6blw2a",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/8vlty?channel=104rpt"
+      },
+      "major": [],
+      "mrt": "99001002009",
+      "mrtDesc": "捷運台北車站",
+      "optionEdu": [
+        4,
+        5
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf3": {
+          "desc": "",
+          "param": "wf3"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "landmark": {
+          "desc": "距捷運台北車站約270公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.577380384676522,
+      "jobCat": [
+        2008001028,
+        2008001007
+      ],
+      "labels": [
+        "senior@senior_job_F",
+        "c@wf29",
+        "c@wf3",
+        "c@wf2"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [
+        32768
+      ],
+      "employeeCount": 20,
+      "pcSkills": [],
+      "pddScore": 2.2118645,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/2418/130000000182418/logo.jpg?v=20260720133243",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787017981,
+        "lastCustReplyTimestamp": 1787018037,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260820",
+      "applyCnt": 1,
+      "coIndustry": 1001001001,
+      "coIndustryDesc": "電腦系統整合服務業",
+      "custName": "湛維智能股份有限公司",
+      "custNo": "130000000269301",
+      "description": "我們正在尋找一位專精於基礎設施即程式碼（IaC）與平台自動化的基礎設施工程師。你將負責建立並擁有整個 IaC 層——確保相同的基礎設施配置能夠在每次、每個客戶的部署中正確執行。你將跨越 OpenTofu、Ansible、Helm、ArgoCD、",
+      "descSnippet": "我們正在尋找一位專精於基礎設施即程式碼（IaC）與平台自動化的基礎設施[[[工程師]]]。你將負責建立並擁有整個 IaC 層——確保相同的基礎設施配置能夠在每次、每個客戶的部署中正確執行。你將跨越 OpenTofu、Ansible、Helm、ArgoCD、",
+      "mrtDist": 0.35,
+      "jobAddress": "基湖路35巷16號9樓",
+      "jobAddrNo": 6001001010,
+      "jobAddrNoDesc": "台北市內湖區",
+      "jobName": "Infrastructure/DevOps/SRE 工程師",
+      "jobNameSnippet": "Infrastructure/DevOps/SRE [[[工程師]]]",
+      "jobNo": "15208046",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.079127,
+      "lon": 121.566413,
+      "link": {
+        "job": "https://www.104.com.tw/job/91ylq",
+        "cust": "https://www.104.com.tw/company/1a2x6bnr3p",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/91ylq?channel=104rpt"
+      },
+      "major": [],
+      "mrt": "99001001016",
+      "mrtDesc": "捷運西湖站",
+      "optionEdu": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 2,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "remote": {
+          "desc": "遠端工作"
+        },
+        "wf12": {
+          "desc": "",
+          "param": "wf12"
+        },
+        "wf13": {
+          "desc": "",
+          "param": "wf13"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "landmark": {
+          "desc": "距捷運西湖站約350公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.6866271544383132,
+      "jobCat": [
+        2007001025,
+        2007002010,
+        2007002008
+      ],
+      "labels": [
+        "foreigners@fc_emp5m_jbs",
+        "association@j00018",
+        "joblist_search@jl_j0003_004.5",
+        "c@wf12",
+        "c@wf13",
+        "association@j00030",
+        "senior@senior_job_H",
+        "association@j00001",
+        "foreigners@foreigners_tick",
+        "c@wf7",
+        "association@j00004",
+        "c@wf26",
+        "45plus@45invited",
+        "foreigners@overseasStudents_tick",
+        "association@j00014",
+        "indexjob@ij009",
+        "c@wf10",
+        "indexjob@ij010"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [
+        32,
+        64,
+        2048,
+        32768,
+        65536,
+        131072
+      ],
+      "employeeCount": 10,
+      "pcSkills": [
+        {
+          "code": "12001005017",
+          "description": "Vmware"
+        },
+        {
+          "code": "12001001007",
+          "description": "Linux"
+        },
+        {
+          "code": "12001003093",
+          "description": "Cloud"
+        },
+        {
+          "code": "12004001039",
+          "description": "VM"
+        },
+        {
+          "code": "12001002016",
+          "description": "Github"
+        },
+        {
+          "code": "12001002018",
+          "description": "Git"
+        },
+        {
+          "code": "12001005025",
+          "description": "Kubernetes"
+        },
+        {
+          "code": "12001003045",
+          "description": "Python"
+        },
+        {
+          "code": "12001003080",
+          "description": "Go"
+        }
+      ],
+      "pddScore": 2.2098598,
+      "custLogo": "",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787196199,
+        "lastCustReplyTimestamp": 1787196574,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260713",
+      "applyCnt": 1,
+      "coIndustry": 1011001002,
+      "coIndustryDesc": "建築工程業",
+      "custName": "啟登管理顧問有限公司",
+      "custNo": "28859735000",
+      "description": "1. 負責施工廠商施工之監督與評估。\n2. 依據施工圖進行工程檢討與審查。\n3. 控管施工進度與品質。\n4. 執行分項工程及安全衛生自主檢查。\n5. 負責進場物料的驗收、檢驗。\n6. 協調工程事務。\n7. 製作、整理、保存施工紀錄與文件資料。\n",
+      "descSnippet": "1. 負責施工廠商施工之監督與評估。\n2. 依據施工圖進行[[[工程]]]檢討與審查。\n3. 控管施工進度與品質。\n4. 執行分項[[[工程]]]及安全衛生自主檢查。\n5. 負責進場物料的驗收、檢驗。\n6. 協調[[[工程]]]事務。\n7. 製作、整理、保存施工紀錄與文件資料。\n",
+      "mrtDist": 0,
+      "jobAddress": "",
+      "jobAddrNo": 6001001007,
+      "jobAddrNoDesc": "台北市信義區",
+      "jobName": "室內裝修工程師(PCM)",
+      "jobNameSnippet": "室內裝修[[[工程師]]](PCM)",
+      "jobNo": "14859121",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0409201,
+      "lon": 121.5720055,
+      "link": {
+        "job": "https://www.104.com.tw/job/8uhdd",
+        "cust": "https://www.104.com.tw/company/d9aca1k",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/8uhdd?channel=104rpt"
+      },
+      "major": [
+        "土木工程相關"
+      ],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        3,
+        4,
+        5
+      ],
+      "period": 8,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "08:00 ~ 17:00",
+      "hrBehaviorPR": 0.2573040852010809,
+      "jobCat": [
+        2012003006,
+        2012002002,
+        2012001010
+      ],
+      "labels": [
+        "c@wf2",
+        "c@wf26",
+        "c@wf1",
+        "45plus@45invited",
+        "association@j00004"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 30,
+      "pcSkills": [
+        {
+          "code": "12001008003",
+          "description": "Excel"
+        },
+        {
+          "code": "12001008012",
+          "description": "PowerPoint"
+        },
+        {
+          "code": "12001008013",
+          "description": "Project"
+        },
+        {
+          "code": "12001008016",
+          "description": "Word"
+        },
+        {
+          "code": "12002003001",
+          "description": "AutoCAD"
+        }
+      ],
+      "pddScore": 2.2093446,
+      "custLogo": "",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787015696,
+        "lastCustReplyTimestamp": 1784707291,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260820",
+      "applyCnt": 5,
+      "coIndustry": 1001001001,
+      "coIndustryDesc": "電腦系統整合服務業",
+      "custName": "慧誠智醫股份有限公司",
+      "custNo": "130000000074825",
+      "description": "庫的設計和規劃。 \n- 技術文件撰寫：\n1. 編撰技術文檔，包括 API 文件、系統架構等。\n2. 確保代碼的可讀性和維護性。\n- 管理：\n1. 指導其他較資淺的工程師\n2. Code review\n3. 追蹤專案開發進度並向主管匯報",
+      "descSnippet": "庫的設計和規劃。 \n- 技術文件撰寫：\n1. 編撰技術文檔，包括 API 文件、系統架構等。\n2. 確保代碼的可讀性和維護性。\n- 管理：\n1. 指導其他較資淺的[[[工程師]]]\n2. Code review\n3. 追蹤專案開發進度並向主管匯報",
+      "mrtDist": 0.3,
+      "jobAddress": "瑞光路335號10樓之4",
+      "jobAddrNo": 6001001010,
+      "jobAddrNoDesc": "台北市內湖區",
+      "jobName": "資深後端工程師",
+      "jobNameSnippet": "資深後端[[[工程師]]]",
+      "jobNo": "14468856",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0774076,
+      "lon": 121.5750805,
+      "link": {
+        "job": "https://www.104.com.tw/job/8m48o",
+        "cust": "https://www.104.com.tw/company/1a2x6bjl1l",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/8m48o?channel=104rpt"
+      },
+      "major": [],
+      "mrt": "99001001017",
+      "mrtDesc": "捷運港墘站",
+      "optionEdu": [
+        4,
+        5,
+        6
+      ],
+      "period": 7,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf12": {
+          "desc": "",
+          "param": "wf12"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf30": {
+          "desc": "",
+          "param": "wf30"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf3": {
+          "desc": "",
+          "param": "wf3"
+        },
+        "wf4": {
+          "desc": "",
+          "param": "wf4"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf8": {
+          "desc": "",
+          "param": "wf8"
+        },
+        "wf9": {
+          "desc": "",
+          "param": "wf9"
+        },
+        "landmark": {
+          "desc": "距捷運港墘站約300公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.4490519336012898,
+      "jobCat": [
+        2007001016,
+        2007001004,
+        2007001006
+      ],
+      "labels": [
+        "c@wf10",
+        "c@wf12",
+        "indexjob@ij003",
+        "c@wf26",
+        "c@graduates_welcome",
+        "indexjob@ij010",
+        "c@wf30",
+        "c@rdss_welcome",
+        "c@new_company_job",
+        "indexjob@ij005",
+        "indexjob@ij001",
+        "c@wf1",
+        "association@j00021",
+        "c@wf3",
+        "c@wf4",
+        "c@wf29",
+        "c@wf2",
+        "c@wf7",
+        "c@wf8",
+        "c@wf9"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [
+        2,
+        16
+      ],
+      "employeeCount": 60,
+      "pcSkills": [
+        {
+          "code": "12001003009",
+          "description": "C#"
+        },
+        {
+          "code": "12001003045",
+          "description": "Python"
+        },
+        {
+          "code": "12001002018",
+          "description": "Git"
+        },
+        {
+          "code": "12001003025",
+          "description": "Java"
+        }
+      ],
+      "pddScore": 2.1950026,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/4825/130000000074825/logo.jpg?v=20260323163144",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1786947022,
+        "lastCustReplyTimestamp": 1783304094,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260820",
+      "applyCnt": 2,
+      "coIndustry": 1001003001,
+      "coIndustryDesc": "電腦及其週邊設備製造業",
+      "custName": "致伸科技股份有限公司",
+      "custNo": "28006928000",
+      "description": "1. 無線產品(GPS, Cellular and WLAN/BT)的RF電路設計、測試調適、除錯、優化、驗證\n2. RF相關的PCB 布局與layout\n3. 負責產品 3GPP, PTCRB, GCF, FCC, CE 等法規的認證\n4. 熟悉網路分析儀, 頻譜分析儀, Wi-Fi/ BT/ GPS/ Cellular call box 設備操作，負責RF matching、校準和3GPP RF版端測試\n5. 支持工廠團隊工作，規劃與進行RF相關的生產測試。\n6. RF問題分析(as compliance, desense, coexistence, and cross interference)\n7. 規劃及執行各階段之RF相關之測試計畫。",
+      "descSnippet": "1. 無線產品(GPS, Cellular and WLAN/BT)的RF電路設計、測試調適、除錯、優化、驗證\n2. RF相關的PCB 布局與layout\n3. 負責產品 3GPP, PTCRB, GCF, FCC, CE 等法規的認證\n4. 熟悉網路分析儀, 頻譜分析儀, Wi-Fi/ BT/ GPS/ Cellular call box 設備操作，負責RF matching、校準和3GPP RF版端測試\n5. 支持工廠團隊工作，規劃與進行RF相關的生產測試。\n6. RF問題分析(as compliance, desense, coexistence, and cross interference)\n7. 規劃及執行各階段之RF相關之測試計畫。",
+      "mrtDist": 0.21,
+      "jobAddress": "瑞光路669號",
+      "jobAddrNo": 6001001010,
+      "jobAddrNoDesc": "台北市內湖區",
+      "jobName": "TA4156 RF資深工程師",
+      "jobNameSnippet": "TA4156 RF資深[[[工程師]]]",
+      "jobNo": "14110521",
+      "jobRo": 1,
+      "jobType": 2,
+      "lat": 25.0810025,
+      "lon": 121.5656094,
+      "link": {
+        "job": "https://www.104.com.tw/job/8efqx",
+        "cust": "https://www.104.com.tw/company/cv6lny8",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/8efqx?channel=104rpt"
+      },
+      "major": [
+        "電機電子工程相關"
+      ],
+      "mrt": "99001001016",
+      "mrtDesc": "捷運西湖站",
+      "optionEdu": [
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "zone": {
+          "desc": "上市上櫃",
+          "param": 16
+        },
+        "wf23": {
+          "desc": "",
+          "param": "wf23"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf30": {
+          "desc": "",
+          "param": "wf30"
+        },
+        "wf25": {
+          "desc": "",
+          "param": "wf25"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf3": {
+          "desc": "",
+          "param": "wf3"
+        },
+        "wf9": {
+          "desc": "",
+          "param": "wf9"
+        },
+        "wf31": {
+          "desc": "",
+          "param": "wf31"
+        },
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf27": {
+          "desc": "",
+          "param": "wf27"
+        },
+        "wf18": {
+          "desc": "",
+          "param": "wf18"
+        },
+        "landmark": {
+          "desc": "距捷運西湖站約210公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.9339941412902786,
+      "jobCat": [
+        2008001021
+      ],
+      "labels": [
+        "c@wf23",
+        "c@wf7",
+        "c@wf30",
+        "c@wf25",
+        "c@wf2",
+        "c@wf1",
+        "c@wf3",
+        "c@wf9",
+        "c@wf31",
+        "c@wf10",
+        "c@wf26",
+        "c@wf27",
+        "c@wf18"
+      ],
+      "languageRequirements": [
+        {
+          "language": 1,
+          "ability": {
+            "listening": 4,
+            "speaking": 4,
+            "reading": 4,
+            "writing": 4
+          }
+        }
+      ],
+      "acceptRole": [],
+      "employeeCount": 9300,
+      "pcSkills": [
+        {
+          "code": "12004001007",
+          "description": "Cadence Allegro"
+        },
+        {
+          "code": "12004001024",
+          "description": "OrCAD"
+        },
+        {
+          "code": "12004001025",
+          "description": "PADS"
+        }
+      ],
+      "pddScore": 2.174415,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/8000/28006928000/logo.gif?v=20260622110408",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787276772,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260805",
+      "applyCnt": 2,
+      "coIndustry": 1011003003,
+      "coIndustryDesc": "建築設計業",
+      "custName": "宗邁建築師事務所",
+      "custNo": "4126213000",
+      "description": "甲方之監造工程師，長駐於工地現場，監督營造廠商完成建築施工",
+      "descSnippet": "甲方之監造[[[工程師]]]，長駐於工地現場，監督營造廠商完成建築施工",
+      "mrtDist": 0,
+      "jobAddress": "至善路",
+      "jobAddrNo": 6001001008,
+      "jobAddrNoDesc": "台北市士林區",
+      "jobName": "(建築)監造工程師【士林】",
+      "jobNameSnippet": "(建築)監造[[[工程師]]]【士林】",
+      "jobNo": "12269280",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.1028401,
+      "lon": 121.5532323,
+      "link": {
+        "job": "https://www.104.com.tw/job/7az1c",
+        "cust": "https://www.104.com.tw/company/1w8n2bs",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/7az1c?channel=104rpt"
+      },
+      "major": [
+        "建築相關"
+      ],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": [],
+      "s9": [
+        1
+      ],
+      "s5": 256,
+      "d3": "",
+      "hrBehaviorPR": 0.766559938233758,
+      "jobCat": [
+        2012002002,
+        2012002001,
+        2012001001
+      ],
+      "labels": [
+        "45plus@45invited",
+        "association@j00004"
+      ],
+      "languageRequirements": [
+        {
+          "language": 1,
+          "ability": {
+            "listening": 4,
+            "speaking": 4,
+            "reading": 4,
+            "writing": 4
+          }
+        }
+      ],
+      "acceptRole": [],
+      "employeeCount": 100,
+      "pcSkills": [],
+      "pddScore": 2.1405265,
+      "custLogo": "",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787209060,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260623",
+      "applyCnt": 5,
+      "coIndustry": 1002012010,
+      "coIndustryDesc": "其他機械製造修配業",
+      "custName": "台灣吉爾製程股份有限公司",
+      "custNo": "130000000021491",
+      "description": "Solution Sales Engineer – Liquid Industry (Beverage / Dairy / Brewery)\n液體行業解決方案銷售工程師（飲料 / 乳製品 / 啤酒）\n\nPosition Summary: \nWe",
+      "descSnippet": "Solution Sales Engineer – Liquid Industry (Beverage / Dairy / Brewery)\n液體行業解決方案銷售[[[工程師]]]（飲料 / 乳製品 / 啤酒）\n\nPosition Summary: \nWe",
+      "mrtDist": 0,
+      "jobAddress": "可遠端上班",
+      "jobAddrNo": 6001001005,
+      "jobAddrNoDesc": "台北市大安區",
+      "jobName": "銷售工程師(食品機械)",
+      "jobNameSnippet": "銷售[[[工程師]]](食品機械)",
+      "jobNo": "12571309",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0235425,
+      "lon": 121.5253535,
+      "link": {
+        "job": "https://www.104.com.tw/job/7hg31",
+        "cust": "https://www.104.com.tw/company/1a2x6bifw3",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/7hg31?channel=104rpt"
+      },
+      "major": [
+        "機械工程相關",
+        "化學工程相關",
+        "工業工程相關"
+      ],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        3,
+        4,
+        5
+      ],
+      "period": 6,
+      "remoteWorkType": 2,
+      "s10": 50,
+      "salaryHigh": 85000,
+      "salaryLow": 75000,
+      "tags": {
+        "remote": {
+          "desc": "遠端工作"
+        },
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "0900-1730",
+      "hrBehaviorPR": 0.41080909235415675,
+      "jobCat": [
+        2005003004,
+        2005003017
+      ],
+      "labels": [
+        "c@wf10"
+      ],
+      "languageRequirements": [
+        {
+          "language": 1,
+          "ability": {
+            "listening": 8,
+            "speaking": 8,
+            "reading": 8,
+            "writing": 8
+          }
+        }
+      ],
+      "acceptRole": [],
+      "employeeCount": 10,
+      "pcSkills": [],
+      "pddScore": 2.1291208,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/1491/130000000021491/logo.jpg?v=20260331142953",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1786350234,
+        "lastCustReplyTimestamp": 1782890034,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260811",
+      "applyCnt": 1,
+      "coIndustry": 1002015001,
+      "coIndustryDesc": "精密儀器相關製造業",
+      "custName": "鯨揚科技股份有限公司",
+      "custNo": "130000000062032",
+      "description": "   \n   - 研究並導入新的模擬演算法以提升產品精度。\n3. 測試與質量保證\n   - 建立並維護自動化測試框架，撰寫單元測試與整合測試，確保程式碼品質與系統穩定性\n4. 團隊協作\n   - 與硬體工程師、韌體工程師及品保團隊協作，確保系統整體",
+      "descSnippet": "   \n   - 研究並導入新的模擬演算法以提升產品精度。\n3. 測試與質量保證\n   - 建立並維護自動化測試框架，撰寫單元測試與整合測試，確保程式碼品質與系統穩定性\n4. 團隊協作\n   - 與硬體[[[工程師]]]、韌體[[[工程師]]]及品保團隊協作，確保系統整體",
+      "mrtDist": 0.11,
+      "jobAddress": "松江路125號8樓",
+      "jobAddrNo": 6001001003,
+      "jobAddrNoDesc": "台北市中山區",
+      "jobName": "軟體工程師",
+      "jobNameSnippet": "軟體[[[工程師]]]",
+      "jobNo": "14500629",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0530607,
+      "lon": 121.5332815,
+      "link": {
+        "job": "https://www.104.com.tw/job/8msr9",
+        "cust": "https://www.104.com.tw/company/1a2x6bjb68",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/8msr9?channel=104rpt"
+      },
+      "major": [
+        "資訊工程相關"
+      ],
+      "mrt": "99001003016",
+      "mrtDesc": "捷運松江南京站",
+      "optionEdu": [
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf12": {
+          "desc": "",
+          "param": "wf12"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf3": {
+          "desc": "",
+          "param": "wf3"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf4": {
+          "desc": "",
+          "param": "wf4"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "landmark": {
+          "desc": "距捷運松江南京站約110公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "9:00~18:00",
+      "hrBehaviorPR": 0.7098939528124077,
+      "jobCat": [
+        2007001004
+      ],
+      "labels": [
+        "indexjob@ij010",
+        "c@wf12",
+        "c@wf1",
+        "c@wf3",
+        "c@wf29",
+        "c@wf10",
+        "c@wf7",
+        "indexjob@ij025",
+        "indexjob@ij003",
+        "c@wf4",
+        "c@wf26"
+      ],
+      "languageRequirements": [
+        {
+          "language": 1,
+          "ability": {
+            "listening": 8,
+            "speaking": 8,
+            "reading": 2,
+            "writing": 8
+          }
+        }
+      ],
+      "acceptRole": [],
+      "employeeCount": 43,
+      "pcSkills": [
+        {
+          "code": "12001001007",
+          "description": "Linux"
+        },
+        {
+          "code": "12001003008",
+          "description": "C"
+        },
+        {
+          "code": "12001003009",
+          "description": "C#"
+        },
+        {
+          "code": "12001003010",
+          "description": "C++"
+        },
+        {
+          "code": "12001003025",
+          "description": "Java"
+        },
+        {
+          "code": "12001003045",
+          "description": "Python"
+        }
+      ],
+      "pddScore": 2.1126647,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/2032/130000000062032/logo.gif?v=20260209144030",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1786948059,
+        "lastCustReplyTimestamp": 1780902925,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260814",
+      "applyCnt": 2,
+      "coIndustry": 1010002002,
+      "coIndustryDesc": "儲配／運輸物流業",
+      "custName": "志信國際股份有限公司",
+      "custNo": "33853232000",
+      "description": "1.機房、網路、硬體設備之維護和相關設備的綜合問題解決。\n2.資訊系統、伺服器之儲存規劃、建置與維護管理；使用者帳號與權限管理。\n3.熟悉以下系統管理維護及障礙排除：\n  (1)Mail Server\n  (2)Windows Server\n  (3)Microsoft SQL Server\n  (4)NAS\n  (5)VMware\n4.網路佈線、故障排除、規劃和管理能力。\n5.相關設備採購評估及技術性建議。\n6.鼎新ERP系統維護管理、問題排除、報表及憑證設計。\n7.資訊安全管理、資料備份管理。\n8.主管交辦事項。\n ",
+      "descSnippet": "1.機房、網路、硬體設備之維護和相關設備的綜合問題解決。\n2.資訊系統、伺服器之儲存規劃、建置與維護管理；使用者帳號與權限管理。\n3.熟悉以下系統管理維護及障礙排除：\n  (1)Mail Server\n  (2)Windows Server\n  (3)Microsoft SQL Server\n  (4)NAS\n  (5)VMware\n4.網路佈線、故障排除、規劃和管理能力。\n5.相關設備採購評估及技術性建議。\n6.鼎新ERP系統維護管理、問題排除、報表及憑證設計。\n7.資訊安全管理、資料備份管理。\n8.主管交辦事項。\n ",
+      "mrtDist": 0.5,
+      "jobAddress": "市民大道三段206號六樓",
+      "jobAddrNo": 6001001005,
+      "jobAddrNoDesc": "台北市大安區",
+      "jobName": "資訊工程師",
+      "jobNameSnippet": "資訊[[[工程師]]]",
+      "jobNo": "13468964",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0442878,
+      "lon": 121.5398102,
+      "link": {
+        "job": "https://www.104.com.tw/job/80opw",
+        "cust": "https://www.104.com.tw/company/fjvc8zk",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/80opw?channel=104rpt"
+      },
+      "major": [],
+      "mrt": "99001001010",
+      "mrtDesc": "捷運忠孝復興站",
+      "optionEdu": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "zone": {
+          "desc": "上市上櫃",
+          "param": 16
+        },
+        "wf28": {
+          "desc": "",
+          "param": "wf28"
+        },
+        "wf9": {
+          "desc": "",
+          "param": "wf9"
+        },
+        "wf12": {
+          "desc": "",
+          "param": "wf12"
+        },
+        "wf3": {
+          "desc": "",
+          "param": "wf3"
+        },
+        "wf4": {
+          "desc": "",
+          "param": "wf4"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf23": {
+          "desc": "",
+          "param": "wf23"
+        },
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf31": {
+          "desc": "",
+          "param": "wf31"
+        },
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "landmark": {
+          "desc": "距捷運忠孝復興站約500公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "08:30~17:30",
+      "hrBehaviorPR": 0.712469060108545,
+      "jobCat": [
+        2007002007,
+        2007002003,
+        2007002005
+      ],
+      "labels": [
+        "indexjob@ij003",
+        "indexjob@ij010",
+        "c@wf28",
+        "c@wf9",
+        "c@wf12",
+        "c@wf3",
+        "c@wf4",
+        "c@wf2",
+        "c@wf23",
+        "c@wf10",
+        "association@j00004",
+        "c@wf7",
+        "45plus@45invited",
+        "c@wf1",
+        "c@wf31",
+        "c@wf26"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 0,
+      "pcSkills": [
+        {
+          "code": "12001001045",
+          "description": "Windows Server 2012"
+        },
+        {
+          "code": "12001004031",
+          "description": "MS SQL"
+        },
+        {
+          "code": "12001005017",
+          "description": "Vmware"
+        },
+        {
+          "code": "12006001016",
+          "description": "鼎新"
+        },
+        {
+          "code": "12001007022",
+          "description": "Firewall"
+        }
+      ],
+      "pddScore": 2.108389,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/2000/33853232000/logo.gif?v=20260123122217",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1787279004,
+        "lastCustReplyTimestamp": 1784793266,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260810",
+      "applyCnt": 0,
+      "coIndustry": 1011001002,
+      "coIndustryDesc": "建築工程業",
+      "custName": "中菲營造事業股份有限公司",
+      "custNo": "130000000107066",
+      "description": "1.\t具公共工程相關經驗並有品管工程師執照之人員 。 \n2.\t圖說判讀：清圖/核對圖說 項目數量，基本製圖判讀能力。\n3.\t品質計畫書製作、彙整及更新。 \n4.\t施作進度、施作品質管理查核及回報。\n5.\t各式材料送審、取樣、送驗、追蹤整理。 \n6",
+      "descSnippet": "1.\t具公共[[[工程]]]相關經驗並有品管[[[工程師]]]執照之人員 。 \n2.\t圖說判讀：清圖/核對圖說 項目數量，基本製圖判讀能力。\n3.\t品質計畫書製作、彙整及更新。 \n4.\t施作進度、施作品質管理查核及回報。\n5.\t各式材料送審、取樣、送驗、追蹤整理。 \n6",
+      "mrtDist": 0,
+      "jobAddress": "",
+      "jobAddrNo": 6001001001,
+      "jobAddrNoDesc": "台北市中正區",
+      "jobName": "品管工程師",
+      "jobNameSnippet": "品管[[[工程師]]]",
+      "jobNo": "14640661",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0421407,
+      "lon": 121.5198716,
+      "link": {
+        "job": "https://www.104.com.tw/job/8pst1",
+        "cust": "https://www.104.com.tw/company/1a2x6bk9x6",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/8pst1?channel=104rpt"
+      },
+      "major": [
+        "土木工程相關",
+        "建築相關"
+      ],
+      "mrt": "",
+      "mrtDesc": "",
+      "optionEdu": [
+        3,
+        4,
+        5
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf26": {
+          "desc": "",
+          "param": "wf26"
+        },
+        "wf31": {
+          "desc": "",
+          "param": "wf31"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf29": {
+          "desc": "",
+          "param": "wf29"
+        },
+        "wf8": {
+          "desc": "",
+          "param": "wf8"
+        }
+      },
+      "s9": [
+        1,
+        8
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.19666643958489452,
+      "jobCat": [
+        2009003010,
+        2009003002
+      ],
+      "labels": [
+        "c@wf26",
+        "c@wf31",
+        "indexjob@ij005",
+        "c@wf1",
+        "c@wf7",
+        "c@wf2",
+        "c@wf10",
+        "c@wf29",
+        "c@wf8"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 20,
+      "pcSkills": [
+        {
+          "code": "12002003001",
+          "description": "AutoCAD"
+        },
+        {
+          "code": "12001008003",
+          "description": "Excel"
+        },
+        {
+          "code": "12001008016",
+          "description": "Word"
+        },
+        {
+          "code": "12001008012",
+          "description": "PowerPoint"
+        },
+        {
+          "code": "12002003002",
+          "description": "AutoCad 2D"
+        },
+        {
+          "code": "12002003011",
+          "description": "Sketch up"
+        }
+      ],
+      "pddScore": 2.1040277,
+      "custLogo": "",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": 1786338941,
+        "lastCustReplyTimestamp": 1779954565,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260523",
+      "applyCnt": 0,
+      "coIndustry": 1001004002,
+      "coIndustryDesc": "光學器材製造業",
+      "custName": "大根光學工業股份有限公司",
+      "custNo": "130000000182364",
+      "description": "1. 負責擬定手機, 車載, IOT CCM專案的測試板及產品機板的layout工作\n2. Supprot EE & ME工程師做RFQ階段的可行性評估\n",
+      "descSnippet": "1. 負責擬定手機, 車載, IOT CCM專案的測試板及產品機板的layout工作\n2. Supprot EE & ME[[[工程師]]]做RFQ階段的可行性評估\n",
+      "mrtDist": 0.5,
+      "jobAddress": "瑞光路408號",
+      "jobAddrNo": 6001001010,
+      "jobAddrNoDesc": "台北市內湖區",
+      "jobName": "Layout (資深) 高級工程師",
+      "jobNameSnippet": "Layout (資深) 高級[[[工程師]]]",
+      "jobNo": "14219673",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0780877,
+      "lon": 121.5704929,
+      "link": {
+        "job": "https://www.104.com.tw/job/8gryx",
+        "cust": "https://www.104.com.tw/company/1a2x6blw0s",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/8gryx?channel=104rpt"
+      },
+      "major": [
+        "機械工程相關",
+        "電機電子工程相關"
+      ],
+      "mrt": "99001001017",
+      "mrtDesc": "捷運港墘站",
+      "optionEdu": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "period": 9,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf9": {
+          "desc": "",
+          "param": "wf9"
+        },
+        "wf18": {
+          "desc": "",
+          "param": "wf18"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "wf28": {
+          "desc": "",
+          "param": "wf28"
+        },
+        "wf10": {
+          "desc": "",
+          "param": "wf10"
+        },
+        "wf4": {
+          "desc": "",
+          "param": "wf4"
+        },
+        "wf25": {
+          "desc": "",
+          "param": "wf25"
+        },
+        "wf7": {
+          "desc": "",
+          "param": "wf7"
+        },
+        "wf16": {
+          "desc": "",
+          "param": "wf16"
+        },
+        "wf27": {
+          "desc": "",
+          "param": "wf27"
+        },
+        "wf2": {
+          "desc": "",
+          "param": "wf2"
+        },
+        "landmark": {
+          "desc": "距捷運港墘站約500公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.4790199150714172,
+      "jobCat": [
+        2008001012
+      ],
+      "labels": [
+        "c@wf9",
+        "45plus@45invited",
+        "c@wf18",
+        "c@wf1",
+        "association@j00004",
+        "indexjob@ij003",
+        "c@wf28",
+        "c@wf10",
+        "association@j00009",
+        "association@j00021",
+        "c@wf4",
+        "c@wf25",
+        "c@wf7",
+        "c@wf16",
+        "c@wf27",
+        "c@wf2"
+      ],
+      "languageRequirements": [
+        {
+          "language": 1,
+          "ability": {
+            "listening": 4,
+            "speaking": 4,
+            "reading": 8,
+            "writing": 8
+          }
+        }
+      ],
+      "acceptRole": [],
+      "employeeCount": 0,
+      "pcSkills": [
+        {
+          "code": "12001008003",
+          "description": "Excel"
+        },
+        {
+          "code": "12001008011",
+          "description": "Outlook"
+        },
+        {
+          "code": "12001008012",
+          "description": "PowerPoint"
+        },
+        {
+          "code": "12001008016",
+          "description": "Word"
+        },
+        {
+          "code": "12004001025",
+          "description": "PADS"
+        }
+      ],
+      "pddScore": 2.0773103,
+      "custLogo": "",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": null,
+        "lastCustReplyTimestamp": 1785823287,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    },
+    {
+      "appearDate": "20260818",
+      "applyCnt": 4,
+      "coIndustry": 1001003001,
+      "coIndustryDesc": "電腦及其週邊設備製造業",
+      "custName": "開端智能股份有限公司",
+      "custNo": "130000000255283",
+      "description": "-工作職責\n•\t負責公司網站的規劃、開發、上線與後續維護\n•\t運用 Vibe Coding 及 AI 開發工具加速網站功能開發與除錯\n•\t管理網站內容更新，確保頁面資訊即時、正確\n•\t監控網站效能與安全性，排除技術問題\n•\t與行銷、業務等跨部門協作，落實網站功能需求\n\n-必備技能\n•\t熟悉 Vibe Coding 以及 AI 工具（AI 輔助開發、AI coding assistant 等）\n•\t熟悉Astro、Wordpress、Joomla等CMS，定具備整合與修改能力\n•\t具備前端／後端開發基礎（HTML、CSS、JavaScript 等相關框架）\n•\tMySQL/ PostgreSQL等資料庫架構設計與維護經驗\n•\t具邏輯思考與問題解決能力，能獨立排除技術問題\n",
+      "descSnippet": "-工作職責\n•\t負責公司網站的規劃、開發、上線與後續維護\n•\t運用 Vibe Coding 及 AI 開發工具加速網站功能開發與除錯\n•\t管理網站內容更新，確保頁面資訊即時、正確\n•\t監控網站效能與安全性，排除技術問題\n•\t與行銷、業務等跨部門協作，落實網站功能需求\n\n-必備技能\n•\t熟悉 Vibe Coding 以及 AI 工具（AI 輔助開發、AI coding assistant 等）\n•\t熟悉Astro、Wordpress、Joomla等CMS，定具備整合與修改能力\n•\t具備前端／後端開發基礎（HTML、CSS、JavaScript 等相關框架）\n•\tMySQL/ PostgreSQL等資料庫架構設計與維護經驗\n•\t具邏輯思考與問題解決能力，能獨立排除技術問題\n",
+      "mrtDist": 0.39,
+      "jobAddress": "南京東路四段130號12F-1",
+      "jobAddrNo": 6001001004,
+      "jobAddrNoDesc": "台北市松山區",
+      "jobName": "網站工程師",
+      "jobNameSnippet": "網站[[[工程師]]]",
+      "jobNo": "15346817",
+      "jobRo": 1,
+      "jobType": 0,
+      "lat": 25.0513574,
+      "lon": 121.5557135,
+      "link": {
+        "job": "https://www.104.com.tw/job/94xoh",
+        "cust": "https://www.104.com.tw/company/1a2x6bngab",
+        "applyAnalyze": "https://www.104.com.tw/jobs/apply/analysis/94xoh?channel=104rpt"
+      },
+      "major": [],
+      "mrt": "99001003018",
+      "mrtDesc": "捷運台北小巨蛋站",
+      "optionEdu": [
+        4,
+        5,
+        6
+      ],
+      "period": 6,
+      "remoteWorkType": 0,
+      "s10": 10,
+      "salaryHigh": 0,
+      "salaryLow": 0,
+      "tags": {
+        "wf14": {
+          "desc": "",
+          "param": "wf14"
+        },
+        "wf15": {
+          "desc": "",
+          "param": "wf15"
+        },
+        "wf12": {
+          "desc": "",
+          "param": "wf12"
+        },
+        "wf1": {
+          "desc": "",
+          "param": "wf1"
+        },
+        "landmark": {
+          "desc": "距捷運台北小巨蛋站約390公尺"
+        }
+      },
+      "s9": [
+        1
+      ],
+      "s5": 0,
+      "d3": "",
+      "hrBehaviorPR": 0.1486522696823126,
+      "jobCat": [
+        2013001006,
+        2007001015
+      ],
+      "labels": [
+        "indexjob@ij017",
+        "c@wf14",
+        "association@j00021",
+        "c@wf15",
+        "indexjob@ij008",
+        "indexjob@ij007",
+        "c@wf12",
+        "indexjob@ij010",
+        "c@wf1"
+      ],
+      "languageRequirements": [],
+      "acceptRole": [],
+      "employeeCount": 0,
+      "pcSkills": [],
+      "pddScore": 2.0560927,
+      "custLogo": "https://static.104.com.tw/b_profile/cust_picture/5283/130000000255283/logo.png?v=20260715151922",
+      "jobSwitch": "on",
+      "isSave": null,
+      "interactionRecord": {
+        "lastProcessedResumeAtTime": null,
+        "lastCustReplyTimestamp": null,
+        "nowTimestamp": 1787303998
+      },
+      "isApplied": null,
+      "applyDate": null,
+      "userApplyCount": null
+    }
+  ],
+  "metadata": {
+    "pagination": {
+      "count": 32,
+      "currentPage": 1,
+      "lastPage": 100,
+      "total": 3023
+    },
+    "isPreciseHotJob": false,
+    "filterQuery": {
+      "order": 15,
+      "asc": 0,
+      "keyword": "工程師",
+      "fz": 8,
+      "kwop": 7,
+      "excludeKwFz": 4,
+      "excludeKwKwop": 8,
+      "enableJobNoTopOrder": 1,
+      "area": [
+        "6001001000"
+      ],
+      "jobexp": [
+        "10"
+      ],
+      "ro": [
+        0
+      ],
+      "scstrict": 0,
+      "scneg": 0,
+      "page": 1,
+      "pagesize": 30
+    },
+    "offJobs": [],
+    "personalBoost": 0
+  }
+}

@@ -1,0 +1,26 @@
+# 祕密:絕不進版控
+.env
+
+# 本機執行產物:含 Chrome profile(可能有 cookie)、SQLite、除錯截圖
+local_data/
+*.db
+*.db-journal
+debug/
+*.png
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+
+# 編輯器 / OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

@@ -1,0 +1,1010 @@
+<title>Job Finder 系統指南</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+
+<style>
+  /* 沿用專案既有的視覺語言:冷調石板灰底,三個功能色各自帶意義。
+     在這份文件裡:赭紅=當時判斷錯了 / 琥珀=護欄擋下 / 靛青=現在的做法。 */
+  :root {
+    --bg:#F1F4F3; --surface:#FFFFFF; --surface-2:#E7EDEB; --line:#C7D3D0; --line-soft:#DCE5E3;
+    --ink:#131F1D; --ink-2:#475956; --ink-3:#6E8280;
+    --accent:#0D6B64; --accent-soft:#DBEAE8;
+    --warn:#9C5504;   --warn-soft:#F6E8D4;
+    --danger:#9C201A; --danger-soft:#F6DEDB;
+    --shadow:0 1px 2px rgba(19,31,29,.06), 0 8px 24px -12px rgba(19,31,29,.18);
+    --serif:"Noto Serif TC","Songti TC","PMingLiU",Georgia,serif;
+    --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    --mono:"JetBrains Mono","SFMono-Regular",Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#0D1514; --surface:#15201E; --surface-2:#1C2927; --line:#2B3C39; --line-soft:#23312F;
+      --ink:#E2EAE8; --ink-2:#A4B6B3; --ink-3:#7B8F8C;
+      --accent:#5FC3B9; --accent-soft:#12302D;
+      --warn:#E3A24E;   --warn-soft:#2E2415;
+      --danger:#EF867E; --danger-soft:#331C1A;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#0D1514; --surface:#15201E; --surface-2:#1C2927; --line:#2B3C39; --line-soft:#23312F;
+    --ink:#E2EAE8; --ink-2:#A4B6B3; --ink-3:#7B8F8C;
+    --accent:#5FC3B9; --accent-soft:#12302D;
+    --warn:#E3A24E;   --warn-soft:#2E2415;
+    --danger:#EF867E; --danger-soft:#331C1A;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+
+  *,*::before,*::after { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); font-size:16px; line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:1180px; margin:0 auto; padding:0 24px 96px; }
+
+  .masthead { padding:64px 0 40px; border-bottom:1px solid var(--line); }
+  .eyebrow {
+    font-family:var(--mono); font-size:12px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-3); margin:0 0 14px;
+  }
+  .masthead h1 {
+    font-family:var(--serif); font-weight:700;
+    font-size:clamp(30px,5vw,46px); line-height:1.25; margin:0 0 16px; text-wrap:balance;
+  }
+  .lede { font-size:17px; color:var(--ink-2); max-width:64ch; margin:0; }
+  .lede strong { color:var(--ink); font-weight:500; }
+
+  .callout {
+    margin-top:28px; padding:18px 20px; background:var(--warn-soft);
+    border-left:3px solid var(--warn); border-radius:0 8px 8px 0; max-width:74ch;
+  }
+  .callout p { margin:0; font-size:15px; }
+  .callout p + p { margin-top:8px; color:var(--ink-2); }
+  .callout b { color:var(--warn); }
+
+  .layout { display:block; }
+  @media (min-width:1040px) {
+    .layout { display:grid; grid-template-columns:190px minmax(0,1fr); gap:56px; align-items:start; }
+  }
+  .toc { position:sticky; top:24px; padding-top:48px; font-size:14px; }
+  .toc-title {
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-3); margin:0 0 12px;
+  }
+  .toc ol { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px; }
+  .toc a {
+    display:block; padding:5px 10px; color:var(--ink-2); text-decoration:none;
+    border-radius:6px; border-left:2px solid transparent; line-height:1.5;
+  }
+  .toc a:hover { background:var(--surface-2); color:var(--ink); }
+  .toc a.active { border-left-color:var(--accent); color:var(--ink); background:var(--surface-2); }
+  @media (max-width:1039px) {
+    .toc { position:static; padding:28px 0 0; }
+    .toc ol { flex-direction:row; flex-wrap:wrap; gap:6px; }
+    .toc a { border-left:none; background:var(--surface); border:1px solid var(--line-soft); font-size:13px; }
+  }
+
+  section { padding-top:56px; scroll-margin-top:20px; }
+  h2 { font-family:var(--serif); font-weight:600; font-size:26px; line-height:1.4; margin:0 0 6px; text-wrap:balance; }
+  .sec-note {
+    color:var(--ink-3); font-size:14px; margin:0 0 26px;
+    padding-bottom:14px; border-bottom:1px solid var(--line-soft);
+  }
+  h3 { font-family:var(--sans); font-weight:700; font-size:17px; margin:34px 0 10px; }
+  p { max-width:68ch; }
+  code { font-family:var(--mono); font-size:.875em; background:var(--surface-2); padding:.12em .38em; border-radius:4px; }
+  a { color:var(--accent); }
+
+  /* ── 時間軸:三次轉向 ── */
+  .timeline { margin-top:28px; }
+  .tl { display:grid; grid-template-columns:54px minmax(0,1fr); gap:20px; padding-bottom:34px; position:relative; }
+  .tl:not(:last-child)::before {
+    content:""; position:absolute; left:26px; top:60px; bottom:0; width:2px; background:var(--line);
+  }
+  .tl-mark {
+    width:54px; height:54px; border-radius:50%; display:grid; place-items:center;
+    font-family:var(--mono); font-size:17px; font-weight:600;
+    border:2px solid; position:relative; z-index:1;
+  }
+  .tl-wrong   { background:var(--danger-soft); border-color:var(--danger); color:var(--danger); }
+  .tl-partial { background:var(--warn-soft);   border-color:var(--warn);   color:var(--warn); }
+  .tl-now     { background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
+
+  .tl-body {
+    background:var(--surface); border:1px solid var(--line-soft);
+    border-radius:10px; padding:20px 24px; box-shadow:var(--shadow);
+  }
+  .tl-body h3 { margin:0 0 4px; font-size:18px; }
+  .tl-tag {
+    font-family:var(--mono); font-size:11px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:10px;
+  }
+  .tl-rows { display:grid; gap:10px; margin:14px 0 0; }
+  .tl-row { display:grid; grid-template-columns:92px minmax(0,1fr); gap:14px; font-size:14.5px; }
+  .tl-row dt { color:var(--ink-3); font-size:13px; padding-top:2px; }
+  .tl-row dd { margin:0; color:var(--ink-2); }
+  .tl-row dd strong { color:var(--ink); }
+  @media (max-width:620px) {
+    .tl { grid-template-columns:1fr; gap:12px; }
+    .tl:not(:last-child)::before { display:none; }
+    .tl-row { grid-template-columns:1fr; gap:2px; }
+  }
+
+  /* ── 坑 ── */
+  .pits { display:grid; gap:12px; margin-top:20px; }
+  @media (min-width:900px) { .pits { grid-template-columns:1fr 1fr; } }
+  .pit { background:var(--surface); border:1px solid var(--line-soft); border-radius:10px; padding:18px 20px; }
+  .pit.bad { border-left:3px solid var(--danger); }
+  .pit h4 { margin:0 0 10px; font-size:15px; font-weight:700; line-height:1.55; }
+  .pit dl { margin:0; display:grid; gap:7px; }
+  .pit dt {
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--ink-3);
+  }
+  .pit dd { margin:0 0 4px; font-size:14px; color:var(--ink-2); }
+  .pit dd strong { color:var(--ink); }
+
+  /* ── 決策 ── */
+  .decision { background:var(--surface); border:1px solid var(--line-soft); border-radius:10px; padding:20px 24px; margin-top:14px; }
+  .decision h4 { margin:0 0 12px; font-size:16px; font-weight:700; }
+  .decision dl { margin:0; display:grid; gap:10px; }
+  .decision dt {
+    font-family:var(--mono); font-size:11px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--ink-3);
+  }
+  .decision dd { margin:0; font-size:14.5px; color:var(--ink-2); }
+  .decision dd strong { color:var(--ink); }
+  .rejected { color:var(--danger) !important; }
+
+  .tablebox { overflow-x:auto; margin-top:22px; border:1px solid var(--line-soft); border-radius:10px; background:var(--surface); }
+  table { border-collapse:collapse; width:100%; min-width:560px; font-size:14.5px; }
+  th,td { text-align:left; padding:12px 16px; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+  th { font-weight:700; font-size:13px; color:var(--ink-2); background:var(--surface-2); white-space:nowrap; }
+  tbody tr:last-child td { border-bottom:none; }
+  td code { background:var(--bg); }
+
+  figure { margin:26px 0 0; }
+  .figbox {
+    background:var(--surface); border:1px solid var(--line-soft); border-radius:10px;
+    padding:22px 20px 8px; overflow-x:auto; box-shadow:var(--shadow);
+  }
+  .figbox svg { display:block; min-width:660px; max-width:100%; height:auto; margin:0 auto; }
+  figcaption { font-size:14px; color:var(--ink-2); margin-top:14px; max-width:72ch; }
+
+  .n-box   { fill:var(--surface-2); stroke:var(--ink-3); stroke-width:1.2; }
+  .n-guard { fill:var(--warn-soft); stroke:var(--warn); stroke-width:1.4; }
+  .n-flow  { fill:var(--accent-soft); stroke:var(--accent); stroke-width:1.4; }
+  .n-stop  { fill:var(--danger-soft); stroke:var(--danger); stroke-width:1.4; }
+  .n-label { fill:var(--ink); font-family:var(--sans); font-size:13px; }
+  .n-small { fill:var(--ink-2); font-family:var(--sans); font-size:12px; }
+  .n-mono  { fill:var(--ink-3); font-family:var(--mono); font-size:11px; letter-spacing:.06em; }
+  .n-db    { fill:var(--surface-2); stroke:var(--line); stroke-width:1.2; stroke-dasharray:3 3; }
+  .edge    { stroke:var(--ink-3); stroke-width:1.4; fill:none; }
+  .bracket { stroke:var(--ink-3); stroke-width:1; fill:none; }
+  .ah      { fill:var(--ink-3); }
+
+  pre {
+    font-family:var(--mono); font-size:13px; line-height:1.85;
+    background:var(--surface); border:1px solid var(--line-soft);
+    border-radius:10px; padding:18px 20px; overflow-x:auto; margin:18px 0 0;
+  }
+  pre .c  { color:var(--ink-3); }
+  pre .ok { color:var(--accent); }
+  pre .no { color:var(--danger); }
+
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  @media (prefers-reduced-motion:no-preference) {
+    .toc a { transition:background-color .14s ease, border-color .14s ease, color .14s ease; }
+  }
+
+  footer { margin-top:72px; padding-top:24px; border-top:1px solid var(--line); font-size:13.5px; color:var(--ink-3); }
+  footer code { background:var(--surface-2); }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">104 每日職缺日報 · 踩坑與決策紀錄 · 2026-08-22</p>
+    <h1>Job Finder 系統指南</h1>
+    <p class="lede">
+      這份文件不介紹功能,而是記錄<strong>遇到了什麼、錯在哪裡、為什麼最後這樣選</strong>。
+      因為這個專案最貴的成本不是寫程式,是<strong>把架構前提搞錯了兩次</strong> ——
+      而且兩次的方向還是相反的。
+    </p>
+    <div class="callout">
+      <p><b>最重要的一句話:104 的 Cloudflare 是「看 IP 信譽」的,不是「有」或「沒有」。</b></p>
+      <p>
+        台灣住宅 IP 被放行到 origin(那裡才輪到 <code>Referer</code> 白名單把關);
+        AWS 資料中心 IP 在碰到 origin 之前就被 Cloudflare 攔下。
+        這就是為什麼這個系統最後跑在你自己的電腦上,而不是雲端。
+      </p>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <nav class="toc" aria-label="目錄">
+      <p class="toc-title">目錄</p>
+      <ol>
+        <li><a href="#now">現在長什麼樣</a></li>
+        <li><a href="#dataflow">資料怎麼流</a></li>
+        <li><a href="#turns">三次轉向</a></li>
+        <li><a href="#pits-104">坑 · 104 的資料</a></li>
+        <li><a href="#pits-mine">坑 · 我自己寫的</a></li>
+        <li><a href="#pits-llm">坑 · LLM 的行為</a></li>
+        <li><a href="#decisions">關鍵決策</a></li>
+        <li><a href="#ops">日常操作</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <!-- ═══ 一 ═══ -->
+      <section id="now">
+        <h2>一、現在長什麼樣</h2>
+        <p class="sec-note">Windows 工作排程器每天 08:00 觸發,整趟約一分半,只有兩個步驟會碰到 104。</p>
+
+        <figure>
+          <div class="figbox">
+            <svg viewBox="0 0 880 570" role="img"
+                 aria-label="每日流程:Windows 排程觸發後先過三道護欄,通過才發出網路請求抓搜尋 API 與詳細頁,其餘的正規化、去重、評分、推播全部離線進行。">
+              <defs>
+                <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path class="ah" d="M 0 0 L 10 5 L 0 10 z"></path>
+                </marker>
+              </defs>
+
+              <rect class="n-box"   x="60" y="24"  width="300" height="52" rx="6"></rect>
+              <text class="n-label" x="210" y="55"  text-anchor="middle">Windows 排程 · 每天 08:00</text>
+
+              <rect class="n-guard" x="60" y="100" width="300" height="52" rx="6"></rect>
+              <text class="n-label" x="210" y="131" text-anchor="middle">三道護欄:開關 / 熔斷 / 每日一次</text>
+
+              <rect class="n-stop"  x="60" y="176" width="300" height="52" rx="6"></rect>
+              <text class="n-label" x="210" y="207" text-anchor="middle">⚡ GET /jobs/search/api/jobs</text>
+
+              <rect class="n-flow"  x="60" y="252" width="300" height="52" rx="6"></rect>
+              <text class="n-label" x="210" y="283" text-anchor="middle">normalize · 去重 · 只留今天新的</text>
+
+              <rect class="n-flow"  x="60" y="328" width="300" height="52" rx="6"></rect>
+              <text class="n-label" x="210" y="359" text-anchor="middle">粗篩(批次 15 筆)</text>
+
+              <rect class="n-stop"  x="60" y="404" width="300" height="52" rx="6"></rect>
+              <text class="n-label" x="210" y="435" text-anchor="middle">⚡ GET /job/ajax/content/…</text>
+
+              <rect class="n-flow"  x="60" y="480" width="300" height="52" rx="6"></rect>
+              <text class="n-label" x="210" y="511" text-anchor="middle">深評 → 校正 → 門檻 → Telegram</text>
+
+              <line class="edge" x1="210" y1="76"  x2="210" y2="98"  marker-end="url(#ah)"></line>
+              <line class="edge" x1="210" y1="152" x2="210" y2="174" marker-end="url(#ah)"></line>
+              <line class="edge" x1="210" y1="228" x2="210" y2="250" marker-end="url(#ah)"></line>
+              <line class="edge" x1="210" y1="304" x2="210" y2="326" marker-end="url(#ah)"></line>
+              <line class="edge" x1="210" y1="380" x2="210" y2="402" marker-end="url(#ah)"></line>
+              <line class="edge" x1="210" y1="456" x2="210" y2="478" marker-end="url(#ah)"></line>
+
+              <line class="bracket" x1="392" y1="24" x2="392" y2="532" stroke-dasharray="2 5"></line>
+
+              <text class="n-small" x="412" y="48">錯過會在開機後補跑</text>
+              <text class="n-mono"  x="412" y="66">scripts/run_daily.cmd</text>
+
+              <text class="n-small" x="412" y="124">任一不過 → <tspan font-weight="700">一個請求都不發</tspan></text>
+              <text class="n-mono"  x="412" y="142">pipeline.run_daily</text>
+
+              <text class="n-small" x="412" y="200">帶 Referer · 先過 RequestBudget · 3–5 秒 jitter</text>
+              <text class="n-mono"  x="412" y="218">六組關鍵字 × 最多 3 頁</text>
+
+              <text class="n-small" x="412" y="276">data 是陣列 · s10 / period / optionEdu 轉人話</text>
+              <text class="n-mono"  x="412" y="294">normalize.py</text>
+
+              <text class="n-small" x="412" y="352">履歷成本攤提;逐筆呼叫等於把履歷付 15 次</text>
+              <text class="n-mono"  x="412" y="370">scoring.stage1</text>
+
+              <text class="n-small" x="412" y="428">用 detail_id 不是 job_no · 上限 25 筆</text>
+              <text class="n-mono"  x="412" y="446">Referer = 該職缺自己的頁面</text>
+
+              <text class="n-small" x="412" y="504">年資直接讀 period 數字,不問 LLM</text>
+              <text class="n-mono"  x="412" y="522">門檻 80 · 每日上限 10</text>
+            </svg>
+          </div>
+          <figcaption>
+            <strong style="color:var(--danger)">⚡ 赭紅 = 會發出網路請求</strong>(整趟只有兩處),
+            <strong style="color:var(--warn)">琥珀 = 護欄</strong>,
+            <strong style="color:var(--accent)">靛青 = 完全離線</strong>。
+            實測一趟 19 個請求、約 1 分半、LLM 成本 $0.036。
+          </figcaption>
+        </figure>
+
+        <h3>為什麼跑在本機而不是雲端</h3>
+        <p>不是偷懶,是<strong>雲端兩種模式都實測過不了</strong>:</p>
+        <div class="tablebox">
+          <table>
+            <thead><tr><th>從哪裡</th><th>方式</th><th>結果</th></tr></thead>
+            <tbody>
+              <tr><td>Modal(AWS 雪梨 <code>52.63.49.208</code>)</td><td>純 HTTP</td><td><code>403</code> · <code>cf-mitigated: challenge</code> · <code>Just a moment...</code></td></tr>
+              <tr><td>Modal(同上)</td><td>Patchright 真實瀏覽器</td><td><strong>更糟</strong> —— 首頁直接跳 Turnstile <strong>互動</strong>挑戰,程式無法自動通過</td></tr>
+              <tr><td>家用台灣住宅 IP</td><td>純 HTTP</td><td>✅ 連續 <strong>19 個請求全 <code>200</code></strong>,Cloudflare 連挑戰都沒出</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:18px">
+          <strong>用真實瀏覽器反而被升級成互動挑戰</strong> —— 這說明問題不在「怎麼發請求」,
+          而在 AWS 資料中心 IP 本身就被 104 的 Cloudflare 歸類為高風險訪客。換做法繞不過去。
+        </p>
+        <p>
+          <code>modal_app.py</code> 與整套瀏覽器程式碼<strong>完整保留</strong>。
+          哪天接了台灣住宅代理(填 <code>config.yaml</code> 的 <code>scrape.proxy</code>)就能切回雲端。
+          在那之前<strong>不要跑 <code>modal deploy</code></strong> —— cron 會每天失敗,
+          把熔斷器燒到需要人工解除。
+        </p>
+      </section>
+
+      <!-- ═══ 二 ═══ -->
+      <section id="dataflow">
+        <h2>二、資料怎麼流</h2>
+        <p class="sec-note">從 104 的一頁 JSON 到手機上的一則訊息。中間資料量收斂了兩百倍。</p>
+
+        <p>
+          直覺上這應該是 <code>爬蟲 → 存入 DB → AI 評分 → 發送</code> 四步。
+          實際上<strong>爬蟲有兩次,而第二次夾在兩個 AI 階段中間</strong> ——
+          詳細頁只抓粗篩活下來的那幾筆。這是整條流程最不直覺、也最關鍵的一個安排。
+        </p>
+
+        <figure>
+          <div class="figbox">
+            <svg viewBox="0 0 900 672" role="img"
+                 aria-label="資料流程:搜尋 API 取回 438 筆列表資料,合併去重後入庫並判定出 16 筆今天新出現的,AI 粗篩留下 7 筆,才對這 7 筆抓詳細頁,深評與程式端校正後 2 筆達標推播到 Telegram,最後把狀態回寫 DB 作為明天的去重依據。">
+              <defs>
+                <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path class="ah" d="M 0 0 L 10 5 L 0 10 z"></path>
+                </marker>
+              </defs>
+
+              <text class="n-mono" x="36"  y="28">每一步</text>
+              <text class="n-mono" x="346" y="28">做什麼 · 為什麼這樣排</text>
+              <text class="n-mono" x="660" y="28">寫進 jobs.db</text>
+              <line class="bracket" x1="36" y1="40" x2="864" y2="40"></line>
+              <line class="bracket" x1="644" y1="16" x2="644" y2="656" stroke-dasharray="2 5"></line>
+
+              <rect class="n-stop"  x="36" y="56" width="290" height="64" rx="6"></rect>
+              <text class="n-label" x="181" y="82"  text-anchor="middle">⚡ 104 搜尋 API</text>
+              <text class="n-small" x="181" y="104" text-anchor="middle">6 組關鍵字 × 最多 3 頁</text>
+              <text class="n-small" x="346" y="82">每頁約 30 筆,只有列表層欄位</text>
+              <text class="n-small" x="346" y="104">16 次請求,每次間隔 3–9 秒 jitter</text>
+              <line class="edge" x1="90" y1="120" x2="90" y2="158" marker-end="url(#ah2)"></line>
+              <text class="n-mono"  x="104" y="134">438 筆</text>
+              <text class="n-small" x="104" y="152">跨關鍵字仍有重複</text>
+
+              <rect class="n-box"   x="36" y="160" width="290" height="64" rx="6"></rect>
+              <text class="n-label" x="181" y="186" text-anchor="middle">合併 → 入庫 → 判斷是否新</text>
+              <text class="n-mono"  x="181" y="208" text-anchor="middle">repo.register()</text>
+              <text class="n-small" x="346" y="186">DB 是去重的判準,不只是儲存</text>
+              <text class="n-small" x="346" y="208">看過且 appearDate 沒變 → 不算新</text>
+              <rect class="n-db"    x="660" y="169" width="204" height="46" rx="5"></rect>
+              <text class="n-mono"  x="672" y="189">jobs ← 305 筆</text>
+              <text class="n-small" x="672" y="207">全部寫入,含 raw_summary</text>
+              <line class="edge" x1="90" y1="224" x2="90" y2="262" marker-end="url(#ah2)"></line>
+              <text class="n-mono"  x="104" y="238">16 筆</text>
+              <text class="n-small" x="104" y="256">今天新出現的才往下走</text>
+
+              <rect class="n-flow"  x="36" y="264" width="290" height="64" rx="6"></rect>
+              <text class="n-label" x="181" y="290" text-anchor="middle">AI 粗篩(Stage 1)</text>
+              <text class="n-mono"  x="181" y="312" text-anchor="middle">批次 15 筆 · flash-lite</text>
+              <text class="n-small" x="346" y="290">只用列表欄位,不需要完整 JD</text>
+              <text class="n-small" x="346" y="312">履歷是固定成本,逐筆等於付 15 次</text>
+              <line class="edge" x1="90" y1="328" x2="90" y2="366" marker-end="url(#ah2)"></line>
+              <text class="n-mono"  x="104" y="342">7 筆</text>
+              <text class="n-small" x="104" y="360">9 筆在這裡被刷掉</text>
+
+              <rect class="n-stop"  x="36" y="368" width="290" height="64" rx="6"></rect>
+              <text class="n-label" x="181" y="394" text-anchor="middle">⚡ 104 詳細頁 API</text>
+              <text class="n-small" x="181" y="416" text-anchor="middle">只對活下來的 7 筆</text>
+              <text class="n-small" x="346" y="394">用 detail_id,不是 job_no</text>
+              <text class="n-small" x="346" y="416">擺在粗篩之後,請求數才壓得住</text>
+              <rect class="n-db"    x="660" y="377" width="204" height="46" rx="5"></rect>
+              <text class="n-mono"  x="672" y="397">jobs.raw_detail</text>
+              <text class="n-small" x="672" y="415">← 7 份原始 JSON</text>
+              <line class="edge" x1="90" y1="432" x2="90" y2="470" marker-end="url(#ah2)"></line>
+              <text class="n-mono"  x="104" y="446">7 份完整 JD</text>
+              <text class="n-small" x="104" y="464">條件 · 職務內容 · 福利</text>
+
+              <rect class="n-flow"  x="36" y="472" width="290" height="64" rx="6"></rect>
+              <text class="n-label" x="181" y="498" text-anchor="middle">AI 深評 + 程式端校正</text>
+              <text class="n-mono"  x="181" y="520" text-anchor="middle">逐筆 · 履歷 + 完整 JD</text>
+              <text class="n-small" x="346" y="498">五維評分,total 由程式重算</text>
+              <text class="n-small" x="346" y="520">verdict 交叉驗證 · 年資 hard rule</text>
+              <rect class="n-db"    x="660" y="481" width="204" height="46" rx="5"></rect>
+              <text class="n-mono"  x="672" y="501">scores ← 7 筆</text>
+              <text class="n-small" x="672" y="519">含 adjustments 與原始輸出</text>
+              <line class="edge" x1="90" y1="536" x2="90" y2="574" marker-end="url(#ah2)"></line>
+              <text class="n-mono"  x="104" y="550">門檻 80 · 上限 10</text>
+              <text class="n-small" x="104" y="568">2 筆達標</text>
+
+              <rect class="n-flow"  x="36" y="576" width="290" height="64" rx="6"></rect>
+              <text class="n-label" x="181" y="602" text-anchor="middle">Telegram → 回寫狀態</text>
+              <text class="n-small" x="181" y="624" text-anchor="middle">摘要 1 則 + 每職缺 1 張卡</text>
+              <text class="n-small" x="346" y="602">先推播,成功後才標記 notified</text>
+              <text class="n-small" x="346" y="624">回寫的狀態就是明天的去重依據</text>
+              <rect class="n-db"    x="660" y="585" width="204" height="46" rx="5"></rect>
+              <text class="n-mono"  x="672" y="605">jobs.status · runs</text>
+              <text class="n-small" x="672" y="623">requests_used 稽核</text>
+            </svg>
+          </div>
+          <figcaption>
+            <strong style="color:var(--danger)">⚡ 赭紅 = 碰到 104</strong>(整趟只有這兩處)、
+            <strong style="color:var(--accent)">靛青 = 完全離線</strong>、灰 = 只動 DB。
+            圖上的數字是 <strong>2026-08-22 12:06 那次真實執行</strong>:
+            <code>438 → 305 → 16 → 7 → 2</code>,共 23 次請求、整趟 2 分 49 秒、LLM 成本 $0.0136。
+          </figcaption>
+        </figure>
+
+        <h3>為什麼詳細頁要等粗篩之後才抓</h3>
+        <p>
+          因為<strong>兩道過濾各砍掉一個數量級,而詳細頁的請求數直接跟著最後那個數字走</strong>:
+          DB 去重把 305 砍成 16(只留今天新出現的),粗篩再把 16 砍成 7。
+        </p>
+        <div class="tablebox">
+          <table>
+            <thead><tr><th>如果這樣做</th><th>詳細頁請求數</th><th>結果</th></tr></thead>
+            <tbody>
+              <tr><td>對抓到的每一筆都抓詳細頁</td><td>305</td><td>第 25 筆就撞上 <code>max_details_per_run</code>,整趟中止</td></tr>
+              <tr><td>只去重,不粗篩</td><td>16</td><td>總共 32 次,勉強過關但貼著上限 —— 職缺一多就爆</td></tr>
+              <tr><td><strong>現在的做法</strong></td><td><strong>7</strong></td><td>總共 23 次,離上限還有一半空間</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:18px">
+          所以粗篩不只是省 LLM 錢,它<strong>本身就是一道請求數的護欄</strong>。
+          把它拿掉,省下的是幾毛錢,付出的是撞上硬上限、抓一半就停。
+        </p>
+
+        <h3>兩支 API 各拿到什麼</h3>
+        <div class="tablebox">
+          <table>
+            <thead><tr><th>API</th><th>什麼時候打</th><th>拿到什麼</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>/jobs/search/api/jobs</code><br><span style="color:var(--ink-3);font-size:13px">搜尋列表</span></td>
+                <td>每組關鍵字、每頁各一次</td>
+                <td><code>jobNo</code>、標題、公司、地區、<code>salaryLow/High</code> + <code>s10</code>、<code>period</code>、<code>optionEdu</code>、<code>tags</code>、<code>description</code> 摘要、<code>link.job</code><br>
+                <span style="color:var(--ink-3);font-size:13px"><code>Referer</code> 要是搜尋頁</span></td>
+              </tr>
+              <tr>
+                <td><code>/job/ajax/content/{detail_id}</code><br><span style="color:var(--ink-3);font-size:13px">職缺詳細</span></td>
+                <td><strong>只對粗篩通過的那幾筆</strong></td>
+                <td>完整職務說明、<code>condition.edu</code> / <code>workExp</code>(已經是文字,不用查代碼表)、<code>jobDetail.salary</code>(組好的字串)、<code>jobCategory</code><br>
+                <span style="color:var(--ink-3);font-size:13px"><code>Referer</code> 要是<strong>該職缺自己的頁面</strong></span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:18px">
+          <strong>為什麼列表不夠用:</strong>列表裡的 <code>description</code> 看起來像 JD,但它<strong>中位數只有 123 字</strong>,
+          與 <code>descSnippet</code> 同源 —— 是摘要不是全文。想判斷技術棧與年資要求,詳細頁省不掉。
+        </p>
+
+        <h3>DB 存了什麼</h3>
+        <p>
+          四張表。最重要的觀念是:<strong><code>jobs</code> 存的是「看過的每一則」,不是「達標的那幾則」</strong> ——
+          因為它的主要用途是<strong>去重的判準</strong>,不是儲存結果。只存達標的,明天再看到同一則時就無從判斷看過沒有。
+        </p>
+
+        <div class="pits">
+          <div class="pit">
+            <h4><code>jobs</code> — 每則職缺一列(目前 320 列)</h4>
+            <dl>
+              <dt>什麼時候寫</dt>
+              <dd><strong>抓到就寫,不管有沒有達標。</strong>推播成功後再回寫 <code>status</code>。</dd>
+              <dt>值得注意的欄位</dt>
+              <dd>
+                <code>last_new_at</code> 上次被判定為「新」的時間 —— 重新上架的冷卻期以它為基準,
+                <strong>擋掉雇主天天刷新上架日就天天被推播</strong>;
+                <code>content_hash</code> 分辨「內容真的改了」與「只是刷新上架日」;
+                <code>raw_summary</code> / <code>raw_detail</code> 原始 JSON;
+                <code>status</code> 是 <code>new / screened_out / scored / notified</code>。
+              </dd>
+              <dt>為什麼留原始 JSON</dt>
+              <dd>這<strong>本身就是防封鎖策略的一部分</strong> —— 調 prompt 時 <code>--replay</code> 完全不必再碰 104,104 改版時也能直接 diff 新舊結構。</dd>
+            </dl>
+          </div>
+
+          <div class="pit">
+            <h4><code>scores</code> — 每次深評一列(目前 10 列)</h4>
+            <dl>
+              <dt>什麼時候寫</dt>
+              <dd>深評完成當下,逐筆寫入。粗篩的結果<strong>不進這張表</strong>,只反映在 <code>jobs.status</code>。</dd>
+              <dt>值得注意的欄位</dt>
+              <dd>
+                <code>adjustments</code> 記下程式端套用了哪些修正(算術幻覺、<code>verdict</code> 降級、年資 hard rule)——
+                <strong>這是唯一能看出模型錯在哪的地方</strong>;
+                <code>total_score</code> 是<strong>程式重算過的</strong>,不是模型自己加的;
+                <code>raw_response</code> 留著模型原始輸出,換模型時可以直接比。
+              </dd>
+              <dt>為什麼分開存</dt>
+              <dd>同一則職缺可能被評很多次(重新上架、<code>--replay</code>)。放在 <code>jobs</code> 裡會被覆蓋掉,就看不出評分隨模型版本的漂移。</dd>
+            </dl>
+          </div>
+
+          <div class="pit">
+            <h4><code>runs</code> — 每次執行一列(目前 4 列)</h4>
+            <dl>
+              <dt>什麼時候寫</dt>
+              <dd>開跑時建列,結束時補齊 —— <strong>被護欄擋下的執行也會寫</strong>,不然看不出「今天到底跑了沒」。</dd>
+              <dt>值得注意的欄位</dt>
+              <dd>
+                <code>requests_used</code> 是<strong>稽核欄位:這個數字失控就代表護欄有漏洞</strong>;
+                <code>schema_drift_count</code> 是 104 改版的早期警訊;
+                <code>status</code> 分 <code>success / partial / blocked / failed / skipped</code>,
+                <code>blocked</code> 與 <code>failed</code> 的處置完全不同。
+              </dd>
+              <dt>還有一個用途</dt>
+              <dd>「今天已經執行過」這道護欄就是查這張表 —— 所以開機後補跑不會重複推播。</dd>
+            </dl>
+          </div>
+
+          <div class="pit">
+            <h4><code>circuit_state</code> — 熔斷器,永遠只有一列</h4>
+            <dl>
+              <dt>怎麼保證只有一列</dt>
+              <dd>schema 直接寫死 <code>CHECK (id = 1)</code>。熔斷器有兩份狀態是災難:一份說可以跑、一份說在冷卻。</dd>
+              <dt>值得注意的欄位</dt>
+              <dd>
+                <code>consecutive_failures</code> 決定冷卻多久 —— <strong>24h → 72h → 無限期(需手動解除)</strong>;
+                <code>tripped_at</code> 是冷卻計時的起點;<code>reason</code> 留著當時的判斷依據。
+              </dd>
+              <dt>為什麼放 DB</dt>
+              <dd>它<strong>必須跨執行存活</strong>。放記憶體的話,排程每天起一個新行程,熔斷器等於不存在。</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="callout" style="max-width:none">
+          <p><b>一個容易忽略的順序問題:狀態是「推播成功之後」才回寫的。</b></p>
+          <p>
+            如果先標記 <code>notified</code> 再送 Telegram,送失敗就會變成「標記說推過了,但你根本沒收到」——
+            而且因為標記已寫,<strong>明天也不會再推</strong>,那則職缺就永久消失了。
+            所以順序刻意是<strong>先送、後標記、再存檔</strong>。
+          </p>
+        </div>
+      </section>
+
+      <!-- ═══ 三 ═══ -->
+      <section id="turns">
+        <h2>三、三次轉向</h2>
+        <p class="sec-note">架構前提被推翻兩次,方向相反。這一段是全文最值得讀的部分。</p>
+
+        <div class="timeline">
+
+          <div class="tl">
+            <div class="tl-mark tl-wrong">01</div>
+            <div class="tl-body">
+              <span class="tl-tag">起點 · 判斷錯誤</span>
+              <h3>「104 有 Cloudflare,必須用真實瀏覽器」</h3>
+              <dl class="tl-rows">
+                <div class="tl-row"><dt>當時的證據</dt><dd>用 WebFetch 打 <code>/jobs/search/api/jobs</code>,得到 <code>403</code> 加上「Enable JavaScript and cookies」。</dd></div>
+                <div class="tl-row"><dt>錯在哪</dt><dd><strong>那個管道有兩個問題同時存在,而它們被混為一談了</strong>:設不了 <code>Referer</code> header,而且從資料中心出去。看到 403 就直接歸因給 Cloudflare。</dd></div>
+                <div class="tl-row"><dt>代價</dt><dd>整套架構圍繞 Patchright、warmup、Chrome profile 打包、<code>cf_clearance</code> 綁 IP 的處理打轉。還把「Modal 的 IP 過不了 Cloudflare」列為專案<strong>唯一的存亡點</strong>。</dd></div>
+              </dl>
+            </div>
+          </div>
+
+          <div class="tl">
+            <div class="tl-mark tl-partial">02</div>
+            <div class="tl-body">
+              <span class="tl-tag">更正 · 方向對,結論太武斷</span>
+              <h3>「104 根本沒有 Cloudflare,只有 Referer 白名單」</h3>
+              <dl class="tl-rows">
+                <div class="tl-row"><dt>怎麼發現</dt><dd>使用者問「能不能不用手動操作瀏覽器」,才回頭用 <code>curl</code> 親自測。不帶 <code>Referer</code> → <code>403</code> 且 <strong>body 是 0 bytes</strong>(不是挑戰頁);加上 <code>Referer</code> → <code>200</code>、117 KB JSON、1.2 秒。</dd></div>
+                <div class="tl-row"><dt>做了什麼</dt><dd>整個抓取層改成純 <code>httpx</code>。image 從幾百 MB 降到幾 MB、記憶體 4 GB 降到 512 MB、單次請求從十幾秒降到 1.2 秒。</dd></div>
+                <div class="tl-row"><dt>錯在哪</dt><dd><strong>只在一個 IP 上驗證,就推論成通則。</strong>還信心滿滿地宣告「<code>modal run</code> 不再是存亡點了」—— 把前一份計畫裡唯一標紅的風險親手劃掉。</dd></div>
+                <div class="tl-row"><dt>意外收穫</dt><dd>真實回應到手,才發現 <code>normalize.py</code> 的欄位對應錯得比預期多(見下一節)。這些錯誤在瀏覽器架構下<strong>永遠不會被發現</strong>,因為 fixture 是我手工編的。</dd></div>
+              </dl>
+            </div>
+          </div>
+
+          <div class="tl">
+            <div class="tl-mark tl-now">03</div>
+            <div class="tl-body">
+              <span class="tl-tag">現在的理解</span>
+              <h3>Cloudflare 依 <em>IP 信譽</em> 觸發,兩件事同時為真</h3>
+              <dl class="tl-rows">
+                <div class="tl-row"><dt>怎麼發現</dt><dd>部署前的驗證跑,第一個請求就 <code>403</code>。寫了一個 <code>diagnose()</code> 從 Modal 發<strong>一個</strong>請求把回應攤開:egress IP <code>52.63.49.208</code>(AWS 雪梨)、<code>server: cloudflare</code>、<code>cf-mitigated: challenge</code>。</dd></div>
+                <div class="tl-row"><dt>正確理解</dt><dd><strong>信譽夠的 IP 被放行到 origin</strong>,在那裡才遇到 <code>Referer</code> 白名單;<strong>信譽不夠的 IP 在碰到 origin 之前就被攔下</strong>。所以第 1 次和第 2 次的觀察都是真的,只是各自只看到一半。</dd></div>
+                <div class="tl-row"><dt>連瀏覽器也不行</dt><dd>切到 Patchright 再試,首頁直接跳 <strong>Turnstile 互動挑戰</strong> —— 比純 HTTP 拿到的 Managed Challenge 更嚴重,代表這個 IP 已被歸類為高風險訪客。</dd></div>
+                <div class="tl-row"><dt>最終決定</dt><dd>改用 Windows 工作排程器跑在本機。這也推翻了我原本的風險排序 —— 當初把「搬回本機」列為<strong>最後手段</strong>,理由是「把風險轉嫁到家用 IP」,但那個排序建立在「雲端可行」的前提上。</dd></div>
+              </dl>
+            </div>
+          </div>
+
+        </div>
+
+        <h3>從這三次學到的</h3>
+        <div class="pits">
+          <div class="pit">
+            <h4>用什麼工具查證,會決定你查到什麼</h4>
+            <dl>
+              <dt>問題</dt>
+              <dd>WebFetch 設不了 header。它拿到的 403 <strong>根本回答不了「這個端點需要什麼 header」</strong> —— 卻被當成了答案。</dd>
+              <dt>現在怎麼防</dt>
+              <dd>凡是要判斷「為什麼被擋」,一律用能完整控制 request 的工具(<code>curl</code> / <code>httpx</code>),而且<strong>把回應完整印出來</strong>,不只看狀態碼。</dd>
+            </dl>
+          </div>
+          <div class="pit">
+            <h4>單一環境的觀察不能當通則</h4>
+            <dl>
+              <dt>問題</dt>
+              <dd>第 2 次更正時,19 個請求全 <code>200</code> 的證據非常有說服力 —— 但那全部來自同一個 IP。</dd>
+              <dt>現在怎麼防</dt>
+              <dd><code>diagnose()</code> 留在 <code>modal_app.py</code> 裡。任何「本機好好的、雲端壞掉」都能一次看出 egress IP 與 <code>cf-mitigated</code>,不用再猜。</dd>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 四 ═══ -->
+      <section id="pits-104">
+        <h2>四、坑 · 104 的資料</h2>
+        <p class="sec-note">每一條都是拿到真實回應才發現的。手工編的 fixture 一條都測不出來。</p>
+
+        <div class="pits">
+          <div class="pit bad">
+            <h4><code>jobNo</code> 與 <code>detail_id</code> 是兩個不同的 ID</h4>
+            <dl>
+              <dt>症狀</dt><dd>詳細頁 <strong>100% 回 404</strong>「職務不存在」。</dd>
+              <dt>根因</dt><dd>同一則職缺 <code>jobNo=15305872</code>,但連結是 <code>/job/94234</code>。詳細頁 API <strong>只吃連結尾段</strong>。</dd>
+              <dt>修法</dt><dd>領域模型拆成兩個欄位:<code>job_no</code>(去重主鍵)與 <code>detail_id</code>(打 API 用)。fixture 檔名也改用 <code>detail_id</code>,免得養出「本機會過、上線就 404」的假象。</dd>
+            </dl>
+          </div>
+
+          <div class="pit bad">
+            <h4><code>s10</code> 是薪資類型,不看就會寫出「月薪 56 萬」</h4>
+            <dl>
+              <dt>症狀</dt><dd>日報上出現「月薪 567,000~675,000 元」的醫療 AI 工程師。</dd>
+              <dt>根因</dt><dd>那是<strong>年薪</strong>。<code>s10</code>(混淆過的欄位名,等同詳細頁的 <code>salaryType</code>):<code>10</code>=面議 <code>50</code>=月薪 <code>60</code>=年薪。三筆樣本交叉驗證完全吻合。</dd>
+              <dt>修法</dt><dd>薪資字串依類型組合,另加 <code>monthly_equivalent()</code> 換算 —— 否則「月薪 45K 以上」這種判斷會讓<strong>每個年薪職缺都不當過關</strong>。</dd>
+            </dl>
+          </div>
+
+          <div class="pit">
+            <h4><code>data</code> 本身就是陣列</h4>
+            <dl>
+              <dt>症狀</dt><dd>解析出 0 筆職缺。</dd>
+              <dt>根因</dt><dd>沒有 <code>data.list</code>;總數在 <code>metadata.pagination.total / .lastPage</code>。</dd>
+              <dt>修法</dt><dd>照真實結構重寫,並保留原本的 schema drift 記錄機制 —— 那套設計是對的,只是餵錯結構。</dd>
+            </dl>
+          </div>
+
+          <div class="pit">
+            <h4><code>description</code> 含換行,打散批次 prompt</h4>
+            <dl>
+              <dt>症狀</dt><dd>粗篩靠「每筆固定四行」讓模型分辨筆與筆的邊界,一次 15 筆時會張冠李戴。</dd>
+              <dt>根因</dt><dd>摘要文字本身有換行,直接塞進 prompt 就破壞了結構。</dd>
+              <dt>修法</dt><dd><code>to_screen_block()</code> 進 prompt 前把空白壓成單行。有測試釘住行數。</dd>
+            </dl>
+          </div>
+
+          <div class="pit">
+            <h4><code>tags</code> 是 dict,退回 <code>param</code> 會撈出內部代碼</h4>
+            <dl>
+              <dt>症狀</dt><dd>職缺標籤出現 <code>wf1</code>、<code>wf2</code>、<code>wf7</code>。</dd>
+              <dt>根因</dt><dd><code>desc</code> 為空時退回 <code>param</code>,而 <code>param</code> 是 104 的內部代碼。</dd>
+              <dt>修法</dt><dd>只取有內容的 <code>desc</code>,空的直接略過 —— 放進 prompt 只是噪音。</dd>
+            </dl>
+          </div>
+
+          <div class="pit">
+            <h4>搜尋參數本身就寫錯了(原始需求裡的)</h4>
+            <dl>
+              <dt>症狀</dt><dd><code>jobexp=3</code> 以為是「3 年以下」,實際是<strong>「1~3 年」這個級距</strong> —— 會漏掉所有「1年以下 / 經歷不拘」的缺。</dd>
+              <dt>還有</dt><dd><code>order=15</code> 是<strong>符合度排序</strong>不是日期,而且改版後數值會漂移。</dd>
+              <dt>修法</dt><dd>改送 <code>jobexp=1,3</code>;完全不用 <code>order</code>,新鮮度靠 <code>isnew</code> + <code>appearDate</code> + DB 去重。<code>config.py</code> 會擋下 <code>jobexp=['3']</code> 這種寫法。</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="callout" style="max-width:none">
+          <p><b>一個好消息:<code>period</code> 是實際要求年資的「數字」,不是級距代碼。</b></p>
+          <p>
+            送 <code>jobexp=1,3</code> 回傳 0/2/3,送 <code>jobexp=10</code> 回傳 6~9 —— 交叉驗證確認。
+            所以年資 hard rule 可以<strong>直接讀整數</strong>,不必對中文跑正規表達式,可靠度大幅提升。
+          </p>
+        </div>
+      </section>
+
+      <!-- ═══ 五 ═══ -->
+      <section id="pits-mine">
+        <h2>五、坑 · 我自己寫的</h2>
+        <p class="sec-note">這幾個的共通點是:測試全綠,但實際用起來壞掉。</p>
+
+        <div class="pits">
+          <div class="pit bad">
+            <h4>測試通過,卻真的送出 6 次 Telegram 訊息</h4>
+            <dl>
+              <dt>症狀</dt><dd>使用者收到 6 份一模一樣的測試訊息。</dd>
+              <dt>根因</dt><dd>我加了一個煙霧測試檢查每個腳本的 <code>--help</code> 能不能跑完。但 <code>send_test_message.py</code> <strong>沒有 argparse</strong> —— 它會忽略 <code>--help</code>、<strong>把整個腳本跑一遍</strong>、然後正常結束。exit code 一樣是 0,所以測試「通過」了。</dd>
+              <dt>修法</dt><dd>所有腳本補上 argparse;測試改成<strong>必須驗 stdout 有 <code>usage:</code></strong> —— 那才證明是 argparse 處理的,而不是腳本真的跑了一遍。</dd>
+            </dl>
+          </div>
+
+          <div class="pit bad">
+            <h4><code>--replay</code> 被去重擋掉,整個旗標作廢</h4>
+            <dl>
+              <dt>症狀</dt><dd>重播舊資料調 prompt,深評 0 筆。</dd>
+              <dt>根因</dt><dd>重播的職缺當然「看過了」,去重把它們全部濾掉。而 <code>--replay</code> 存在的唯一理由就是重跑已看過的資料。</dd>
+              <dt>修法</dt><dd>離線模式自動開 <code>rescore_all</code>,跳過去重但仍寫進 DB(否則外鍵掛不上、之後也無法再 replay)。正式排程走預設路徑,去重照常。</dd>
+            </dl>
+          </div>
+
+          <div class="pit bad">
+            <h4>暖容器把已刪掉的狀態復活</h4>
+            <dl>
+              <dt>症狀</dt><dd>刪掉 <code>local_data/</code> 重跑,結果還是說「今天已經執行過」。</dd>
+              <dt>根因</dt><dd><code>Database.open()</code> 只在倉庫端有檔案時才複製,<strong>沒清本地殘留</strong> —— 於是沿用了上次跑剩的 DB。在 Modal 上就是暖容器把已刪除的熔斷紀錄復活。</dd>
+              <dt>修法</dt><dd>開檔前一律先 <code>unlink(missing_ok=True)</code>。</dd>
+            </dl>
+          </div>
+
+          <div class="pit bad">
+            <h4>fixture 輪流套 detail,讓預覽分數全是假的</h4>
+            <dl>
+              <dt>症狀</dt><dd>「8 年以上、需帶團隊」的資深缺拿到 96 分。</dd>
+              <dt>根因</dt><dd>fixture source 把幾份 detail 輪流套到每個職缺上,結果資深缺配到「經歷不拘」的詳細頁。</dd>
+              <dt>修法</dt><dd>改成<strong>嚴格按 <code>detail_id</code> 對應</strong>,對不到就不給 detail。評分端本來就有「沒有詳細內容時保守評估」的路徑,走那條才誠實。</dd>
+            </dl>
+          </div>
+
+          <div class="pit bad">
+            <h4>相對路徑讓 Modal 容器 crash-loop</h4>
+            <dl>
+              <dt>症狀</dt><dd>容器反覆啟動失敗,<code>FileNotFoundError: 'config/config.yaml'</code>。</dd>
+              <dt>根因</dt><dd><code>modal_app.py</code> <strong>在本機與容器裡都會被 import</strong>:本機為了定義 app,容器為了跑函式。兩邊的設定檔位置不同。</dd>
+              <dt>修法</dt><dd>兩個路徑都試,都找不到才退回預設值。</dd>
+            </dl>
+          </div>
+
+          <div class="pit bad">
+            <h4>護欄自己誤判:設定錯誤被當成「被封鎖」</h4>
+            <dl>
+              <dt>症狀</dt><dd><code>Referer</code> 掉了會讓熔斷器啟動,系統白白停機 24 小時 —— 而冷卻之後設定還是錯的。</dd>
+              <dt>根因</dt><dd>兩種 403 長得完全不一樣,但原本一律當成封鎖。</dd>
+              <dt>修法</dt><dd><code>classify_403()</code>:<strong>body 空 = 我方設定問題</strong>(告警但不熔斷),<strong>body 有挑戰頁特徵 = 真被擋</strong>(熔斷)。瀏覽器路徑讀 body 可能失敗,所以 <code>detect_block()</code> 對 403 維持 fail-closed。</dd>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 六 ═══ -->
+      <section id="pits-llm">
+        <h2>六、坑 · LLM 的行為</h2>
+        <p class="sec-note">便宜模型的問題不是「笨」,是<strong>不照格式走</strong>。而格式正是我們拿來做防幻覺交叉驗證的東西。</p>
+
+        <div class="tablebox">
+          <table>
+            <thead><tr><th>問題</th><th>實測</th><th>修法</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>模型自己發明 <code>verdict</code> 值</strong></td>
+                <td>22 筆裡有 <strong>9 筆</strong>吐出 <code>worth_a_shot</code>、<code>worth_a_try</code> —— prompt 裡從沒出現過的字</td>
+                <td>JSON schema 加 <strong>enum 約束</strong>(改用 <code>Literal</code>)→ 降到 <strong>0 筆</strong></td>
+              </tr>
+              <tr>
+                <td><strong>無效 verdict 被當成負面訊號</strong></td>
+                <td>無法對應時回 <code>"maybe"</code>,而 <code>maybe</code> 會觸發降級 —— 一個 75 分的職缺因此掉到 68 分消失</td>
+                <td>改成回 <code>None</code> 並<strong>跳過交叉驗證</strong>。用字不合格<strong>不代表</strong>模型認為職缺不好</td>
+              </tr>
+              <tr>
+                <td><strong>門檻頂到每日上限</strong></td>
+                <td>單一關鍵字的 32 筆裡,70 分就有 10 則達標(正好是上限)。而正式跑有六組關鍵字</td>
+                <td>門檻 → <strong>80</strong>。分佈上 70–79 與 80+ 之間有明顯斷層</td>
+              </tr>
+              <tr>
+                <td><strong>「待遇面議」被當成缺點</strong></td>
+                <td>22 筆裡 <strong>19 筆</strong>是面議,<code>practical_fit</code> 幾乎變成常數,失去鑑別力</td>
+                <td>prompt 明講<strong>面議給中間值 5–6 分</strong>。台灣八成職缺不揭露薪資,拿它扣分等於懲罰八成的職缺</td>
+              </tr>
+              <tr>
+                <td><strong>把新鮮人當成資深工程師</strong></td>
+                <td>看到滿滿的 BERT / YOLO / RAG 專案,就給「要求 8 年、需帶團隊」的職缺高 <code>exp_fit</code></td>
+                <td><strong>程式端 hard rule</strong>:要求 ≥ 5 年就把 <code>exp_fit</code> 夾到 8 並重算。現在直接讀 <code>period</code> 整數,比解析中文可靠</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p style="margin-top:20px">
+          <strong>共通的原則:能用規則做的事就用規則做。</strong>
+          總分程式端重算(不信模型的加法)、<code>verdict</code> 交叉驗證、年資 hard rule ——
+          三道校正全都是純函式,所以可以被完整測試,而且不會因為模型換版而漂移。
+        </p>
+      </section>
+
+      <!-- ═══ 七 ═══ -->
+      <section id="decisions">
+        <h2>七、關鍵決策</h2>
+        <p class="sec-note">每個決策附上被否決的選項 —— 那通常比「選了什麼」更能說明理由。</p>
+
+        <div class="decision">
+          <h4><code>ports.py</code> 的三個 Protocol</h4>
+          <dl>
+            <dt>選了什麼</dt>
+            <dd><code>JobSource / Scorer / Notifier</code> 三個介面,pipeline 只認介面不認實作。</dd>
+            <dt>為什麼</dt>
+            <dd>當初寫的理由是「風險備案」。<strong>結果它真的付了錢</strong>:抓取方式從真實瀏覽器整個換成純 HTTP,而 <code>pipeline.py</code>、<code>storage/</code>、<code>scoring/</code>、<code>notify/</code> <strong>一行都沒改</strong>。</dd>
+            <dt class="rejected">否決了什麼</dt>
+            <dd>直接在 pipeline 裡呼叫 Playwright。那樣的話第 2 次轉向就是整個重寫,而不是換一個實作。</dd>
+          </dl>
+        </div>
+
+        <div class="decision">
+          <h4>護欄先於功能:<code>RequestBudget.acquire()</code> 是唯一入口</h4>
+          <dl>
+            <dt>選了什麼</dt>
+            <dd>所有對 104 的請求都必須先過同一個守門員:路徑黑名單 → 預算檢查 → 強制節流 → 計數。</dd>
+            <dt>為什麼</dt>
+            <dd>節流如果靠「呼叫端記得 sleep」,遲早會有人忘記。做成<strong>唯一入口</strong>就不可能繞過。換成 HTTP 模式時特地把它抽成兩條路共用,而不是各寫一份。</dd>
+            <dt class="rejected">否決了什麼</dt>
+            <dd>在每個抓取函式裡各自 <code>asyncio.sleep()</code>。也否決了「HTTP 模式比較輕所以放寬節流」—— 節流是對 104 的禮貌,跟我們這邊輕不輕沒關係。</dd>
+          </dl>
+        </div>
+
+        <div class="decision">
+          <h4>零重試 + 熔斷器</h4>
+          <dl>
+            <dt>選了什麼</dt>
+            <dd>偵測到封鎖訊號立刻中止<strong>整趟</strong>,熔斷 24h → 72h → 需手動解除。連 Modal 的 function 級重試也關掉(<code>retries=0</code>)。</dd>
+            <dt>為什麼</dt>
+            <dd>重試是把「暫時被挑戰」變成「永久封 IP」的頭號原因。如果 104 已經在擋你,隔天 08:00 再自動跑一次<strong>只會坐實「這個 IP 是機器人」</strong>。</dd>
+            <dt>實際救了什麼</dt>
+            <dd>Modal 那兩次驗證跑,各自<strong>只發了 1 個請求</strong>就退場。護欄表現無可挑剔。</dd>
+            <dt class="rejected">否決了什麼</dt>
+            <dd>指數退避重試。對 403 / 429 來說,退避重試只是把同一個錯誤重複犯得比較慢。</dd>
+          </dl>
+        </div>
+
+        <div class="decision">
+          <h4>絕不登入 104 帳號</h4>
+          <dl>
+            <dt>選了什麼</dt>
+            <dd>設定檔連帳密欄位都沒有(出現 <code>password</code> 之類的鍵<strong>直接拒絕啟動</strong>);每次執行前掃 cookie jar 確認匿名。</dd>
+            <dt>為什麼</dt>
+            <dd>目標資料<strong>對未登入訪客完全開放</strong>,登入拿不到任何額外欄位 —— 只有壞處沒有好處。而 IP 被鎖可以換網路,<strong>帳號被停權就沒得救了</strong>。</dd>
+            <dt>額外收穫</dt>
+            <dd>HTTP 模式下這條變成天然成立 —— 我們根本不送任何 cookie。</dd>
+          </dl>
+        </div>
+
+        <div class="decision">
+          <h4>兩階段評分,粗篩必須批次</h4>
+          <dl>
+            <dt>選了什麼</dt>
+            <dd>粗篩一次帶 15 筆(只用列表欄位),深評逐筆(帶完整 JD)。</dd>
+            <dt>為什麼</dt>
+            <dd>履歷放進 prompt 約 800 token,是<strong>每次呼叫的固定成本</strong>。批次攤提後每筆邊際成本只剩約 60 token;<strong>逐筆粗篩等於把履歷付了 15 次</strong>。</dd>
+            <dt class="rejected">否決了什麼</dt>
+            <dd>批次超過 15 筆 —— 實測會出現漏回 <code>job_no</code> 與後段被前段錨定。所以批次後<strong>必須驗集合</strong>,缺的自動補一輪。</dd>
+          </dl>
+        </div>
+
+        <div class="decision">
+          <h4>保留原始 JSON</h4>
+          <dl>
+            <dt>選了什麼</dt>
+            <dd>每次抓到的 raw JSON 存進 <code>jobs.raw_summary</code> / <code>raw_detail</code>,模型的原始輸出存進 <code>scores.raw_response</code>。</dd>
+            <dt>為什麼</dt>
+            <dd>這<strong>本身就是防封鎖策略的一部分</strong> —— 調 prompt 時 <code>--replay</code> 完全不需要再碰 104。104 改版時也能直接 diff 新舊結構。</dd>
+          </dl>
+        </div>
+
+        <div class="decision">
+          <h4>Telegram 用 HTML 而不是 MarkdownV2</h4>
+          <dl>
+            <dt>為什麼</dt>
+            <dd>MarkdownV2 要跳脫 <strong>18 個字元</strong>,而職缺標題與薪資裡到處是 <code>(</code> <code>)</code> <code>-</code> <code>.</code>,漏一個就整則 400。HTML 只要跳脫 <code>&amp;</code> <code>&lt;</code> <code>&gt;</code> 三個。</dd>
+            <dt>額外保險</dt>
+            <dd>400 時<strong>降級成純文字重送一次</strong> —— 標題偶爾有怪字元,寧可醜也不要整則消失。</dd>
+          </dl>
+        </div>
+
+        <div class="decision">
+          <h4>User-Agent 誠實標示,不偽裝</h4>
+          <dl>
+            <dt>選了什麼</dt>
+            <dd><code>JobFinder/0.1 (personal job-seeking daily digest; +email)</code>。含 <code>Mozilla</code> 會被 <code>config.py</code> 拒絕啟動。</dd>
+            <dt>為什麼</dt>
+            <dd>104 的 API <strong>根本不檢查 UA</strong>(實測 <code>curl/8.x</code> 也照樣 200)。既然偽裝沒有任何好處,誠實標示反而降低合規風險,也讓 104 想聯絡時有管道。</dd>
+            <dt>注意例外</dt>
+            <dd>瀏覽器模式<strong>完全不讀這個欄位</strong> —— 那邊一律用 Chromium 自己的真實 UA,因為偽造的 UA 與實際指紋不一致才是最明顯的機器人訊號。</dd>
+          </dl>
+        </div>
+      </section>
+
+      <!-- ═══ 八 ═══ -->
+      <section id="ops">
+        <h2>八、日常操作</h2>
+        <p class="sec-note">程式面已經完成。這一段是你之後真的會用到的東西。</p>
+
+        <h3>收到訊息時怎麼判斷</h3>
+        <div class="tablebox">
+          <table>
+            <thead><tr><th>你收到的</th><th>意思</th><th>該做什麼</th></tr></thead>
+            <tbody>
+              <tr><td>摘要 + 幾張卡片</td><td>一切正常</td><td>看職缺</td></tr>
+              <tr><td>「今天沒有新職缺」</td><td>正常。104 當天沒新缺,或新缺都看過了</td><td>什麼都不用做</td></tr>
+              <tr><td><strong>「403 但這是設定問題不是被封鎖」</strong></td><td>body 空的 403 = <code>Referer</code> 掉了</td><td>檢查 <code>scrape.referer</code>。<strong>熔斷器沒啟動</strong>,修好就能跑</td></tr>
+              <tr><td>「104 抓取被中止」</td><td>真的被擋了,熔斷器已啟動</td><td><strong>不要手動重跑。</strong>家用 IP 被擋是嚴重訊號,先停幾天</td></tr>
+              <tr><td>摘要帶 schema drift 警告</td><td>104 可能改版了</td><td>跑 <code>pytest tests/test_normalize.py</code> 看哪些欄位對不上</td></tr>
+              <tr><td>什麼都沒收到</td><td>電腦沒開機,或排程沒跑</td><td>看 <code>local_data\daily.log</code> 的尾巴</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>指令</h3>
+        <pre><span class="c"># 開發:完全不碰 104,可以反覆跑(fixture 是真實回應)</span>
+<span class="ok">jobfinder run --from-fixtures --fake-llm --dry-run</span>   <span class="c"># 零成本,看排版</span>
+<span class="ok">jobfinder run --from-fixtures --dry-run</span>              <span class="c"># 用真 LLM 調 prompt</span>
+<span class="ok">jobfinder run --replay 42</span>                            <span class="c"># 拿舊資料重跑評分</span>
+<span class="ok">jobfinder status</span>                                    <span class="c"># 執行紀錄 + 熔斷器 + 請求量稽核</span>
+
+<span class="c"># 排程</span>
+Start-ScheduledTask -TaskName <span class="ok">"JobFinder Daily"</span>       <span class="c"># 手動觸發一次</span>
+Get-Content local_data\daily.log -Tail 40 -Encoding UTF8   <span class="c"># 排程紀錄(少了 -Encoding 會亂碼)</span>
+
+<span class="c"># 會連 104 —— 一次性的,不要反覆跑</span>
+<span class="no">jobfinder run --limit 5</span>                              <span class="c"># 端到端冒煙,約 6 秒</span></pre>
+
+        <h3>改東西時</h3>
+        <div class="tablebox">
+          <table>
+            <thead><tr><th>你想做的</th><th>該改哪裡</th></tr></thead>
+            <tbody>
+              <tr><td>加關鍵字、調門檻、換模型</td><td>只改 <code>config/config.yaml</code></td></tr>
+              <tr><td>104 改了 API 路徑</td><td>改 <code>scrape.search_api_pattern</code>,不用動程式</td></tr>
+              <tr><td>加新的抓取行為</td><td><strong>一定要走 <code>RequestBudget.acquire()</code></strong>,不要自己發請求</td></tr>
+              <tr><td>新增 <code>scripts/</code> 底下的腳本</td><td><strong>一定要有 argparse</strong> —— <code>tests/test_scripts.py</code> 會驗 <code>--help</code> 印得出 <code>usage:</code></td></tr>
+              <tr><td>想放寬硬上限</td><td><code>config.py</code> 會直接拒絕啟動。要改必須先在 CLAUDE.md 說明理由</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout" style="max-width:none">
+          <p><b>緊急剎車</b></p>
+          <p>
+            把 <code>.env</code> 的 <code>JOBFINDER_SCRAPE_DISABLED</code> 改成 <code>1</code>,
+            下次排程就會直接短路,<strong>一個請求都不發</strong>。
+            或把 <code>config.yaml</code> 的 <code>scrape.enabled</code> 改成 <code>false</code>。
+            兩者都<strong>立即生效</strong>,不需要重新部署任何東西 —— 這是跑在本機的好處之一。
+          </p>
+        </div>
+      </section>
+
+      <footer>
+        <p>
+          相關文件:<code>README.md</code> 安裝與啟用 ·
+          <code>SPEC.md</code> 完整規格 ·
+          <code>CLAUDE.md</code> 給 AI 助理的專案上下文 ·
+          <code>tests/test_guardrails.py</code> 與 <code>tests/test_http_source.py</code> 護欄測試。
+          256 個測試全綠。
+        </p>
+        <p>本專案定位為個人求職自用、每日執行一次、不對外發布。改變用途前請重新評估合規性。</p>
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+    var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+    if (!('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var i = sections.indexOf(e.target);
+        links.forEach(function (a, j) { a.classList.toggle('active', i === j); });
+      });
+    }, { rootMargin: '-10% 0px -80% 0px' });
+    sections.forEach(function (s) { if (s) io.observe(s); });
+  })();
+</script>
