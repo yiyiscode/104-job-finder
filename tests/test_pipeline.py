@@ -153,6 +153,91 @@ def read_circuit(data_dir, cfg):
         return JobRepo(db.conn, cfg.dedupe).get_circuit()
 
 
+# ─── 產業／規模規則層 ───────────────────────────────────────────────
+
+
+def targeted_job(i, *, code, employees):
+    """帶產業訊號的假職缺。make_jobs() 的兩筆都沒有訊號,會觸發 fail-open。"""
+    return JobSummary(
+        job_no=f"t{i}",
+        detail_id=f"td{i}",
+        job_name=f"資料工程師{i}",
+        cust_name=f"公司{i}",
+        job_url=f"https://www.104.com.tw/job/t{i}",
+        appear_date="20260821",
+        industry_code=code,
+        employee_count=employees,
+        raw={"jobNo": f"t{i}", "coIndustry": code, "employeeCount": employees},
+    )
+
+
+async def test_targeting_runs_before_screening(cfg, setup):
+    """不符合產業／規模的職缺**根本不該進 LLM** —— 它們既不該花 token,
+    也不該吃掉每次 18 個詳細頁名額。"""
+    jobs = [
+        targeted_job(0, code="1001006002", employees=5000),  # 半導體大廠 → 留
+        targeted_job(1, code="1004001001", employees=3000),  # 銀行 → 留
+        targeted_job(2, code="1001001002", employees=8000),  # 軟體業 → 產業不符
+        targeted_job(3, code="1001006002", employees=12),  # 半導體但 12 人 → 規模不足
+    ]
+    scorer = FakeScorer()
+    seen = []
+    original_screen = scorer.screen
+
+    async def spy(batch):
+        seen.extend(j.job_no for j in batch)
+        return await original_screen(batch)
+
+    scorer.screen = spy
+    deps, _, notifier, data_dir = setup(FakeSource(jobs), scorer)
+    report = await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
+
+    assert seen == ["t0", "t1"], "只有目標產業的大公司該進粗篩"
+    assert report.jobs_new == 4, "jobs_new 仍是「今天新出現」的真實數字"
+    assert report.jobs_filtered_out == 2
+    assert [j.job_no for j in notifier.jobs] == ["t0", "t1"]
+
+
+async def test_filtered_out_count_is_persisted(cfg, setup):
+    """被濾掉幾筆要進 runs 表。這個數字等於 jobs_new 時代表條件太窄 —— 稽核得看得到。"""
+    jobs = [
+        targeted_job(0, code="1001006002", employees=5000),
+        targeted_job(1, code="1001001002", employees=8000),
+    ]
+    deps, _, _, data_dir = setup(FakeSource(jobs))
+    report = await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
+
+    with Database(data_dir, cfg.paths.db_filename) as db:
+        row = db.conn.execute(
+            "SELECT jobs_new, jobs_filtered_out FROM runs WHERE id = ?", (report.run_id,)
+        ).fetchone()
+    assert row["jobs_new"] == 2
+    assert row["jobs_filtered_out"] == 1
+
+
+async def test_filtered_jobs_are_marked_screened_out(cfg, setup):
+    """濾掉的職缺要標記狀態,否則它們在 jobs 表裡永遠掛著 'new'。"""
+    jobs = [targeted_job(0, code="1001001002", employees=8000)]
+    deps, _, _, data_dir = setup(FakeSource(jobs))
+    await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
+
+    with Database(data_dir, cfg.paths.db_filename) as db:
+        row = db.conn.execute("SELECT status FROM jobs WHERE job_no = 't0'").fetchone()
+    assert row["status"] == "screened_out"
+
+
+async def test_targeting_fails_open_when_signals_missing(cfg, setup):
+    """104 拿掉 coIndustry / employeeCount 時要照跑並告警,**不可以靜默歸零** ——
+    0 則的日報跟「今天沒新職缺」長得一模一樣,可能好幾週都沒人發現。"""
+    deps, _, notifier, data_dir = setup()  # make_jobs() 兩筆都沒有產業訊號
+    report = await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
+
+    assert report.jobs_filtered_out == 0
+    assert len(notifier.jobs) == 2
+    assert any("coIndustry" in w for w in report.warnings)
+    assert any("employeeCount" in w for w in report.warnings)
+
+
 # ─── 正常路徑 ───────────────────────────────────────────────────────
 
 

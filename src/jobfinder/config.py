@@ -79,6 +79,35 @@ class SearchCfg(BaseModel):
         return v
 
 
+class TargetingCfg(BaseModel):
+    """產業與公司規模的規則層過濾(見 :mod:`jobfinder.targeting`)。
+
+    這一層跑在粗篩之前,所以不符合的職缺連 LLM 都不會看到,
+    也不會吃掉每次 18 個詳細頁名額。
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    enabled: bool = True
+    #: 104 的產業代碼**前綴**。階層式代碼,一個前綴涵蓋整群。
+    #: 空清單 = 不過濾產業。
+    industry_prefixes: list[str] = Field(default_factory=list)
+    #: 公司員工數下限。0 = 不過濾規模。
+    min_employee_count: int = Field(default=0, ge=0)
+
+    @field_validator("industry_prefixes")
+    @classmethod
+    def _prefixes_must_be_numeric(cls, v: list[str]) -> list[str]:
+        # 打錯成中文名稱是最容易犯的錯,而且不會報錯只會默默全部濾掉
+        for p in v:
+            if not p.isdigit():
+                raise ValueError(
+                    f"industry_prefixes 要放 104 的產業**代碼**前綴(如 '1001006' = 半導體業),"
+                    f" 不是中文名稱。收到:{p!r}"
+                )
+        return v
+
+
 class ProxyCfg(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -225,6 +254,9 @@ class ScoringCfg(BaseModel):
     max_per_day: int = Field(default=10, ge=1, le=50)
     mode: Literal["threshold", "top_n"] = "threshold"
     top_n: int = Field(default=5, ge=1, le=20)
+    #: ``top_n`` 模式的品質下限。純粹「推前 N 名」在職缺荒的日子會把 30 分的
+    #: 垃圾也推出來 —— 前 N 名不代表值得看。0 = 不設下限(舊行為)。
+    top_n_floor: int = Field(default=0, ge=0, le=100)
     list_rejected_in_summary: bool = True
     max_rejected_listed: int = Field(default=10, ge=0, le=50)
     weights: WeightsCfg = Field(default_factory=WeightsCfg)
@@ -272,6 +304,7 @@ class Config(BaseModel):
 
     version: int
     search: SearchCfg
+    targeting: TargetingCfg = Field(default_factory=TargetingCfg)
     scrape: ScrapeCfg
     circuit: CircuitCfg = Field(default_factory=CircuitCfg)
     dedupe: DedupeCfg = Field(default_factory=DedupeCfg)

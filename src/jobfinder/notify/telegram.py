@@ -52,6 +52,8 @@ class TelegramNotifier:
             max_rejected=(
                 self.scoring.max_rejected_listed if self.scoring.list_rejected_in_summary else 0
             ),
+            mode=self.scoring.mode,
+            top_n=self.scoring.top_n,
         )
         await self.send(text)
 
@@ -146,6 +148,8 @@ class ConsoleNotifier:
                 report,
                 threshold=self.scoring.threshold,
                 max_rejected=self.scoring.max_rejected_listed,
+                mode=self.scoring.mode,
+                top_n=self.scoring.top_n,
             )
         )
 

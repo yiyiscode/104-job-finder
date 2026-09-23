@@ -54,6 +54,10 @@ class JobSummary(BaseModel):
 
     # ── 列表就給的額外訊號,評分時有用 ──────────────────────────
     industry: str | None = None
+    #: 104 的產業代碼(``coIndustry``)。階層式:``1001006`` = 半導體業,
+    #: 底下 ``1001006001`` IC設計 / ``1001006002`` 半導體製造 / ``1001006003`` 其他半導體。
+    #: 產業過濾一律比對這個而不是中文名稱 —— 104 改名稱時代碼不會變。
+    industry_code: str | None = None
     employee_count: int | None = None
     remote_work_type: int | None = None
     #: 雇主回覆行為的百分位(0–1)。越高代表這家 HR 越常回覆應徵者。
@@ -184,6 +188,10 @@ class RunReport(BaseModel):
     rejected: list[RejectedJob] = Field(default_factory=list)
 
     #: 實際用掉的 HTTP 導覽數。稽核用 —— 這個數字失控代表護欄有漏洞。
+    #: 被產業／規模規則層濾掉的筆數。稽核用:這個數字等於 jobs_new 時
+    #: 代表過濾條件太窄(或 104 的欄位變了),日報會靜默歸零。
+    jobs_filtered_out: int = 0
+
     requests_used: int = 0
     llm_cost_usd: float = 0.0
     schema_drift_count: int = 0

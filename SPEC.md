@@ -6,9 +6,13 @@
 
 ## 1. 背景與目標
 
-使用者(林芳義,2025 台科大資管碩士畢,約 0–1 年正式年資,AI/ML 方向求職中)每天手動翻 104 找職缺,費時且容易漏掉新上架的缺。
+使用者(林芳義,2025 台科大資管碩士畢,約 0–1 年正式年資)每天手動翻 104 找職缺,費時且容易漏掉新上架的缺。
 
-**目標**:每天 08:00(台北時間)自動抓取符合條件的職缺,用 LLM 對照其履歷(`profile.md`)評分,將「今天新出現且達標」者整理成日報推送到 Telegram。
+**目標**:每天 08:00(台北時間)自動抓取符合條件的職缺,用 LLM 對照其履歷(`profile-de.md`)評分,將「今天新出現、在目標產業、且分數排得上前面」者整理成日報推送到 Telegram。
+
+**求職方向(2026-09-23 收斂)**:主敘事是**資料工程師／資料科學家**,產業收斂在**半導體與金融的大公司**。
+刻意避開「AI 工程師」那一格 —— 競爭最激烈,改由 104 的公開履歷承接 inbound。
+`profile.md`(AI 主敘事)保留給 inbound,本工具的評分基準是 `profile-de.md`。
 
 **非目標**(明確不做):
 - 不自動投遞履歷,不代替使用者與雇主互動
@@ -20,7 +24,7 @@
 
 ## 2. 使用者輪廓(評分依據)
 
-摘自 `profile.md`,LLM 評分時的關鍵背景:
+摘自 `profile-de.md`(主動投遞用履歷,主敘事是流程自動化／資料工程),LLM 評分時的關鍵背景:
 
 | 項目 | 內容 |
 |---|---|
@@ -29,7 +33,9 @@
 | 實習 | 國泰人壽 CAP 資安大數據(BERT+CNN 惡意網址分類,pipeline 效率 6 倍) |
 | 產學 | Solerie AI 金幣瑕疵檢測(YOLO / SIFT+FLANN / Arduino) |
 | 代表專案 | 半導體晶圓缺陷分類(不平衡資料、SHAP、AutoML)、RAG 資安文件問答(FastAPI/LangChain/ChromaDB)、資安 LLM fine-tuning、i 郵箱 BI 平台(郵政大數據競賽 Top 15) |
-| 技術棧 | Python/SQL/R、LangChain/RAG/Prompt Engineering/Fine-tuning、PyTorch/TensorFlow/CNN/BERT、OpenCV/YOLO、FastAPI、AWS/GCP |
+| 技術棧(主線) | Python、SQL、爬蟲、排程、ETL 流程設計、API 串接、Pandas/NumPy、FastAPI、AWS/GCP |
+| 技術棧(輔線) | LangChain/RAG/Fine-tuning、PyTorch/CNN/BERT、XGBoost/SHAP、OpenCV/YOLO、Power BI/Tableau/Streamlit |
+| 目標產業的實績 | **金融**:國泰人壽 CAP 資安大數據實習;**半導體**:晶圓缺陷分類(FNR 100%→0%) |
 
 ⚠️ **評分時最關鍵的一點**:此人「專案豐富但正式年資 0–1 年」,是 LLM 極容易誤判的組合 —— 模型看到滿滿的 BERT/YOLO/RAG 專案,傾向把他當成 3 年資深工程師,於是給「要求 5 年經驗」的職缺高分,結果投了全無回音。**規格上必須用程式規則壓制這個誤判**(見 §6.4)。
 
@@ -43,7 +49,8 @@
 | F-2 | 依多組關鍵字搜尋,結果以 `jobNo` 合併去重 | 兩組關鍵字命中同一職缺時只存一筆,`matched_keywords` 記錄兩者 |
 | F-3 | 只推送「今天新出現」的職缺 | 昨天推過的今天不再出現(見 §5 去重規則) |
 | F-4 | 對每則職缺產生 AI 匹配評分與人話理由 | 卡片含分數、一句話總評、3 點匹配理由、注意事項、履歷建議 |
-| F-5 | 分數 ≥ 70 才推送,每日上限 10 則 | 超過上限取分數最高的 10 則 |
+| F-5 | 依相對排序取分數最高的前 N 則推送(`scoring.mode: top_n`) | 低於 `top_n_floor` 者不推;理由見 §6.3 |
+| F-11 | 只評估目標產業與規模的職缺 | 不符者在粗篩**之前**就濾掉,不花 LLM token、不佔詳細頁名額;筆數記入 `runs.jobs_filtered_out` |
 | F-6 | 未達標職缺在摘要中一行列出(標題+分數+原因) | 摘要含「未達標(供參考)」區塊 |
 | F-7 | 當日無新職缺時仍發一則摘要 | 收到「今日無新職缺」訊息,不是靜默 |
 | F-8 | 執行失敗時發 Telegram 告警 | 告警含頁面標題、URL、熔斷狀態、下次可執行時間、截圖檔名 |
@@ -117,9 +124,11 @@ bot detection 時才切過去 —— 告警會明確告訴你是哪一種。
 
 ### 4.3 搜尋條件
 
-- **關鍵字**(多組合併去重):AI工程師、機器學習工程師、LLM工程師、深度學習工程師、資料科學家、MLOps
-  理由:使用者背景橫跨 NLP/CV/RAG,單一「AI工程師」關鍵字會漏掉名稱不同但內容相符的職缺。
-- **地區**:台北市、新北市、桃園市、新竹縣市
+- **關鍵字**(多組合併去重,10 組):資料工程師、數據工程師、ETL工程師、資料平台工程師、資料倉儲工程師、BI工程師、爬蟲工程師、數據分析師、資料科學家、機器學習工程師
+  理由:職缺名稱在台灣沒有統一寫法,單一關鍵字會漏掉內容相符但名稱不同的職缺。
+  ⚠️ **順序有意義** —— 預算用盡時 `search.py` 會停在當下的關鍵字,後面的整個不跑。
+  ⚠️ 刻意不放「系統整合工程師」「流程自動化」:它們命中的主要是 SI／接案公司,與「聚焦大廠」反向拉扯。
+- **地區**:台北市、新北市、桃園市、新竹縣市、台中市(硬條件是「台中以北」)
 - **經歷**:`jobexp=1,3`(3 年以下)
 - **新鮮度**:`isnew=3`(三日內),再由 DB 去重確保只推真正沒看過的
 
@@ -137,6 +146,46 @@ bot detection 時才切過去 —— 告警會明確告訴你是哪一種。
 | 看過,`appear_date` 變了,距上次 ≥ 冷卻期 | ✅ 新(視為重新開缺) |
 | 曾被粗篩刷掉(`status='screened_out'`) | ❌ 不新 |
 | 兩組關鍵字命中同一 `job_no` | 只存一筆,`matched_keywords` 記錄兩者 |
+
+---
+
+## 5.5 規則層過濾(產業與公司規模)
+
+去重之後、進 LLM **之前**的一道純規則過濾。實作在 `src/jobfinder/targeting.py`。
+
+| 條件 | 依據欄位 | 設定 |
+|---|---|---|
+| 產業 | `coIndustry`(階層式代碼,比對**前綴**) | `1001006` 半導體業 / `1001005` 電子零組件 / `1001004` 光電及光學 / `1001003` 電腦及消費性電子製造 / `1004` 金融投顧及保險 |
+| 公司規模 | `employeeCount` | `min_employee_count: 500` |
+
+**兩個欄位在搜尋列表回應裡就有**,不必抓詳細頁(1,638 筆真實資料驗證,缺失率 0)。
+
+### 為什麼不在 104 的搜尋參數做
+
+搜尋請求數 = 關鍵字 × 頁數,**跟有沒有帶產業參數完全無關** —— 在對方那端過濾
+省不到任何請求預算(見 §9 規則 3),卻要為一個沒實測過的參數多打一次 104。
+程式端過濾是零額外請求、零封鎖風險、可完全離線測試。
+
+真正稀缺的是每次 18 個詳細頁名額,而這一層正好把它們全部留給目標職缺。
+
+### 為什麼不用 `jobCat`(職務類別)
+
+104 有正規的職務類別代碼(`2007001022` 資料工程師 vs `2007001020` AI工程師),
+看起來更精準。**實測失敗**:雇主亂掛 —— 「數據工程師(學士/碩士)」掛的是
+統計精算人員/軟體工程師,整批最好的玉山「Data & AI Platform」掛的是
+其他資訊專業人員/雲端工程師,反而「AI研發工程師」**有**資料工程師。
+硬篩會殺掉最好的缺、留下 AI 缺。**公司屬於什麼產業,雇主沒有動機亂填;
+職務類別有。**
+
+### ⚠️ 訊號消失時 fail-open,不是 fail-closed
+
+104 哪天不給 `employeeCount` 了,fail-closed 會讓日報靜靜變成 0 則 ——
+**跟「今天沒新職缺」長得一模一樣**,可能好幾週才發現。
+
+所以某欄位在整批裡缺超過 50%(`MISSING_RATIO_LIMIT`)時,**停用該條件並大聲告警**。
+
+**驗收**:`tests/test_targeting.py`(18 個測試)+ `tests/test_pipeline.py` 的 4 個整合測試。
+被濾掉的筆數記入 `runs.jobs_filtered_out`;**這個數字等於 `jobs_new` 代表條件太窄或 104 改了欄位**。
 
 ---
 
@@ -159,23 +208,40 @@ bot detection 時才切過去 —— 告警會明確告訴你是哪一種。
 ```
 tech_fit       0-35   技術棧重疊度
 exp_fit        0-25   年資可行性 ← 對 0-1 年年資者,這是最關鍵的過濾維度
-domain_fit     0-15   領域重疊(金融/保險/資安/製造視覺 有實績 → 高)
-growth_fit     0-15   對「第一份正職」的成長價值(是否真做 AI,而非掛名的標註/API 串接)
+domain_fit     0-15   領域重疊(金融/保險/資安、半導體/製造 有實績 → 高)
+growth_fit     0-15   對「第一份正職」的成長價值(是否真在做資料工程,而非掛「資料」之名的報表維護)
 practical_fit  0-10   薪資揭露、地點、非派遣約聘
 ```
 
 `exp_fit` 刻意佔 25 分:對此使用者而言,「技術再合但要求 5 年」的職缺投了也是浪費,分數必須被壓下去。
 
-### 6.3 門檻
+**`tech_fit` 以資料工程為主軸**(SQL/ETL/排程/爬蟲高權重,LLM/RAG 屬輔線)。
+JD 要求 Spark / Airflow / dbt / Kafka 這類**他沒有實作過**的工具時扣分但**不歸零** ——
+他自建過每日在線運行的排程與 ETL 管線,概念等價、只是工具不同,屬於「上手成本」
+而不是「完全不會」。prompt 的這幾句有錨點測試(`tests/test_scoring.py`)擋回頭改。
 
-- 推送門檻:**total ≥ 70**
-- 每日上限:**10 則**(超過取最高分者)
-- 未達標者在摘要一行列出(上限 10 則)
+### 6.3 選取規則 —— 相對排序,不是絕對門檻
+
+**`scoring.mode: top_n`,取分數最高的前 5 則,下限 `top_n_floor: 60`。**
+
+原本用 `threshold: 80`。改掉的理由是實測:拿同一次執行的原始資料連跑兩次 `--replay`
+(同一份資料、同一個 prompt、`temperature: 0.2`),分數是 80/88、81/83、78/79、64/64 ——
+**雜訊約 ±8 分,而門檻剛好落在 80。** 那等於讓整批最好的職缺隨機出現或消失,
+而且從外面看就是「今天沒有好缺」,**不會有任何跡象**。
+
+相對排序讓雜訊只影響排序,不會讓整天變空。`top_n_floor` 刻意訂在遠低於雜訊帶的位置,
+只砍垃圾、不參與邊緣判斷。
+
+> **拿 LLM 分數做硬切點之前先量雜訊** —— 同一份資料重跑兩次比對即可。
+> 門檻若落在雜訊帶內,它就沒有鑑別力。
+
+`scoring.threshold` 仍保留,因為卡片的分數燈號還在用它。
+未達標者在摘要一行列出(上限 10 則)。
 
 ### 6.4 防幻覺機制(全部在程式端,不信任 LLM)
 
 1. **`total` 程式端重算** = 五維相加。與模型回傳值差 > 5 記 warning,採用重算值。
-2. **`verdict` 交叉驗證**:模型另輸出 `strong_apply|apply|maybe|skip`。若 `total ≥ 70` 但 `verdict` 為 `skip`/`maybe`,以 verdict 為準降級(模型算術不可靠,定性判斷相對穩)。
+2. **`verdict` 交叉驗證**:模型另輸出 `strong_apply|apply|maybe|skip`。若 `total ≥ scoring.threshold` 但 `verdict` 為 `skip`/`maybe`,以 verdict 為準降級(模型算術不可靠,定性判斷相對穩)。
 3. **年資 hard rule**:優先讀搜尋列表的 `period` **數字**(已實測確認是實際年數),無此欄位才退回解析 `condition.workExp` 的中文。若要求 ≥ 5 年而 `exp_fit > 8`,**程式強制夾到 8** 並重算 total。能用規則做的事就用規則做,更別說 104 直接給了整數。
 
 ### 6.5 Structured output 三層保險
@@ -213,8 +279,11 @@ SQLite,四張表:
 |---|---|---|
 | `jobs` | 職缺主檔與去重 | `job_no` (PK)、`first_seen_at`、`last_seen_at`、`appear_date`、`content_hash`、`matched_keywords`、`raw_summary`、`raw_detail`、`status` |
 | `scores` | 每次評分結果 | `job_no`、`run_id`、`stage`、`model`、五維分數、`total_score`、`verdict`、`one_liner`、`highlights`、`red_flags`、`raw_response` |
-| `runs` | 每次執行的稽核 | `started_at`、`status`、`jobs_fetched/new/scored/notified`、**`requests_used`**、`llm_cost_usd`、`error_kind`、`error_detail` |
+| `runs` | 每次執行的稽核 | `started_at`、`status`、`jobs_fetched/new/scored/notified`、**`jobs_filtered_out`**(規則層濾掉的筆數)、**`requests_used`**、`llm_cost_usd`、`error_kind`、`error_detail` |
 | `circuit_state` | 熔斷器 | `state`、`tripped_at`、`reason`、`consecutive_failures` |
+
+新增欄位一律走 `storage/db.py` 的 `MIGRATIONS`:`CREATE TABLE IF NOT EXISTS`
+對既有的表完全沒作用,少了遷移舊 db 會在 UPDATE 時炸 `no such column`。
 
 **刻意保留 `raw_summary` / `raw_detail` 原始 JSON**:讓 `--replay` 能拿真實資料反覆重跑評分調 prompt 而不重爬(這是防封鎖的一環);104 改版時也能直接 diff 新舊結構。
 
@@ -348,15 +417,18 @@ SQLite,四張表:
 - [ ] 去重六情境測試通過(§5)
 - [ ] `to_strict_schema()` 產出無 `$defs`、每層有 `additionalProperties: false`、欄位全在 `required`
 
-**連線(一次性)**
-- [ ] `probe_api.py` 錄到真實 JSON,欄位與 `normalize.py` 對得上
-- [ ] `cli.py run --headful --limit 5` 端到端通,Telegram 收得到
-- [ ] `modal run modal_app.py::daily_run` 成功 ← **決定成敗的一刻**(Modal 資料中心 IP 能否過 Cloudflare)
-- [ ] `modal deploy` 後 Dashboard 顯示下次執行為台北時間隔日 08:00
+**連線(一次性)** — 以下皆已完成
+- [x] `probe_api.py` 錄到真實 JSON,欄位與 `normalize.py` 對得上(2026-08-21)
+- [x] 端到端通,Telegram 收得到
+- [x] `modal run modal_app.py::diagnose` ← **決定成敗的一刻**:**Modal 的資料中心 IP 過不了 Cloudflare**
+      (`cf-mitigated: challenge`),真實瀏覽器更直接跳 Turnstile 互動挑戰。
+      **因此改為 Windows 工作排程跑在本機**,`modal deploy` 不要執行。
 
 **觀察期**
-- [ ] 前 3 天檢查 Modal logs 與日報內容
-- [ ] 一週後查 `runs` 表的 `jobs_new` / `jobs_notified` / `requests_used` 趨勢,校準 70 分門檻
+- [ ] 前 3 天檢查 `local_data/daily.log` 與日報內容
+- [ ] 每次執行後查 `runs` 表的 **`jobs_filtered_out` vs `jobs_new`** ——
+      **兩者相等代表規則層條件太窄或 104 改了欄位,日報會靜默歸零**
+- [ ] 一週後查 `jobs_new` / `jobs_notified` / `requests_used` 趨勢,校準 `top_n` 與 `top_n_floor`
 
 ---
 

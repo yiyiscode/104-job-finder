@@ -78,7 +78,14 @@ def render_job_card(scored: ScoredJob, *, threshold: int = 70) -> tuple[str, dic
     return "\n".join(lines), {"inline_keyboard": [buttons]}
 
 
-def render_summary(report: RunReport, *, threshold: int = 70, max_rejected: int = 10) -> str:
+def render_summary(
+    report: RunReport,
+    *,
+    threshold: int = 70,
+    max_rejected: int = 10,
+    mode: str = "threshold",
+    top_n: int = 0,
+) -> str:
     """先發的總覽。使用者掃一眼就知道今天值不值得細看。"""
     d = report.started_at
     header = f"📊 <b>104 職缺日報</b> · {d.year}/{d.month:02d}/{d.day:02d}"
@@ -89,11 +96,21 @@ def render_summary(report: RunReport, *, threshold: int = 70, max_rejected: int 
     if report.jobs_new == 0:
         lines.append("今天沒有新職缺。已檢查但沒有值得打擾你的東西。")
     else:
-        lines.append(
-            f"今日新職缺 <b>{report.jobs_new}</b> 則 → 粗篩留 <b>{report.jobs_screened_in}</b>"
+        # 漏斗一定要把「產業／規模」那一關畫出來:不然使用者只會看到
+        # 「新職缺 52 → 粗篩留 3」,以為是模型太嚴,實際上是規則層先砍掉 44 筆。
+        funnel = f"今日新職缺 <b>{report.jobs_new}</b> 則"
+        if report.jobs_filtered_out:
+            kept = report.jobs_new - report.jobs_filtered_out
+            funnel += f" → 目標產業／規模留 <b>{kept}</b>"
+        # top_n 模式下寫「達標(≥80)」是**假的** —— 那個模式根本不看絕對門檻,
+        # 推出來的可能是 64 分。標籤要誠實反映實際用的選取規則。
+        picked = f"達標(≥{threshold})" if mode == "threshold" else f"分數前 {top_n} 名"
+        funnel += (
+            f" → 粗篩留 <b>{report.jobs_screened_in}</b>"
             f" → 深評 <b>{report.jobs_deep_scored}</b>"
-            f" → 達標(≥{threshold})<b>{len(report.notified)}</b> 則"
+            f" → {picked} <b>{len(report.notified)}</b> 則"
         )
+        lines.append(funnel)
 
     if report.notified:
         lines += ["", f"<b>▎接下來會逐則推送 {len(report.notified)} 則</b>"]
