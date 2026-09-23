@@ -228,6 +228,7 @@ class JobRepo:
             """
             UPDATE runs
                SET finished_at = ?, status = ?, jobs_fetched = ?, jobs_new = ?,
+                   jobs_filtered_out = ?,
                    jobs_screened_in = ?, jobs_deep_scored = ?, jobs_notified = ?,
                    requests_used = ?, llm_cost_usd = ?, schema_drift_count = ?,
                    error_kind = ?, error_detail = ?
@@ -238,6 +239,7 @@ class JobRepo:
                 report.status,
                 report.jobs_fetched,
                 report.jobs_new,
+                report.jobs_filtered_out,
                 report.jobs_screened_in,
                 report.jobs_deep_scored,
                 len(report.notified),

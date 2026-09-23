@@ -33,9 +33,25 @@ def connect(path: Path) -> sqlite3.Connection:
     return conn
 
 
+#: 舊 db 缺的欄位。``CREATE TABLE IF NOT EXISTS`` 對既有的表完全沒作用,
+#: 所以新增欄位一定要走這裡 —— 否則舊 db 會在 UPDATE 時炸 "no such column"。
+MIGRATIONS: tuple[tuple[str, str, str], ...] = (
+    ("runs", "jobs_filtered_out", "INTEGER NOT NULL DEFAULT 0"),
+)
+
+
 def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
+    _apply_migrations(conn)
     conn.commit()
+
+
+def _apply_migrations(conn: sqlite3.Connection) -> None:
+    for table, column, decl in MIGRATIONS:
+        existing = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+        if column not in existing:
+            log.info("遷移:%s 補上欄位 %s", table, column)
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
 
 
 class Database:

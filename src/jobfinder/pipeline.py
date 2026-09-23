@@ -32,6 +32,7 @@ from .normalize import merge_summaries
 from .ports import JobSource, Notifier, Scorer
 from .scrape import blocking
 from .storage import Database, JobRepo
+from .targeting import apply_targeting
 
 log = logging.getLogger(__name__)
 
@@ -190,10 +191,21 @@ async def _fetch_and_screen(cfg, deps, repo, report, now, limit, rescore_all=Fal
         new_jobs = repo.register(merged, now)
         if rescore_all:
             new_jobs = merged
-        if limit:
-            new_jobs = new_jobs[:limit]
         report.jobs_new = len(new_jobs)
         log.info("抓到 %d 筆,其中 %d 筆是新的", len(merged), len(new_jobs))
+
+        # ── 產業／規模規則層 ───────────────────────────────────────
+        # 刻意放在粗篩**之前**:不符合的職缺不必進 LLM,也不該吃掉詳細頁名額。
+        # 放在 limit 之前,這樣 --limit N 的 N 是「要評的目標職缺」而不是「抓到的前 N 筆」。
+        targeted = apply_targeting(new_jobs, cfg.targeting)
+        new_jobs = targeted.keep
+        report.jobs_filtered_out = targeted.dropped_count
+        report.warnings.extend(targeted.warnings)
+        if targeted.dropped:
+            repo.mark_status([j.job_no for j in targeted.dropped], "screened_out")
+
+        if limit:
+            new_jobs = new_jobs[:limit]
 
         screen_outcome = await deps.scorer.screen(new_jobs)
         report.jobs_screened_in = len(screen_outcome.keep)

@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS runs (
                        CHECK (status IN ('success', 'partial', 'blocked', 'failed', 'skipped')),
     jobs_fetched       INTEGER NOT NULL DEFAULT 0,
     jobs_new           INTEGER NOT NULL DEFAULT 0,
+    jobs_filtered_out  INTEGER NOT NULL DEFAULT 0,   -- 產業／規模規則層濾掉的筆數
     jobs_screened_in   INTEGER NOT NULL DEFAULT 0,
     jobs_deep_scored   INTEGER NOT NULL DEFAULT 0,
     jobs_notified      INTEGER NOT NULL DEFAULT 0,

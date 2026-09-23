@@ -16,7 +16,12 @@ from jobfinder.errors import LLMParseError
 from jobfinder.models import JobDetail, JobSummary, ScoreBreakdown, ScoredJob
 from jobfinder.scoring.fake import FakeScorer
 from jobfinder.scoring.llm_client import CostTracker, OpenRouterClient, parse_structured
-from jobfinder.scoring.prompts import SYSTEM_DEEP, build_deep_user, build_screen_user
+from jobfinder.scoring.prompts import (
+    SYSTEM_DEEP,
+    SYSTEM_SCREEN,
+    build_deep_user,
+    build_screen_user,
+)
 from jobfinder.scoring.resume import load_resume
 from jobfinder.scoring.rules import (
     apply_guardrails,
@@ -448,6 +453,34 @@ def test_deep_prompt_hammers_the_zero_years_framing():
     """這句是壓制『把新鮮人當資深』誤判的核心,不該被無意改掉。"""
     assert "正式工作年資約 0-1 年" in SYSTEM_DEEP
     assert "不等於正職年資" in SYSTEM_DEEP
+
+
+def test_prompts_score_through_a_data_engineering_lens():
+    """2026-09-23:主敘事從 AI 換成資料工程(profile-de.md)。
+
+    只換 config 的關鍵字是不夠的 —— prompt 還用 AI 的尺在量,
+    資料工程職缺就會因為「沒提到 LLM」而被低估。這幾句是那次改版的錨點。
+    """
+    assert "資料工程" in SYSTEM_SCREEN
+    # tech_fit 的高權重必須是 DE 的技術棧,不是 LLM/RAG
+    assert "ETL" in SYSTEM_DEEP
+    assert "SQL" in SYSTEM_DEEP
+    # 沒實作過的大數據工具要扣分但不歸零 —— 他有等價的自建管線
+    assert "Airflow" in SYSTEM_DEEP
+    assert "不要歸零" in SYSTEM_DEEP
+
+
+def test_deep_prompt_names_the_two_target_industries():
+    """半導體與金融是 targeting 層硬篩出來的產業,domain_fit 要有對應的實績依據,
+    否則模型只會看產業名稱猜,而他在這兩個產業都有真實專案。"""
+    assert "半導體" in SYSTEM_DEEP
+    assert "國泰人壽" in SYSTEM_DEEP
+
+
+def test_deep_prompt_location_matches_search_areas():
+    """搜尋參數已含台中(config 的 areas),prompt 若還寫「雙北桃竹」,
+    台中的職缺會在 practical_fit 被莫名扣分。"""
+    assert "台中" in SYSTEM_DEEP
 
 
 def test_deep_prompt_falls_back_when_detail_is_missing(resume):

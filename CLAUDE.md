@@ -99,6 +99,7 @@ Windows 工作排程器 (08:00 每日,錯過開機後補跑)
        └─ 逐筆 GET /job/ajax/content/{detail_id}(Referer = 該職缺自己的頁面)
      └ 備援 PlaywrightJobSource(mode: browser):真實瀏覽器 + response 攔截
   └─ normalize → SQLite 去重(只留今天新出現的)
+  └─ targeting.py 規則層:產業(半導體/金融代碼前綴)+ 公司規模(≥500人)
   └─ Stage 1 粗篩(批次 15 筆) → Stage 2 深評(逐筆)→ 程式端校正
   └─ Telegram 摘要 + 每職缺一則卡片
 ```
@@ -118,6 +119,7 @@ src/jobfinder/
   normalize.py   raw JSON → 領域模型。⚠️ 唯一認識 104 JSON 結構的地方
   http_source.py ⭐ 預設抓取來源。純 httpx,無瀏覽器
   fixture_source.py  --from-fixtures / --replay 的離線來源
+  targeting.py   ⭐ 產業/規模規則層。跑在粗篩前,不符合的連 LLM 都看不到
   scrape/
     budget.py    ⚠️ RequestBudget.acquire():所有請求的唯一守門員
     blocking.py  ⚠️ 封鎖訊號偵測 + 三種 403 分辨 + 熔斷器 + assert_anonymous()
@@ -147,6 +149,10 @@ fixture 是 2026-08-21 錄下的真實回應。以下每一條都是踩過或驗
   送 `jobexp=1,3` 回傳 0/2/3,送 `jobexp=10` 回傳 6~9
 - **`optionEdu` 是 int 陣列**:`3`=專科 `4`=大學 `5`=碩士 `6`=博士;多碼取最低者加「以上」
 - **`tags` 是 dict**,以參數名為 key。`desc` 為空時**不要**退回 `param`(那是 `wf1`/`wf7` 之類的內部代碼)
+- **`coIndustry` / `employeeCount` 列表就有**,不必抓詳細頁(1,637 筆真實資料缺失率 0)。
+  `coIndustry` 是階層式代碼:`1001006` 半導體業 / `1001005` 電子零組件 /
+  `1001004` 光電及光學 / `1001003` 電腦及消費性電子製造 / `1004` 金融投顧及保險。
+  **產業過濾一律比對代碼前綴不比對中文名** —— 104 改名稱時代碼不會變
 - `description` **不是完整 JD**(中位數 123 字),詳細頁還是得抓。而且它含換行,
   進 `to_screen_block()` 前要壓成單行,否則會打散批次 prompt 的「每筆四行」結構
 
@@ -234,9 +240,40 @@ fixture 是 2026-08-21 錄下的真實回應。以下每一條都是踩過或驗
 - prompt 明講**「待遇面議」給中間值不要扣分** —— 台灣八成職缺不揭露薪資,
   拿它扣分等於懲罰八成的職缺,還讓 practical_fit 失去鑑別力
 
+### 產業／規模規則層(2026-09-23 新增,`targeting.py`)
+
+**方向已定案:聚焦半導體／電子與金融的大公司(員工 ≥500)。** 關鍵字同步從
+AI 主敘事換成資料工程(`資料工程師`/`資料倉儲工程師`/`BI工程師`/`資料科學家`…),
+並**刻意拿掉 `系統整合工程師`、`流程自動化`** —— 它們命中的主要是 SI／接案公司
+(舊資料「電腦系統整合服務業」125 筆,量第二大),與「聚焦大廠」反向拉扯。
+
+三件別改回去的事:
+
+1. **過濾放在程式端不放在 104 的搜尋參數。** 搜尋請求數 = 關鍵字 × 頁數,
+   跟有沒有帶產業參數無關 —— 在 104 端過濾**省不到任何預算**,卻要為一個沒實測過的
+   參數多打一次 104。程式端過濾是零額外請求、零封鎖風險、可離線測試。
+2. **過濾跑在粗篩之前。** 不符合的職缺不該花 LLM token,更不該吃掉每次 18 個詳細頁名額。
+3. **訊號消失時 fail-open 不是 fail-closed。** 104 哪天不給 `employeeCount` 了,
+   fail-closed 會讓日報靜靜變成 0 則 —— 跟「今天沒新職缺」長得一模一樣,可能幾週才發現。
+   所以某欄位在整批裡缺超過一半時,**停用該條件並大聲告警**(`MISSING_RATIO_LIMIT`)。
+
+**量級參考(舊資料 32 天、DE 類關鍵字命中的 977 筆):過濾後剩 143 筆 ≈ 4.5 筆/天。**
+這代表 `max_per_day: 10` 不再是真正的篩子了,`threshold: 80` 回到主導地位 ——
+跑 3–5 次後要重看分數分布(見下節)。
+
+`scoring/prompts.py` 也同步換成資料工程視角:`tech_fit` 的高權重是 SQL/ETL/排程/爬蟲
+而非 LLM/RAG;`domain_fit` 直接點名他在金融(國泰人壽 CAP)與半導體(晶圓缺陷分類)
+的真實實績;JD 要求 Spark/Airflow/dbt 這類他沒實作過的工具**扣分但不歸零**
+(他自建過等價的排程與 ETL 管線)。`tests/test_scoring.py` 有錨點測試擋回頭改。
+
 ### 改動時的注意事項
 
 - 動 `scrape/` 或 `http_source.py` 之前先看 `tests/test_guardrails.py`
+- 動 `targeting.py` 或 config 的 `targeting` 之前先看 `tests/test_targeting.py`。
+  **`industry_prefixes` 只能填數字代碼** —— 填中文名稱不會報錯、只會默默把職缺濾光,
+  所以 `config.py` 直接拒絕啟動
+- `runs` 表加欄位要走 `storage/db.py` 的 `MIGRATIONS`。`CREATE TABLE IF NOT EXISTS`
+  對既有的表完全沒作用,少了遷移舊 db 會在 UPDATE 時炸 `no such column`
 - 加新的抓取行為時,**一定要走 `RequestBudget.acquire()`**,不要自己發請求
 - **`scripts/` 底下每個腳本都必須有 argparse** —— `tests/test_scripts.py` 會驗
   `--help` 印得出 `usage:`。少了它,`--help` 會把整個腳本跑一遍

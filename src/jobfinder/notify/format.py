@@ -89,11 +89,18 @@ def render_summary(report: RunReport, *, threshold: int = 70, max_rejected: int 
     if report.jobs_new == 0:
         lines.append("今天沒有新職缺。已檢查但沒有值得打擾你的東西。")
     else:
-        lines.append(
-            f"今日新職缺 <b>{report.jobs_new}</b> 則 → 粗篩留 <b>{report.jobs_screened_in}</b>"
+        # 漏斗一定要把「產業／規模」那一關畫出來:不然使用者只會看到
+        # 「新職缺 52 → 粗篩留 3」,以為是模型太嚴,實際上是規則層先砍掉 44 筆。
+        funnel = f"今日新職缺 <b>{report.jobs_new}</b> 則"
+        if report.jobs_filtered_out:
+            kept = report.jobs_new - report.jobs_filtered_out
+            funnel += f" → 目標產業／規模留 <b>{kept}</b>"
+        funnel += (
+            f" → 粗篩留 <b>{report.jobs_screened_in}</b>"
             f" → 深評 <b>{report.jobs_deep_scored}</b>"
             f" → 達標(≥{threshold})<b>{len(report.notified)}</b> 則"
         )
+        lines.append(funnel)
 
     if report.notified:
         lines += ["", f"<b>▎接下來會逐則推送 {len(report.notified)} 則</b>"]

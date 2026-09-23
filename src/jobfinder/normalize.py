@@ -268,6 +268,7 @@ def _normalize_summary_row(
         apply_cnt=_as_plain_int(row.get("applyCnt")),
         tags=_as_tag_list(row.get("tags")),
         industry=_as_text(row.get("coIndustryDesc")),
+        industry_code=_as_text(row.get("coIndustry")),
         employee_count=_as_plain_int(row.get("employeeCount")),
         remote_work_type=_as_plain_int(row.get("remoteWorkType")),
         hr_response_pr=(
