@@ -44,9 +44,40 @@ replay run 27 在最終設定下的結果:`94 → 過濾掉 87 → 粗篩留 4 �
 
 ---
 
-## 下一步(依優先序)
+## 明天(2026-09-24 08:00)的第一次真實執行 ⬅ 從這裡接續
 
-### 1. 跑 3–5 次真實執行,然後重看分數分布 ⬅ 最優先
+**2026-09-23 決定不 force 跑,等排程自然觸發。** 當天排程已在 11:32 補跑過(run 27,36 次請求),
+再跑一次等於繞過「每日一次」護欄、今天第二次打 104,而 run 27 已把 238 筆職缺註冊進 DB,
+去重會讓它們全變「不是新的」—— 收穫小、足跡加倍,不划算。
+
+**起飛前檢查(2026-09-23 14:xx 全部確認過):**
+
+| 項目 | 狀態 |
+|---|---|
+| 熔斷器 | `closed`,連續失敗 0 次 |
+| 排程 | Ready,NextRunTime `2026/9/24 08:00` |
+| 「今天已執行過」 | 以明天 08:00 判定 → `False`,不會被擋 |
+| `scrape.enabled` / 環境變數 | 都允許抓取,mode=`http` |
+| 請求預算 | 10 關鍵字 × 2 頁 = 20 搜尋 + 詳細頁上限 18 = **最壞 38**(硬上限 40) |
+| Telegram | `getMe` / `getChat` 都 200 —— 今天的 `notify_failed` 是 `httpx.ConnectError`,**網路瞬斷不是 bug** |
+| 選取模式 | `top_n=5`,`top_n_floor=60`;履歷 `profile-de.md` |
+
+**跑完先看這三件事:**
+
+1. `python -m jobfinder.cli status` —— `請求` 應在 38 以下,狀態不是 `blocked`
+2. `runs.jobs_filtered_out` vs `jobs_new` —— **兩者相等代表過濾太窄或 104 欄位變了**,日報會靜默歸零
+3. 實際推幾則 —— 預期 2–4 則。連續幾天 0 則就往下調 `top_n_floor` 或 `min_employee_count`
+
+```bash
+Get-Content local_data\daily.log -Tail 40 -Encoding UTF8
+python -m jobfinder.cli status
+```
+
+---
+
+## 後續(依優先序)
+
+### 1. 跑 3–5 次真實執行,然後重看分數分布
 
 ```bash
 Start-ScheduledTask -TaskName "JobFinder Daily"
