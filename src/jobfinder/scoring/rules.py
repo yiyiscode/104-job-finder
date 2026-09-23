@@ -125,11 +125,19 @@ def select_for_notification(scored: list, cfg: ScoringCfg) -> tuple[list, list]:
     """依門檻或相對排序挑出要推播的,回傳 (推播, 未達標)。
 
     ``mode: top_n`` 是風險 3 的備案:如果絕對分數校準不了,改成固定推前 N 名。
+
+    **為什麼 top_n 還是要有下限:** 深評分數的雜訊實測約 ±8 分(同一份資料、
+    同一個 prompt 跑兩次,最好的那則 80 / 88),所以任何硬切點都會讓邊緣職缺
+    隨機進出。top_n 的價值是「雜訊只影響排序,不會讓整天變空」—— 但它不該
+    變成「職缺荒的日子把 30 分的垃圾也推出來」。``top_n_floor`` 訂在遠低於
+    雜訊帶的位置,只砍真正的垃圾,不參與邊緣判斷。
     """
     ordered = sorted(scored, key=lambda s: s.total, reverse=True)
 
     if cfg.mode == "top_n":
-        return ordered[: cfg.top_n], ordered[cfg.top_n :]
+        picked = [s for s in ordered[: cfg.top_n] if s.total >= cfg.top_n_floor]
+        rejected = [s for s in ordered if s not in picked]
+        return picked, rejected
 
     passing = [s for s in ordered if s.total >= cfg.threshold]
     rejected = [s for s in ordered if s.total < cfg.threshold]

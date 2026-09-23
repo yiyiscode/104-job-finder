@@ -254,6 +254,9 @@ class ScoringCfg(BaseModel):
     max_per_day: int = Field(default=10, ge=1, le=50)
     mode: Literal["threshold", "top_n"] = "threshold"
     top_n: int = Field(default=5, ge=1, le=20)
+    #: ``top_n`` 模式的品質下限。純粹「推前 N 名」在職缺荒的日子會把 30 分的
+    #: 垃圾也推出來 —— 前 N 名不代表值得看。0 = 不設下限(舊行為)。
+    top_n_floor: int = Field(default=0, ge=0, le=100)
     list_rejected_in_summary: bool = True
     max_rejected_listed: int = Field(default=10, ge=0, le=50)
     weights: WeightsCfg = Field(default_factory=WeightsCfg)

@@ -260,6 +260,30 @@ def test_top_n_mode_ignores_absolute_threshold():
     assert [p.total for p in passing] == [50, 45]
 
 
+def test_top_n_floor_keeps_junk_out():
+    """前 N 名不等於值得看。職缺荒的日子若不設下限,30 分的垃圾也會被推成卡片。"""
+    jobs = [scored_with(t, f"j{t}") for t in (85, 64, 40, 30)]
+    passing, rejected = select_for_notification(
+        jobs, ScoringCfg(mode="top_n", top_n=4, top_n_floor=60)
+    )
+    assert [p.total for p in passing] == [85, 64]
+    assert [r.total for r in rejected] == [40, 30]
+
+
+def test_top_n_floor_defaults_to_off():
+    """預設 0 = 舊行為,純相對排序。改變既有設定檔的行為要是刻意的。"""
+    jobs = [scored_with(t, f"j{t}") for t in (50, 30)]
+    passing, _ = select_for_notification(jobs, ScoringCfg(mode="top_n", top_n=2))
+    assert [p.total for p in passing] == [50, 30]
+
+
+def test_real_config_uses_top_n_with_a_floor(config_dict, write_config):
+    """2026-09-23 定案:深評分數雜訊 ±8,絕對門檻會讓最好的職缺隨機消失。"""
+    cfg = load_config(write_config(config_dict)).scoring
+    assert cfg.mode == "top_n"
+    assert cfg.top_n_floor > 0, "純 top_n 會在職缺荒的日子推出垃圾"
+
+
 # ═══ LLM 輸出解析(三層保險的第 2 層)═══════════════════════════════
 
 

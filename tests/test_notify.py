@@ -287,3 +287,41 @@ async def test_messages_are_throttled_between_sends():
     await notifier.send("one")
     await notifier.send("two")
     assert sleeper.calls, "單一聊天室建議 < 1 msg/sec,必須節流"
+
+
+def test_summary_does_not_claim_a_threshold_in_top_n_mode():
+    """top_n 模式根本不看絕對門檻,推出來的可能是 64 分 ——
+    摘要寫「達標(≥80)」就是在說謊,而那是使用者唯一會看的那行字。"""
+    from jobfinder.models import RunReport
+
+    report = RunReport(
+        started_at=datetime(2026, 9, 23, 8, 0),
+        finished_at=datetime(2026, 9, 23, 8, 1),
+        jobs_new=94,
+        jobs_filtered_out=87,
+        jobs_screened_in=4,
+        jobs_deep_scored=4,
+    )
+    text = render_summary(report, threshold=80, mode="top_n", top_n=5)
+    assert "達標" not in text
+    assert "分數前 5 名" in text
+
+    # threshold 模式照舊
+    text = render_summary(report, threshold=80, mode="threshold")
+    assert "達標(≥80)" in text
+
+
+def test_summary_shows_the_targeting_step():
+    """漏斗少了這一關,使用者只會看到「新職缺 94 → 粗篩留 4」,
+    以為是模型太嚴,實際上是規則層先砍掉 87 筆。"""
+    from jobfinder.models import RunReport
+
+    report = RunReport(
+        started_at=datetime(2026, 9, 23, 8, 0),
+        finished_at=datetime(2026, 9, 23, 8, 1),
+        jobs_new=94,
+        jobs_filtered_out=87,
+        jobs_screened_in=4,
+        jobs_deep_scored=4,
+    )
+    assert "目標產業／規模留 <b>7</b>" in render_summary(report, threshold=80)
