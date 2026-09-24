@@ -126,7 +126,7 @@ def test_annual_salary_converted_before_comparison():
 
 def test_negotiable_salary_not_excluded():
     r = row(summary_overrides={"s10": 10, "salaryLow": 0, "salaryHigh": 0})
-    assert r.salary_text == "面議"
+    assert r.salary_text == "待遇面議"
     assert r.gates.gate1 is Light.PASS
 
 
@@ -136,8 +136,16 @@ def test_up_to_one_year_allowed(period):
     assert row(summary_overrides={"period": period}).gates.gate1 is Light.PASS
 
 
-def test_two_years_excluded():
-    assert "經歷 2 年" in fails(row(summary_overrides={"period": 2}))
+def test_two_years_is_yellow_not_excluded():
+    """2026-09-24 使用者定案:2 年常是可談的彈性標準(深評 ≥70 分 45/104 筆)。"""
+    r = row(summary_overrides={"period": 2})
+    assert "經歷 2 年" in flags(r) and not r.gates.fails
+    assert r.gates.gate1 is Light.WARN and r.gates.passes_through(1)
+
+
+@pytest.mark.parametrize("period", [3, 6])
+def test_three_years_or_more_excluded(period):
+    assert f"經歷 {period} 年" in fails(row(summary_overrides={"period": period}))
 
 
 # ── Platform/DataOps 樣態 ──

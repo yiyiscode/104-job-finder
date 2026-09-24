@@ -15,7 +15,7 @@ from datetime import date, datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from ..normalize import SALARY_TYPES, format_experience, monthly_equivalent
+from ..normalize import OPEN_ENDED_SALARY, format_experience, format_salary, monthly_equivalent
 from . import gates
 from .decisions import Decision
 from .groups import industry_group, title_group, title_matches
@@ -23,8 +23,6 @@ from .rows import JobRow
 from .skills import detail_skill_text, summary_skill_text
 
 TAIPEI = ZoneInfo("Asia/Taipei")
-#: 104 用這個值代表「以上」型薪資的上限。不處理的話會顯示成「月薪 39,000~9,999,999 元」
-OPEN_ENDED_SALARY = 9_999_999
 ENGLISH_CODE = 1  # languageRequirements[].language;已對照詳細頁的「英文」驗證
 _ENGLISH_TEXT = ("英文", "english", "toeic", "多益")
 
@@ -85,7 +83,7 @@ def build_row(record: Mapping[str, Any]) -> JobRow:
         period=period,
         experience=format_experience(period),
         education=record.get("edu_desc") or "",
-        salary_text=salary_text(low, high, s10),
+        salary_text=format_salary(low, high, s10),
         salary_low_monthly=_monthly(low, s10),
         salary_high_monthly=None if open_ended else _monthly(high, s10),
         salary_open_ended=open_ended,
@@ -104,18 +102,6 @@ def build_row(record: Mapping[str, Any]) -> JobRow:
     )
     row.gates = gates.evaluate(row)
     return row
-
-
-def salary_text(low: int | None, high: int | None, s10: int | None) -> str:
-    if not low and not high:
-        return "面議"
-    unit = SALARY_TYPES.get(s10 or 0, "")
-    unit = "" if unit == "面議" else unit
-    if high and high >= OPEN_ENDED_SALARY:
-        return f"{unit} {low:,} 以上".strip()
-    if low and high and low != high:
-        return f"{unit} {low:,}~{high:,}".strip()
-    return f"{unit} {(low or high):,}".strip()
 
 
 def _monthly(value: int | None, s10: int | None) -> int | None:

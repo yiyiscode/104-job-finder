@@ -62,7 +62,7 @@ def test_title_query_or_and_literal():
 # ── 組裝 ──
 def test_open_ended_salary_text():
     r = row(summary_overrides={"s10": 50, "salaryLow": 39000, "salaryHigh": 9999999})
-    assert r.salary_text == "月薪 39,000 以上"
+    assert r.salary_text == "月薪 39,000 元以上"
 
 
 def test_english_from_language_code_or_text():

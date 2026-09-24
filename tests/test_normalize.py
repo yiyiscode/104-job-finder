@@ -146,6 +146,9 @@ def test_raw_json_is_retained_for_replay(search_page):
         (0, 0, 10, "待遇面議"),
         (60000, 60000, 50, "月薪 60,000 元"),
         (60000, None, None, "待遇 60,000 元"),
+        # 104 用 9,999,999 代表「以上」型沒有上限(真實資料 190 筆),
+        # 不處理就會印出「月薪 39,000~9,999,999 元」
+        (39000, 9999999, 50, "月薪 39,000 元以上"),
     ],
 )
 def test_format_salary_respects_the_salary_type(low, high, stype, expected):

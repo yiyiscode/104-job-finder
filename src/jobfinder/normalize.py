@@ -43,6 +43,9 @@ SALARY_TYPES: dict[int, str] = {
 }
 
 #: 把各種薪資類型換算成可比較的月薪基準(用於「薪資是否達標」這類判斷)
+#: 104 用這個值代表「以上」型薪資沒有上限。它不是真的上限,不能拿來顯示或統計。
+OPEN_ENDED_SALARY = 9_999_999
+
 _TO_MONTHLY: dict[int, float] = {20: 176.0, 30: 22.0, 50: 1.0, 60: 1 / 12}
 
 
@@ -140,6 +143,8 @@ def format_salary(low: int | None, high: int | None, salary_type: int | None = N
     unit = SALARY_TYPES.get(salary_type or 0, "待遇")
     if unit == "面議":
         unit = "待遇"
+    if low and high and high >= OPEN_ENDED_SALARY:
+        return f"{unit} {low:,} 元以上"
     if low and high and low != high:
         return f"{unit} {low:,}~{high:,} 元"
     return f"{unit} {(low or high):,} 元"

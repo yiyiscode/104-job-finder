@@ -18,7 +18,10 @@ if TYPE_CHECKING:
 
 MIN_EMPLOYEES = 30
 SALARY_FLOOR_MONTHLY = 50_000
-MAX_PERIOD_YEARS = 1  # 不拘與 1 年以上可投;2 年以上排除
+# 2026-09-24 使用者定案:2 年標黃、3 年以上排除。實測深評 ≥70 分的比例 2 年 45/104、3 年 12/78 ——
+# 2 年常是可談的彈性標準,3 年才是真的不同級距。另外 104 的 period 實際只有 0/2/3…,沒有 1。
+WARN_PERIOD_YEARS = 2
+EXCLUDE_PERIOD_YEARS = 3
 
 EXCLUDED_AREAS = ("高雄", "台南", "臺南", "嘉義", "雲林", "彰化")
 SHIFT_RX = re.compile(r"輪班|on[\s-]?call|夜班|中班", re.I)
@@ -98,8 +101,10 @@ def evaluate(row: JobRow) -> GateResult:
     elif low is not None and low < SALARY_FLOOR_MONTHLY and row.salary_open_ended:
         flags.append("⚠️以上型 <5萬,談薪不可退")
 
-    if row.period is not None and row.period > MAX_PERIOD_YEARS:
+    if row.period is not None and row.period >= EXCLUDE_PERIOD_YEARS:
         fails.append(f"經歷 {row.period} 年以上")
+    elif row.period is not None and row.period >= WARN_PERIOD_YEARS:
+        flags.append(f"⚠️經歷 {row.period} 年以上,可談")
 
     if PLATFORM_RX.search(row.jd):
         flags.append("🔴Platform/DataOps")
@@ -132,7 +137,8 @@ GATE_HELP_MD = f"""
 | 派遣 | 公司名或產業含 派遣／人力仲介 | ❌ 排除 |
 | 實習／工讀 | 職稱含 實習／intern／工讀／時薪 | ❌ 排除 |
 | 校園徵才 | 職稱含 校園徵才／預聘／研發替代役(**含「{CAMPUS_KEEP}」保留**) | ❌ 排除 |
-| 經歷 | {MAX_PERIOD_YEARS + 1} 年以上 | ❌ 排除(不拘、1 年以上可投) |
+| 經歷 | {EXCLUDE_PERIOD_YEARS} 年以上 | ❌ 排除 |
+| 經歷 | {WARN_PERIOD_YEARS} 年以上 | ⚠️ 標黃不排除:常是可談的彈性標準 |
 | 薪資 | 月薪換算後上限 < 5 萬 | ❌ 排除 |
 | 薪資 | 「以上」型且下限 < 5 萬 | ⚠️ 標黃:談薪 5 萬不可退 |
 | 薪資 | 面議 | 不排除,視為未知 |
