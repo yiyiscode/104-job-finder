@@ -73,6 +73,10 @@ python -m jobfinder.cli run --replay <RUN_ID>    # 拿舊 raw JSON 重跑評分,
 python -m jobfinder.cli reset-circuit            # 熔斷後人工解除
 python -m jobfinder.cli status                   # 最近執行與 requests_used 稽核
 
+# 本機 Web UI(週一選家):只讀 jobs.db 快照、不連 104,只綁 127.0.0.1
+uv pip install -e ".[ui]"                        # streamlit 是選用依賴,排程環境不必裝
+python -m jobfinder.cli ui                       # http://127.0.0.1:8501
+
 # 會連線 104 —— 每條都是一次性的,不要反覆跑
 python scripts/probe_api.py                      # 錄 fixture,已有檔案會拒絕執行
 python -m jobfinder.cli run --limit 5
@@ -129,7 +133,14 @@ src/jobfinder/
   storage/       Volume<->local 檔案同步、去重邏輯
   scoring/       兩階段 LLM 評分 + 程式端校正
   notify/        Telegram
+  webui/         ⭐ 本機 Web UI(Streamlit)。三道閘門、標記、技能趨勢
+    gates.py     閘門規則 + 說明文字(兩者放一起,改規則的人一定看得到說明)
+    snapshot.py  ⚠️ jobs.db 只讀快照 —— 見 docs/adr/0001
+    decisions.py 標記存獨立的 decisions.db,只追加
+    app.py       唯一 import streamlit/pandas 的檔案
 ```
+
+領域用詞(閘門 vs 規則層、摘要層 vs 全文層、標記…)見 [CONTEXT.md](CONTEXT.md)。
 
 ---
 
@@ -203,7 +214,7 @@ fixture 是 2026-08-21 錄下的真實回應。以下每一條都是踩過或驗
 
 ## 現況:跑在本機,不在雲端
 
-**已上線。** Windows 工作排程器每天 08:00 觸發,256 個測試全綠。
+**已上線。** Windows 工作排程器每天 08:00 觸發,397 個測試全綠(2026-09-24,含 Web UI)。
 
 ### 為什麼跑在本機而不是 Modal
 
@@ -300,6 +311,14 @@ AI 主敘事換成資料工程(`資料工程師`/`資料倉儲工程師`/`BI工�
   `screened_out`(LLM 粗篩刷掉,`scores` 有 `stage='screen'` 紀錄)。
   共用一個值就無法做 precision/recall 標註
 - 加新的抓取行為時,**一定要走 `RequestBudget.acquire()`**,不要自己發請求
+- **`webui/` 不得 import `scrape`/`http_source`/`pipeline`/`storage`/`httpx`**(`tests/test_webui_boundary.py` 會擋)。
+  UI 按鈕觸發抓取 = 繞過預算、節流、熔斷三道護欄;用 `storage.Database` = 結束時 checkpoint 把 jobs.db 整檔寫回。
+  **UI 絕不直接開 jobs.db**:pipeline 會 `os.replace` 蓋回它,Windows 上檔案被開著就會 checkpoint 失敗、
+  當次資料與熔斷器狀態靜靜遺失。一律 `snapshot.take_snapshot()` 後讀副本(docs/adr/0001)
+- **閘門 ≠ 規則層。** 規則層(`targeting.py`,≥500 人 + 產業)決定哪些職缺值得花 LLM;
+  閘門(`webui/gates.py`,≥30 人、不限產業)是使用者挑家的條件,在 UI 端對全部職缺計算。
+  別把兩者合併 —— 放寬規則層會改變每天的 LLM 成本與 18 個詳細頁名額
+- webui 的邏輯模組不能 import streamlit/pandas —— 256+ 個測試要在沒裝 `[ui]` 的環境也能跑
 - **`scripts/` 底下每個腳本都必須有 argparse** —— `tests/test_scripts.py` 會驗
   `--help` 印得出 `usage:`。少了它,`--help` 會把整個腳本跑一遍
   (`send_test_message.py` 曾因此在測試裡真的送出 6 次 Telegram 訊息)
