@@ -77,6 +77,11 @@ python -m jobfinder.cli status                   # 最近執行與 requests_used
 uv pip install -e ".[ui]"                        # streamlit 是選用依賴,排程環境不必裝
 python -m jobfinder.cli ui                       # http://127.0.0.1:8501
 
+# 第 3 道閘門「必備命中率」:只打 OpenRouter、不連 104。每日排程在 pipeline 之後自動跑
+python -m jobfinder.cli hitrate --dry-run        # 只列出會算哪些,不花錢
+python -m jobfinder.cli hitrate --fake-llm       # 技能詞典粗估,離線開發用(數字不可信)
+python -m jobfinder.cli hitrate                  # 真的算,每次 ≤ max_jobs_per_run 筆、≤ cost_cap_usd
+
 # 會連線 104 —— 每條都是一次性的,不要反覆跑
 python scripts/probe_api.py                      # 錄 fixture,已有檔案會拒絕執行
 python -m jobfinder.cli run --limit 5
@@ -214,7 +219,7 @@ fixture 是 2026-08-21 錄下的真實回應。以下每一條都是踩過或驗
 
 ## 現況:跑在本機,不在雲端
 
-**已上線。** Windows 工作排程器每天 08:00 觸發,400 個測試全綠(2026-09-24,含 Web UI)。
+**已上線。** Windows 工作排程器每天 08:00 觸發,431 個測試全綠(2026-09-24,含 Web UI 與命中率)。
 
 ### 為什麼跑在本機而不是 Modal
 
@@ -318,6 +323,11 @@ AI 主敘事換成資料工程(`資料工程師`/`資料倉儲工程師`/`BI工�
 - **閘門 ≠ 規則層。** 規則層(`targeting.py`,≥500 人 + 產業)決定哪些職缺值得花 LLM;
   閘門(`webui/gates.py`,≥30 人、不限產業)是使用者挑家的條件,在 UI 端對全部職缺計算。
   別把兩者合併 —— 放寬規則層會改變每天的 LLM 成本與 18 個詳細頁名額
+- **命中率(`hitrate/`)** 讀 jobs.db 快照、寫獨立的 `hitrate.db`,以 (job_no, 履歷雜湊) 為鍵 ——
+  改 `profile-de.md` 會讓全部結果失效、下次排程重算(每次 30 筆,251 筆要約 9 天補完)。
+  **LLM 只給逐條判定,百分比與「核心不符」由程式算**。別把「核心條件」拿掉:平均分數會把
+  「卡在一個核心技術」稀釋掉(華碩 8vyka:平均 88%、人工 61%,差在 AWS 這一條)。
+  改 prompt 會讓數字位移(同一筆 83% → 75%),改完要重跑驗證、並考慮清掉舊結果
 - webui 的邏輯模組不能 import streamlit/pandas —— 256+ 個測試要在沒裝 `[ui]` 的環境也能跑
 - **`scripts/` 底下每個腳本都必須有 argparse** —— `tests/test_scripts.py` 會驗
   `--help` 印得出 `usage:`。少了它,`--help` 會把整個腳本跑一遍
