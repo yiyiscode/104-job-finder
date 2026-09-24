@@ -54,7 +54,31 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("reset-circuit", help="手動解除熔斷器")
     sub.add_parser("status", help="顯示最近幾次執行與熔斷器狀態")
+    ui = sub.add_parser("ui", help="開啟本機 Web UI(候選清單 / 技能趨勢),只讀 jobs.db、不連 104")
+    ui.add_argument("--port", type=int, default=8501)
     return parser
+
+
+def _ui(args: argparse.Namespace) -> int:
+    """啟動 Streamlit。**永遠只綁 127.0.0.1** —— jobs.db 含實際求職資料,
+    Streamlit 預設綁 0.0.0.0 會對整個區網公開。"""
+    import importlib.util
+    import subprocess
+
+    if importlib.util.find_spec("streamlit") is None:
+        print('需要先安裝 UI 依賴:uv pip install -e ".[ui]"', file=sys.stderr)
+        return 2
+    app = Path(__file__).with_name("webui") / "app.py"
+    cmd = [
+        sys.executable, "-m", "streamlit", "run", str(app),
+        "--server.address", "127.0.0.1",
+        "--server.port", str(args.port),
+        "--server.headless", "true",
+        "--browser.gatherUsageStats", "false",
+        "--", "--data-dir", str(Path(args.data_dir).resolve()),
+    ]  # fmt: skip
+    print(f"Web UI:http://127.0.0.1:{args.port}(Ctrl+C 結束)")
+    return subprocess.call(cmd)
 
 
 def _validate_live_flags(cfg: Config, args: argparse.Namespace) -> None:
@@ -209,6 +233,9 @@ def _status(cfg: Config, args: argparse.Namespace) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "ui":
+        # 不載入設定:UI 只讀 db,不該因為 config 或秘密沒設好而開不起來
+        return _ui(args)
     try:
         cfg = load_config(args.config)
     except JobFinderError as exc:
