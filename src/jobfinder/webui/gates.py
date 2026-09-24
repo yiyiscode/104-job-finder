@@ -125,10 +125,11 @@ def evaluate(row: JobRow) -> GateResult:
     # ── 第 3 道:必備命中率(`jobfinder hitrate` 算好,存在 hitrate.db)──
     if row.hit_rate is None:
         result.gate3 = Light.UNKNOWN  # 未計算 / 無全文 / 無明列必備 —— 都不算卡住
-    elif row.hit_rate >= HIT_RATE_THRESHOLD:
-        result.gate3 = Light.PASS
-    else:
+    elif row.hit_rate < HIT_RATE_THRESHOLD or row.hit_core_missed:
+        # 核心條件不符 → 不論百分比多高都不過(平均會把核心缺口稀釋掉)
         result.gate3 = Light.FAIL
+    else:
+        result.gate3 = Light.PASS
     return result
 
 
@@ -165,9 +166,13 @@ GATE_HELP_MD = f"""
 **命中率由程式算**:(符合 + 0.5 × 部分符合)÷ 必備條數,加分條件不進分母。
 工作內容明確要求的核心技術即使條件欄寫「者佳」也算必備。點開職缺可看逐條判定與證據。
 
+**核心條件:** 必備裡最多 2 條標為「核心」(這份工作的主要平台/工具)。任一條核心不是「符合」
+(部分符合也算),**第 3 道就不過,不論百分比多高** —— 平均分數會把「卡在一個核心技術」稀釋掉。
+
 | 顯示 | 意思 |
 |---|---|
-| ✅ / ❌ 百分比 | 已計算,依 {HIT_RATE_THRESHOLD:.0%} 判定 |
+| ✅ / ❌ 百分比 | 已計算,依 {HIT_RATE_THRESHOLD:.0%} 與核心條件判定 |
+| ❌ 88% · 卡在 X | 百分比過了,但核心條件 X 不符 |
 | 未計算 | 有全文但還沒輪到(每次最多算 config 的 `hitrate.max_jobs_per_run` 筆,由新到舊) |
 | 無全文 | 只有粗篩通過的職缺才有 JD 全文,其餘算不出來 |
 | 無明列必備 | JD 沒有可辨識的必備條件 |

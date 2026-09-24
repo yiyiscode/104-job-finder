@@ -117,6 +117,7 @@ def _attach_hit_rate(row: JobRow, hit: StoredHitRate | None) -> None:
         row.hit_rate = hit.rate
         row.hit_rate_status = "已計算" if hit.rate is not None else "無明列必備"
         row.hit_requirements = list(hit.requirements)
+        row.hit_core_missed = hit.core_missed
     elif not row.has_detail:
         row.hit_rate_status = "無全文"
     else:

@@ -20,6 +20,12 @@ SYSTEM_HITRATE = """你是資深技術招募顧問。
   AWS 資料服務仍是必備 —— 不會它就做不了這份工作。
 - preferred:寫「者佳／加分／優先／尤佳／更好／nice to have / plus」,且不是工作內容的核心。
 
+## 核心條件(core)
+在 required 裡標出**最多 2 條** core = 這份工作每天要用、不會就無法上手的主要平台或工具
+(例:上例的 AWS 資料服務;以 Spark 為主的大數據職缺的 Spark)。
+Python、SQL 這類通用語言,只有在職缺本身就是以它為主體時才標 core。
+preferred 一律 core=false。沒有明顯主體的職缺可以一條都不標。
+
 ## 符合判定(match)
 - yes:履歷有直接證據 —— 技能表列出,或專案中實際使用過。
 - partial:有相近或等價經驗但不是同一個工具。例:自建排程系統 vs Airflow;GCP vs AWS;

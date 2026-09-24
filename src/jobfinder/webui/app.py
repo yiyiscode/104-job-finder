@@ -79,7 +79,8 @@ def load_rows() -> list[JobRow]:
 def _gate3_text(r: JobRow) -> str:
     if r.hit_rate is None:
         return r.hit_rate_status
-    return f"{LIGHT_ICONS[r.gates.gate3]} {r.hit_rate:.0%}"
+    text = f"{LIGHT_ICONS[r.gates.gate3]} {r.hit_rate:.0%}"
+    return text + (f" · 卡在 {'、'.join(r.hit_core_missed)}" if r.hit_core_missed else "")
 
 
 @st.cache_resource
@@ -247,7 +248,7 @@ def _hit_rate_breakdown(job: JobRow) -> None:
             pd.DataFrame(
                 [
                     {
-                        "條件": r.item,
+                        "條件": ("⭐ " if r.core and r.kind == "required" else "") + r.item,
                         "類型": "必備" if r.kind == "required" else "加分",
                         "判定": MATCH_LABELS[r.match],
                         "履歷證據": r.evidence,
@@ -258,8 +259,11 @@ def _hit_rate_breakdown(job: JobRow) -> None:
             hide_index=True,
             width="stretch",
         )
+        if job.hit_core_missed:
+            st.error("核心條件不符,第 3 道不過:" + "、".join(job.hit_core_missed))
         st.caption(
-            "命中率 =(符合 + 0.5 × 部分)÷ 必備條數;加分條件不進分母。判定由 LLM 做,數字由程式算。"
+            "命中率 =(符合 + 0.5 × 部分)÷ 必備條數;加分條件不進分母。⭐ = 核心條件。"
+            "判定由 LLM 做,數字由程式算。"
         )
 
 

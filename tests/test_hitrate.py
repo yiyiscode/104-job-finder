@@ -62,6 +62,33 @@ def test_requirements_truncated_to_max():
     assert hit_rate(reqs).rate == 1.0
 
 
+def core(match: str, item: str = "AWS 資料服務") -> Requirement:
+    return Requirement(item=item, kind="required", match=match, evidence="x", core=True)
+
+
+def test_core_not_fully_met_is_reported_even_when_average_is_high():
+    """華碩 8vyka 的情況:4 條必備、只有核心的 AWS 是部分符合 → 平均 88% 卻該卡住。"""
+    result = hit_rate([core("partial"), req(), req(), req()])
+    assert result.rate == pytest.approx(3.5 / 4)
+    assert result.core_missed == ("AWS 資料服務",)
+
+
+def test_core_fully_met_is_not_missed():
+    assert hit_rate([core("yes"), req(match="no")]).core_missed == ()
+
+
+def test_core_only_counts_on_required_and_at_most_two():
+    preferred_core = Requirement(item="X", kind="preferred", match="no", evidence="x", core=True)
+    assert hit_rate([req(), preferred_core]).core_missed == ()
+    many = [core("no", item=f"C{i}") for i in range(4)]
+    assert hit_rate(many).core_missed == ("C0", "C1")  # 全標 core 等於沒標,只認前 2 條
+
+
+def test_stored_json_without_core_field_still_loads():
+    """core 是後加的欄位;舊資料沒有它也要讀得進來(預設 False)。"""
+    assert Requirement(item="SQL", kind="required", match="yes", evidence="x").core is False
+
+
 def test_resume_hash_ignores_surrounding_whitespace_but_not_content():
     assert resume_hash("履歷 A\n") == resume_hash("  履歷 A")
     assert resume_hash("履歷 A") != resume_hash("履歷 B")
@@ -184,6 +211,16 @@ def _stored(rate):
 def test_gate3_from_hit_rate(rate, light, status):
     r = build_row(record(detail_payload=detail()), _stored(rate))
     assert r.gates.gate3 is light and r.hit_rate_status == status
+
+
+def test_gate3_fails_on_core_miss_despite_high_rate():
+    from jobfinder.hitrate.store import StoredHitRate
+
+    reqs = [core("partial"), req(), req(), req()]
+    hit = StoredHitRate("1", 0.875, 4, 3, 1, reqs, "m", "t")
+    r = build_row(record(detail_payload=detail()), hit)
+    assert r.hit_core_missed == ("AWS 資料服務",)
+    assert r.gates.gate3 is Light.FAIL and r.gates.stuck_at == 3
 
 
 def test_gate3_status_without_result():

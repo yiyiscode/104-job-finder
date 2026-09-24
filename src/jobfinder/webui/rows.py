@@ -39,4 +39,5 @@ class JobRow:
     hit_rate: float | None = None  # 0–1;None 時看 hit_rate_status
     hit_rate_status: str = "未計算"  # 已計算 / 未計算 / 無全文 / 無明列必備
     hit_requirements: list = field(default_factory=list)  # hitrate.compute.Requirement
+    hit_core_missed: tuple[str, ...] = ()  # 不是「符合」的核心條件 → 第 3 道不過
     gates: GateResult = field(default_factory=GateResult)

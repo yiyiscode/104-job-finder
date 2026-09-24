@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from .compute import HitRate, Requirement
+from .compute import HitRate, Requirement, hit_rate
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS hitrates (
@@ -41,6 +41,11 @@ class StoredHitRate:
     requirements: list[Requirement]
     model: str
     created_at: str
+
+    @property
+    def core_missed(self) -> tuple[str, ...]:
+        # 從逐條判定重算,不另存欄位 —— 規則改了,舊資料也會用新規則解讀
+        return hit_rate(self.requirements).core_missed
 
 
 def _connect(path: Path) -> sqlite3.Connection:
