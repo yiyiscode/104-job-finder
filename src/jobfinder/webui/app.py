@@ -234,6 +234,23 @@ def candidates_page() -> None:
         st.caption("還沒有標「投」的職缺。")
 
 
+def _jd_original(job: JobRow) -> None:
+    if not job.has_detail:
+        with st.expander("JD(僅列表摘要 —— 這筆沒有抓全文,完整內容請開 104 連結)"):
+            st.text(job.jd)
+        return
+    with st.expander("📄 104 原文:工作內容 + 條件要求", expanded=True):
+        st.markdown("##### 工作內容")
+        st.text(job.jd_description or "(未提供)")
+        st.markdown("##### 條件要求")
+        for title, text in job.jd_conditions:
+            if "\n" in text:
+                st.markdown(f"**{title}**")
+                st.text(text)
+            else:
+                st.markdown(f"**{title}**:{text}")
+
+
 MATCH_LABELS = {"yes": "✅ 符合", "partial": "🟡 部分", "no": "❌ 不符"}
 
 
@@ -279,8 +296,7 @@ def _decision_panel(job: JobRow) -> None:
         if job.gates.flags:
             st.warning(" · ".join(job.gates.flags))
         _hit_rate_breakdown(job)
-        with st.expander("JD" + ("(全文)" if job.has_detail else "(僅摘要,無全文)")):
-            st.text(job.jd[:5000])
+        _jd_original(job)
     with right:
         key = job.job_no
         status = st.radio(

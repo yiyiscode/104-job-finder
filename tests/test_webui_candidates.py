@@ -209,3 +209,40 @@ def test_record_fixture_uses_real_field_names():
     """防呆:假資料若用錯欄位名,上面的測試會空轉通過。"""
     s = json.loads(record()["raw_summary"])
     assert {"employeeCount", "coIndustry", "period", "s10", "languageRequirements"} <= s.keys()
+
+
+# ── 104 原文排版 ──
+def test_detail_sections_follow_104_layout():
+    from jobfinder.webui.jd_view import detail_sections
+
+    payload = detail(jd="負責 ETL")["data"]
+    payload["condition"] = {
+        "acceptRole": {"role": [{"code": 2, "description": "應屆畢業生"}]},
+        "workExp": "1年以上",
+        "edu": "大學以上",
+        "major": ["資訊工程相關", "統計學相關"],
+        "language": [
+            {"language": "英文", "ability": {"listening": "中等", "speaking": "略懂"}},
+        ],
+        "specialty": [{"description": "Python"}, {"description": "SQL"}],
+        "skill": [],
+        "certificate": [{"name": "TQC"}],
+        "other": "熟悉 Airflow 者佳\n",
+    }
+    work, conds = detail_sections(payload)
+    assert work == "負責 ETL"
+    assert conds == [
+        ("接受身份", "應屆畢業生"),
+        ("工作經歷", "1年以上"),
+        ("學歷要求", "大學以上"),
+        ("科系要求", "資訊工程相關、統計學相關"),
+        ("語文條件", "英文 -- 聽 /中等、說 /略懂"),
+        ("擅長工具", "Python、SQL"),
+        ("具備證照", "TQC"),
+        ("其他條件", "熟悉 Airflow 者佳"),
+    ]  # 空的欄位(工作技能)不顯示
+
+
+def test_row_carries_original_jd_only_with_detail():
+    assert row().jd_description == "" and row().jd_conditions == []
+    assert row(detail_payload=detail(jd="負責 ETL")).jd_description == "負責 ETL"

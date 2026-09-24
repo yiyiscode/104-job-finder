@@ -25,6 +25,7 @@ from ..normalize import (
 from . import gates
 from .decisions import Decision
 from .groups import industry_group, title_group, title_matches
+from .jd_view import detail_sections
 from .rows import JobRow
 from .skills import detail_skill_text, summary_skill_text
 
@@ -113,6 +114,8 @@ def build_row(record: Mapping[str, Any], hit: StoredHitRate | None = None) -> Jo
         deep_score=int(score) if score is not None else None,
         one_liner=record.get("one_liner") or "",
     )
+    if detail:
+        row.jd_description, row.jd_conditions = detail_sections(detail)
     _attach_hit_rate(row, hit)
     row.gates = gates.evaluate(row)
     return row

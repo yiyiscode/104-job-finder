@@ -34,6 +34,9 @@ class JobRow:
     job_category: str  # 詳細頁的職務類別描述;沒有全文時為空
     summary_text: str  # 技能趨勢「摘要層」的文字
     detail_text: str | None  # 技能趨勢「全文層」的文字;沒有全文時為 None
+    #: 104 原文排版:工作內容 +「條件要求」各欄位。沒有全文時為空
+    jd_description: str = ""
+    jd_conditions: list[tuple[str, str]] = field(default_factory=list)
     deep_score: int | None = None
     one_liner: str = ""
     hit_rate: float | None = None  # 0–1;None 時看 hit_rate_status

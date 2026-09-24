@@ -16,11 +16,11 @@ from jobfinder.normalize import (
     format_education,
     format_experience,
     format_salary,
-    period_to_years,
     merge_summaries,
     monthly_equivalent,
     normalize_detail_response,
     normalize_search_response,
+    period_to_years,
     pick,
 )
 
@@ -94,7 +94,9 @@ def test_period_is_years_plus_one(search_page):
     assert max(senior) <= 10
 
 
-@pytest.mark.parametrize(("period", "years"), [(None, None), (0, 0), (1, 0), (2, 1), (3, 2), (9, 8)])
+@pytest.mark.parametrize(
+    ("period", "years"), [(None, None), (0, 0), (1, 0), (2, 1), (3, 2), (9, 8)]
+)
 def test_period_to_years(period, years):
     assert period_to_years(period) == years
 
