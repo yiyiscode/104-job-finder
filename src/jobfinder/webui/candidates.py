@@ -15,7 +15,13 @@ from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
 
-from ..normalize import OPEN_ENDED_SALARY, format_experience, format_salary, monthly_equivalent
+from ..normalize import (
+    OPEN_ENDED_SALARY,
+    format_experience,
+    format_salary,
+    monthly_equivalent,
+    period_to_years,
+)
 from . import gates
 from .decisions import Decision
 from .groups import industry_group, title_group, title_matches
@@ -77,7 +83,7 @@ def build_row(record: Mapping[str, Any], hit: StoredHitRate | None = None) -> Jo
         jd = summary.get("description") or ""
         job_category = ""
 
-    period = summary.get("period")
+    period = period_to_years(summary.get("period"))
     score = record.get("total_score")
     row = JobRow(
         job_no=record["job_no"],

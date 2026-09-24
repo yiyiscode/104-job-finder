@@ -131,21 +131,27 @@ def test_negotiable_salary_not_excluded():
 
 
 # ── 經歷 ──
-@pytest.mark.parametrize("period", [0, 1])
+# 104 的 period = 年資 + 1:0 不拘、2 = 1年以上、3 = 2年以上、4 = 3年以上
+@pytest.mark.parametrize("period", [0, 2])
 def test_up_to_one_year_allowed(period):
     assert row(summary_overrides={"period": period}).gates.gate1 is Light.PASS
 
 
+def test_period_two_is_one_year_not_two():
+    """使用者回報:欣興在 104 上寫「1年以上」,UI 卻顯示 2 年以上(period=2)。"""
+    assert row(summary_overrides={"period": 2}).experience == "1年以上"
+
+
 def test_two_years_is_yellow_not_excluded():
-    """2026-09-24 使用者定案:2 年常是可談的彈性標準(深評 ≥70 分 45/104 筆)。"""
-    r = row(summary_overrides={"period": 2})
+    """2026-09-24 使用者定案(以真實年資計):1 年過、2 年標黃、3 年以上排除。"""
+    r = row(summary_overrides={"period": 3})
     assert "經歷 2 年" in flags(r) and not r.gates.fails
     assert r.gates.gate1 is Light.WARN and r.gates.passes_through(1)
 
 
-@pytest.mark.parametrize("period", [3, 6])
-def test_three_years_or_more_excluded(period):
-    assert f"經歷 {period} 年" in fails(row(summary_overrides={"period": period}))
+@pytest.mark.parametrize(("period", "years"), [(4, 3), (7, 6)])
+def test_three_years_or_more_excluded(period, years):
+    assert f"經歷 {years} 年" in fails(row(summary_overrides={"period": period}))
 
 
 # ── Platform/DataOps 樣態 ──

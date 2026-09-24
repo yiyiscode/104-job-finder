@@ -16,6 +16,7 @@ from jobfinder.normalize import (
     format_education,
     format_experience,
     format_salary,
+    period_to_years,
     merge_summaries,
     monthly_equivalent,
     normalize_detail_response,
@@ -77,21 +78,31 @@ def test_job_no_and_detail_id_are_different_things(search_page):
     assert all(j.job_no != j.detail_id for j in search_page.jobs)
 
 
-def test_period_is_actual_years_not_a_bracket_code(search_page):
-    """送 jobexp=1,3 卻回傳 period 0/2/3;送 jobexp=10 回傳 6~9 —— 是實際年數。"""
+def test_period_is_years_plus_one(search_page):
+    """``period`` = 年資 + 1(0 = 不拘)。2026-09-24 對 369 筆真實詳細頁的 ``workExp`` 驗證:
+    period 0 → 不拘(266)、2 → 1年以上(59)、3 → 2年以上(41),各只有 1 筆例外(雇主改過條件)。
+
+    原本以為 period 就是年數,結果全站多算 1 年 —— 使用者在 104 上看到「1年以上」,
+    卡片與 UI 卻寫「2年以上」。送 jobexp=10(5~10年)回傳 6~9,也符合 +1。
+    """
     exp10 = normalize_search_response(load_fixture("search_exp10.json"), "工程師")
     junior = {j.min_years for j in search_page.jobs}
     senior = {j.min_years for j in exp10.jobs}
 
-    assert junior <= {0, 1, 2, 3}
-    assert min(senior) >= 4, f"5~10年的搜尋不該出現低年資:{sorted(senior)}"
+    assert junior <= {0, 1, 2}
+    assert min(senior) >= 5, f"5~10年的搜尋不該出現低年資:{sorted(senior)}"
     assert max(senior) <= 10
+
+
+@pytest.mark.parametrize(("period", "years"), [(None, None), (0, 0), (1, 0), (2, 1), (3, 2), (9, 8)])
+def test_period_to_years(period, years):
+    assert period_to_years(period) == years
 
 
 def test_experience_is_rendered_as_readable_text(search_page):
     by_no = {j.job_no: j for j in search_page.jobs}
     assert by_no["15305872"].period_desc == "經歷不拘"  # period=0
-    assert by_no["11582950"].period_desc == "3年以上"
+    assert by_no["11582950"].period_desc == "2年以上"  # period=3
 
 
 def test_education_codes_map_to_the_text_104_itself_uses(search_page):

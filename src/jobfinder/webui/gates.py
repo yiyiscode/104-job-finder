@@ -21,7 +21,8 @@ SALARY_FLOOR_MONTHLY = 50_000
 #: 第 3 道門檻(規格:必備命中 ≥70%)。`jobfinder hitrate` 與 UI 共用這一份
 HIT_RATE_THRESHOLD = 0.70
 # 2026-09-24 使用者定案:2 年標黃、3 年以上排除。實測深評 ≥70 分的比例 2 年 45/104、3 年 12/78 ——
-# 2 年常是可談的彈性標準,3 年才是真的不同級距。另外 104 的 period 實際只有 0/2/3…,沒有 1。
+# 2 年常是可談的彈性標準,3 年才是真的不同級距。年數已由 normalize.period_to_years 換算
+# (104 的 period = 年資 + 1;2026-09-24 前誤當年數,畫面上的「2 年以上」其實是 1 年以上)。
 WARN_PERIOD_YEARS = 2
 EXCLUDE_PERIOD_YEARS = 3
 
