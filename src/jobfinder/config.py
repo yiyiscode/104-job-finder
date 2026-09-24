@@ -24,6 +24,9 @@ HARD_MIN_DELAY_SECONDS = 3.0
 HARD_MAX_SCREEN_BATCH = 15
 HARD_MIN_COOLDOWN_HOURS = 24
 HARD_MAX_LIVE_LIMIT = 5  # `--headful --limit N` 的 N 上限
+# 命中率(`jobfinder hitrate`)只打 OpenRouter 不打 104,上限是為了錢不是為了封鎖
+HARD_MAX_HITRATE_JOBS_PER_RUN = 100
+HARD_MAX_HITRATE_COST_USD = 0.50
 
 #: 設定檔中出現這些字樣代表有人想加 104 登入憑證 —— 直接拒絕(SPEC.md 規則 9)。
 FORBIDDEN_CONFIG_KEYS = {
@@ -271,6 +274,19 @@ class ScoringCfg(BaseModel):
         return self
 
 
+class HitRateCfg(BaseModel):
+    """第 3 道閘門「必備命中率」。排在每日 pipeline 之後跑,讀 jobs.db 快照、寫 hitrate.db。"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    enabled: bool = True
+    #: 空字串 = 沿用 ``llm.deep.model``
+    model: str = ""
+    max_jobs_per_run: int = Field(default=30, ge=1, le=HARD_MAX_HITRATE_JOBS_PER_RUN)
+    cost_cap_usd: float = Field(default=0.15, gt=0, le=HARD_MAX_HITRATE_COST_USD)
+    db_filename: str = "hitrate.db"
+
+
 class NotifyCfg(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -310,6 +326,7 @@ class Config(BaseModel):
     dedupe: DedupeCfg = Field(default_factory=DedupeCfg)
     llm: LLMCfg
     scoring: ScoringCfg = Field(default_factory=ScoringCfg)
+    hitrate: HitRateCfg = Field(default_factory=HitRateCfg)
     notify: NotifyCfg = Field(default_factory=NotifyCfg)
     paths: PathsCfg = Field(default_factory=PathsCfg)
     runtime: RuntimeCfg = Field(default_factory=RuntimeCfg)

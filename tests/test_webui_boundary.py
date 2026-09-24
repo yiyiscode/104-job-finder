@@ -49,6 +49,18 @@ def test_logic_modules_do_not_need_ui_extras(path):
         assert name.split(".")[0] not in UI_ONLY, f"{path.name} import 了 {name}"
 
 
+HITRATE = WEBUI.parent / "hitrate"
+
+
+@pytest.mark.parametrize("path", sorted(HITRATE.glob("*.py")), ids=lambda p: p.name)
+def test_hitrate_never_touches_104_or_jobs_db_writer(path):
+    """命中率只打 OpenRouter。它跟 pipeline 同一個排程裡跑,更不能順手碰 104。"""
+    for name in _imports(path):
+        parts = name.lstrip(".").split(".")
+        bad = [p for p in parts if p in FORBIDDEN_EVERYWHERE]
+        assert not bad, f"hitrate/{path.name} import 了 {name}"
+
+
 def test_app_binds_localhost_only():
     """jobs.db 含實際求職資料,不能對區網公開。"""
     cli = (WEBUI.parent / "cli.py").read_text(encoding="utf-8")

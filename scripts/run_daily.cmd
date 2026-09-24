@@ -41,5 +41,11 @@ echo [%DATE% %TIME%] 排程觸發 >> "local_data\daily.log"
 ".venv\Scripts\python.exe" -m jobfinder.cli run >> "local_data\daily.log" 2>&1
 set RC=%ERRORLEVEL%
 
+REM 第 3 道閘門「必備命中率」。只打 OpenRouter、不打 104,所以 pipeline 失敗或熔斷也照跑。
+REM 必須排在 pipeline 之後、依序執行:它讀 jobs.db 快照,不能跟正在寫回的 pipeline 同時跑。
+REM 它的成敗不影響排程的 exit code —— 那個代表的是「今天有沒有抓到職缺」。
+".venv\Scripts\python.exe" -m jobfinder.cli hitrate >> "local_data\daily.log" 2>&1
+echo [%DATE% %TIME%] 命中率 exit code=%ERRORLEVEL% >> "local_data\daily.log"
+
 echo [%DATE% %TIME%] 結束,exit code=%RC% >> "local_data\daily.log"
 exit /b %RC%

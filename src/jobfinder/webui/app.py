@@ -16,11 +16,13 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+from jobfinder.hitrate.compute import resume_hash
+from jobfinder.hitrate.store import HitRateStore
 from jobfinder.webui import candidates as cand
 from jobfinder.webui import trends
 from jobfinder.webui.decisions import SKIP_REASONS, STATUS_LABELS, STATUSES, DecisionStore
 from jobfinder.webui.export import to_csv, to_markdown
-from jobfinder.webui.gates import GATE_HELP_MD, Light, Training
+from jobfinder.webui.gates import GATE_HELP_MD, HIT_RATE_THRESHOLD, Light, Training
 from jobfinder.webui.groups import (
     DEFAULT_INDUSTRIES,
     DEFAULT_TITLE_GROUPS,
@@ -41,28 +43,43 @@ TRAINING_TEXT = {
 def _args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="jobfinder-ui")
     parser.add_argument("--data-dir", default="local_data")
+    parser.add_argument("--resume", default="profile-de.md", help="命中率綁定的履歷檔")
     args, _ = parser.parse_known_args(sys.argv[1:])
     return args
 
 
-DATA_DIR = Path(_args().data_dir)
+ARGS = _args()
+DATA_DIR = Path(ARGS.data_dir)
 JOBS_DB = DATA_DIR / "jobs.db"
 DECISIONS_DB = DATA_DIR / "decisions.db"
+HITRATE_DB = DATA_DIR / "hitrate.db"
+RESUME = Path(ARGS.resume)
 SNAPSHOT_DIR = Path(tempfile.gettempdir()) / "jobfinder-webui"
 
 
 @st.cache_data(show_spinner="讀取 jobs.db 快照…")
-def _load(snapshot: str) -> list[JobRow]:
+def _load(snapshot: str, hitrate_version: int, resume_version: str) -> list[JobRow]:
+    hits = HitRateStore(HITRATE_DB).for_resume(resume_version) if hitrate_version else {}
     conn = connect_readonly(Path(snapshot))
     try:
-        return cand.load_rows(conn)
+        return cand.load_rows(conn, hits)
     finally:
         conn.close()
 
 
 def load_rows() -> list[JobRow]:
-    # 快照檔名含 mtime+size,檔名沒變 = 內容沒變 → 快取命中
-    return _load(str(take_snapshot(JOBS_DB, SNAPSHOT_DIR)))
+    # 快取鍵:快照檔名(含 mtime+size)、hitrate.db 的 mtime、履歷版本 —— 任一變了就重讀
+    hitrate_version = HITRATE_DB.stat().st_mtime_ns if HITRATE_DB.exists() else 0
+    resume_version = (
+        resume_hash(RESUME.read_text(encoding="utf-8")) if RESUME.exists() else "no-resume"
+    )
+    return _load(str(take_snapshot(JOBS_DB, SNAPSHOT_DIR)), hitrate_version, resume_version)
+
+
+def _gate3_text(r: JobRow) -> str:
+    if r.hit_rate is None:
+        return r.hit_rate_status
+    return f"{LIGHT_ICONS[r.gates.gate3]} {r.hit_rate:.0%}"
 
 
 @st.cache_resource
@@ -133,7 +150,7 @@ def candidates_page() -> None:
                 "decision": STATUS_LABELS[latest[r.job_no].status] if r.job_no in latest else "",
                 "gate1": LIGHT_ICONS[r.gates.gate1],
                 "gate2": f"❔ {TRAINING_TEXT[r.gates.training]}",
-                "gate3": "未計算",
+                "gate3": _gate3_text(r),
                 "company": r.company,
                 "title": r.title,
                 "title_group": r.title_group,
@@ -144,7 +161,7 @@ def candidates_page() -> None:
                 "salary": r.salary_text,
                 "english": r.english,
                 "score": r.deep_score,
-                "hit_rate": "未計算",
+                "hit_rate": None if r.hit_rate is None else round(r.hit_rate * 100),
                 "url": r.url,
                 "fails": " · ".join(r.gates.fails),
                 "flags": " · ".join(r.gates.flags),
@@ -174,7 +191,9 @@ def candidates_page() -> None:
                 help="自有產品(LLM,未判定)+ 新人培訓正則 + 非打雜職類。目前只有培訓正則有結果",
             ),
             "gate3": st.column_config.TextColumn(
-                "③命中率", width="small", help="必備命中 ≥70%,P2 才實作"
+                "③命中率",
+                width="small",
+                help=f"必備命中 ≥{HIT_RATE_THRESHOLD:.0%} 通過。未計算/無全文/無明列必備都不算卡住",
             ),
             "company": "公司",
             "title": st.column_config.TextColumn("職稱", width="medium"),
@@ -186,7 +205,7 @@ def candidates_page() -> None:
             "salary": "薪資",
             "english": st.column_config.CheckboxColumn("英文"),
             "score": st.column_config.NumberColumn("深評", format="%d"),
-            "hit_rate": "命中率",
+            "hit_rate": st.column_config.NumberColumn("命中率", format="%d%%"),
             "url": st.column_config.LinkColumn("104", display_text="開啟"),
             "fails": "排除原因",
             "flags": "警示",
@@ -214,6 +233,36 @@ def candidates_page() -> None:
         st.caption("還沒有標「投」的職缺。")
 
 
+MATCH_LABELS = {"yes": "✅ 符合", "partial": "🟡 部分", "no": "❌ 不符"}
+
+
+def _hit_rate_breakdown(job: JobRow) -> None:
+    if not job.hit_requirements:
+        st.caption(f"③ 命中率:{job.hit_rate_status}")
+        return
+    required = [r for r in job.hit_requirements if r.kind == "required"]
+    head = "無明列必備" if job.hit_rate is None else f"{job.hit_rate:.0%}"
+    with st.expander(f"③ 命中率 {head}(必備 {len(required)} 條)· 逐條判定", expanded=True):
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "條件": r.item,
+                        "類型": "必備" if r.kind == "required" else "加分",
+                        "判定": MATCH_LABELS[r.match],
+                        "履歷證據": r.evidence,
+                    }
+                    for r in sorted(job.hit_requirements, key=lambda r: r.kind != "required")
+                ]
+            ),
+            hide_index=True,
+            width="stretch",
+        )
+        st.caption(
+            "命中率 =(符合 + 0.5 × 部分)÷ 必備條數;加分條件不進分母。判定由 LLM 做,數字由程式算。"
+        )
+
+
 def _decision_panel(job: JobRow) -> None:
     st.divider()
     st.subheader(f"{job.company} — {job.title}")
@@ -225,6 +274,7 @@ def _decision_panel(job: JobRow) -> None:
             st.error("第 1 道排除:" + " · ".join(job.gates.fails))
         if job.gates.flags:
             st.warning(" · ".join(job.gates.flags))
+        _hit_rate_breakdown(job)
         with st.expander("JD" + ("(全文)" if job.has_detail else "(僅摘要,無全文)")):
             st.text(job.jd[:5000])
     with right:

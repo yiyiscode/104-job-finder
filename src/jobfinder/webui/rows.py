@@ -36,5 +36,7 @@ class JobRow:
     detail_text: str | None  # 技能趨勢「全文層」的文字;沒有全文時為 None
     deep_score: int | None = None
     one_liner: str = ""
-    hit_rate: float | None = None  # 第 3 道(P2)尚未實作
+    hit_rate: float | None = None  # 0–1;None 時看 hit_rate_status
+    hit_rate_status: str = "未計算"  # 已計算 / 未計算 / 無全文 / 無明列必備
+    hit_requirements: list = field(default_factory=list)  # hitrate.compute.Requirement
     gates: GateResult = field(default_factory=GateResult)

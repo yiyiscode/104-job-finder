@@ -12,7 +12,7 @@ import sqlite3
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
 
 from ..normalize import OPEN_ENDED_SALARY, format_experience, format_salary, monthly_equivalent
@@ -21,6 +21,9 @@ from .decisions import Decision
 from .groups import industry_group, title_group, title_matches
 from .rows import JobRow
 from .skills import detail_skill_text, summary_skill_text
+
+if TYPE_CHECKING:
+    from ..hitrate.store import StoredHitRate
 
 TAIPEI = ZoneInfo("Asia/Taipei")
 ENGLISH_CODE = 1  # languageRequirements[].language;已對照詳細頁的「英文」驗證
@@ -39,11 +42,15 @@ LEFT JOIN (
 """
 
 
-def load_rows(conn: sqlite3.Connection) -> list[JobRow]:
-    return [build_row(dict(r)) for r in conn.execute(CANDIDATE_SQL)]
+def load_rows(
+    conn: sqlite3.Connection, hit_rates: Mapping[str, StoredHitRate] | None = None
+) -> list[JobRow]:
+    """``hit_rates`` 是 hitrate.db 裡「目前這版履歷」的結果;不給就全部視為未計算。"""
+    hit_rates = hit_rates or {}
+    return [build_row(dict(r), hit_rates.get(r["job_no"])) for r in conn.execute(CANDIDATE_SQL)]
 
 
-def build_row(record: Mapping[str, Any]) -> JobRow:
+def build_row(record: Mapping[str, Any], hit: StoredHitRate | None = None) -> JobRow:
     summary = _loads(record.get("raw_summary")) or {}
     detail_payload = _loads(record.get("raw_detail"))
     detail = (
@@ -100,8 +107,20 @@ def build_row(record: Mapping[str, Any]) -> JobRow:
         deep_score=int(score) if score is not None else None,
         one_liner=record.get("one_liner") or "",
     )
+    _attach_hit_rate(row, hit)
     row.gates = gates.evaluate(row)
     return row
+
+
+def _attach_hit_rate(row: JobRow, hit: StoredHitRate | None) -> None:
+    if hit is not None:
+        row.hit_rate = hit.rate
+        row.hit_rate_status = "已計算" if hit.rate is not None else "無明列必備"
+        row.hit_requirements = list(hit.requirements)
+    elif not row.has_detail:
+        row.hit_rate_status = "無全文"
+    else:
+        row.hit_rate_status = "未計算"
 
 
 def _monthly(value: int | None, s10: int | None) -> int | None:
@@ -128,7 +147,7 @@ def _loads(value: str | None) -> Any:
 
 
 # ── 篩選與排序 ──────────────────────────────────────────────────────
-GATE_FILTERS = ("全部", "通過第 1 道", "卡在第 1 道")
+GATE_FILTERS = ("全部", "通過第 1 道", "卡在第 1 道", "命中率達標", "卡在第 3 道")
 SORT_KEYS = {
     "深評分數": "deep_score",
     "首次出現": "first_seen",
@@ -170,6 +189,13 @@ def apply_filter(
         if f.gate == "通過第 1 道" and not r.gates.passes_through(1):
             continue
         if f.gate == "卡在第 1 道" and r.gates.stuck_at != 1:
+            continue
+        # 「達標」要求真的算過且 ≥ 門檻;未計算不算達標(但也不算卡住)
+        if f.gate == "命中率達標" and not (
+            r.gates.passes_through(1) and r.gates.gate3 is gates.Light.PASS
+        ):
+            continue
+        if f.gate == "卡在第 3 道" and r.gates.stuck_at != 3:
             continue
         if f.no_english_only and r.english:
             continue

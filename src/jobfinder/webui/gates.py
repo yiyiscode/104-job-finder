@@ -18,6 +18,8 @@ if TYPE_CHECKING:
 
 MIN_EMPLOYEES = 30
 SALARY_FLOOR_MONTHLY = 50_000
+#: 第 3 道門檻(規格:必備命中 ≥70%)。`jobfinder hitrate` 與 UI 共用這一份
+HIT_RATE_THRESHOLD = 0.70
 # 2026-09-24 使用者定案:2 年標黃、3 年以上排除。實測深評 ≥70 分的比例 2 年 45/104、3 年 12/78 ——
 # 2 年常是可談的彈性標準,3 年才是真的不同級距。另外 104 的 period 實際只有 0/2/3…,沒有 1。
 WARN_PERIOD_YEARS = 2
@@ -120,8 +122,13 @@ def evaluate(row: JobRow) -> GateResult:
         flags.append("🔴職類含行銷/行政/業務")
     result.gate2 = Light.UNKNOWN
 
-    # ── 第 3 道:必備命中率,P2 才實作 ──
-    result.gate3 = Light.UNKNOWN
+    # ── 第 3 道:必備命中率(`jobfinder hitrate` 算好,存在 hitrate.db)──
+    if row.hit_rate is None:
+        result.gate3 = Light.UNKNOWN  # 未計算 / 無全文 / 無明列必備 —— 都不算卡住
+    elif row.hit_rate >= HIT_RATE_THRESHOLD:
+        result.gate3 = Light.PASS
+    else:
+        result.gate3 = Light.FAIL
     return result
 
 
@@ -153,6 +160,16 @@ GATE_HELP_MD = f"""
 | ② | JD 有寫新人培訓／導師制度 | 正則:新人培訓／教育訓練／導師／mentor／培訓計畫／學習資源／內部學習平台 | 命中 ✅;有全文沒命中「未掃到」;無全文「未判定」 |
 | ③ | 職務明確是 Data／工程,不是打雜 | 職務類別含 數位行銷／行政／業務 → 🔴 | 只有全文才有職務類別 |
 
-#### ③ 必備命中率 ≥ 70%
-`profile-de.md` 的技能逐條比對 JD 必備條件。**尚未實作(P2),顯示「未計算」。**
+#### ③ 必備命中率 ≥ {HIT_RATE_THRESHOLD:.0%}
+`jobfinder hitrate`(每日排程在 pipeline 之後自動跑)由 LLM 把 JD 拆成條件清單,逐條判斷履歷是否滿足,
+**命中率由程式算**:(符合 + 0.5 × 部分符合)÷ 必備條數,加分條件不進分母。
+工作內容明確要求的核心技術即使條件欄寫「者佳」也算必備。點開職缺可看逐條判定與證據。
+
+| 顯示 | 意思 |
+|---|---|
+| ✅ / ❌ 百分比 | 已計算,依 {HIT_RATE_THRESHOLD:.0%} 判定 |
+| 未計算 | 有全文但還沒輪到(每次最多算 config 的 `hitrate.max_jobs_per_run` 筆,由新到舊) |
+| 無全文 | 只有粗篩通過的職缺才有 JD 全文,其餘算不出來 |
+| 無明列必備 | JD 沒有可辨識的必備條件 |
+| 履歷改過 | 命中率綁定履歷版本,`profile-de.md` 一改,舊結果全部視為未計算 |
 """  # noqa: E501 —— Markdown 表格列不能斷行
