@@ -27,6 +27,7 @@ SKILLS: dict[str, str] = {
     "Scala": r"scala",
     "Rust": r"\brust\b",
     "MATLAB": r"matlab",
+    "SAS": r"\bsas\b",
     "Kotlin": r"kotlin",
     "Swift": r"\bswift\b",
     "PHP": r"\bphp\b",
@@ -111,6 +112,7 @@ SKILLS: dict[str, str] = {
     # Web / API / 後端
     "FastAPI": r"fastapi|fast\s?api",
     "Flask": r"flask",
+    "Streamlit": r"streamlit",
     "Django": r"django",
     "Node.js": r"node\.?js|nodejs",
     "Spring / Spring Boot": r"spring\s*boot|springboot|spring\s*framework|\bspring\b",
@@ -146,7 +148,8 @@ SKILLS: dict[str, str] = {
     "Feature Engineering": r"feature\s*engineering|特徵工程",
     "Model Deployment": r"model\s*deployment|模型部署|模型佈署|模型上線",
     "MLOps": r"mlops",
-    "Data Visualization": r"data\s*visuali|資料視覺化|數據視覺化",
+    # 「視覺化」單獨出現也算(履歷寫「BI / 視覺化」)
+    "Data Visualization": r"data\s*visuali|視覺化",
     # 資料工程 / BI(2026-09-24 補:主敘事改為資料工程後,舊詞典幾乎沒有這一塊)
     "Tableau": r"tableau",
     "Power BI": r"power\s?bi\b|\bpowerbi\b",

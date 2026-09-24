@@ -27,6 +27,7 @@ from .decisions import Decision
 from .groups import industry_group, title_group, title_matches
 from .jd_view import detail_sections
 from .rows import JobRow
+from .skill_match import skill_match
 from .skills import detail_skill_text, summary_skill_text
 
 if TYPE_CHECKING:
@@ -50,14 +51,24 @@ LEFT JOIN (
 
 
 def load_rows(
-    conn: sqlite3.Connection, hit_rates: Mapping[str, StoredHitRate] | None = None
+    conn: sqlite3.Connection,
+    hit_rates: Mapping[str, StoredHitRate] | None = None,
+    have_skills: frozenset[str] | None = None,
 ) -> list[JobRow]:
-    """``hit_rates`` 是 hitrate.db 裡「目前這版履歷」的結果;不給就全部視為未計算。"""
+    """``hit_rates`` 是 hitrate.db 裡「目前這版履歷」的結果;不給就全部視為未計算。
+    ``have_skills`` 是履歷的技能集合(程式版命中率用);不給就不算。"""
     hit_rates = hit_rates or {}
-    return [build_row(dict(r), hit_rates.get(r["job_no"])) for r in conn.execute(CANDIDATE_SQL)]
+    return [
+        build_row(dict(r), hit_rates.get(r["job_no"]), have_skills)
+        for r in conn.execute(CANDIDATE_SQL)
+    ]
 
 
-def build_row(record: Mapping[str, Any], hit: StoredHitRate | None = None) -> JobRow:
+def build_row(
+    record: Mapping[str, Any],
+    hit: StoredHitRate | None = None,
+    have_skills: frozenset[str] | None = None,
+) -> JobRow:
     summary = _loads(record.get("raw_summary")) or {}
     detail_payload = _loads(record.get("raw_detail"))
     detail = (
@@ -116,6 +127,9 @@ def build_row(record: Mapping[str, Any], hit: StoredHitRate | None = None) -> Jo
     )
     if detail:
         row.jd_description, row.jd_conditions = detail_sections(detail)
+    if have_skills is not None:
+        row.skill_match = skill_match(have_skills, summary, detail)
+        row.prog_rate = row.skill_match.rate
     _attach_hit_rate(row, hit)
     row.gates = gates.evaluate(row)
     return row
@@ -162,7 +176,8 @@ SORT_KEYS = {
     "深評分數": "deep_score",
     "首次出現": "first_seen",
     "員工數": "employees",
-    "命中率": "hit_rate",
+    "命中率(LLM)": "hit_rate",
+    "命中率(程式)": "prog_rate",
 }
 
 

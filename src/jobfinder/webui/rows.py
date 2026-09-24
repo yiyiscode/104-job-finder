@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from datetime import date
 
 from .gates import GateResult
+from .skill_match import SkillMatch
 
 
 @dataclass
@@ -43,4 +44,7 @@ class JobRow:
     hit_rate_status: str = "未計算"  # 已計算 / 未計算 / 無全文 / 無明列必備
     hit_requirements: list = field(default_factory=list)  # hitrate.compute.Requirement
     hit_core_missed: tuple[str, ...] = ()  # 不是「符合」的核心條件 → 第 3 道不過
+    #: 程式版命中率(技能詞典比對)。只顯示、不參與閘門
+    prog_rate: float | None = None
+    skill_match: SkillMatch | None = None
     gates: GateResult = field(default_factory=GateResult)

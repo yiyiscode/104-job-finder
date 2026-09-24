@@ -30,6 +30,7 @@ from jobfinder.webui.groups import (
     TITLE_GROUP_NAMES,
 )
 from jobfinder.webui.rows import JobRow
+from jobfinder.webui.skill_match import resume_skills
 from jobfinder.webui.snapshot import connect_readonly, take_snapshot
 
 LIGHT_ICONS = {Light.PASS: "✅", Light.WARN: "⚠️", Light.FAIL: "❌", Light.UNKNOWN: "❔"}
@@ -60,9 +61,10 @@ SNAPSHOT_DIR = Path(tempfile.gettempdir()) / "jobfinder-webui"
 @st.cache_data(show_spinner="讀取 jobs.db 快照…")
 def _load(snapshot: str, hitrate_version: int, resume_version: str) -> list[JobRow]:
     hits = HitRateStore(HITRATE_DB).for_resume(resume_version) if hitrate_version else {}
+    have = resume_skills(RESUME.read_text(encoding="utf-8")) if RESUME.exists() else None
     conn = connect_readonly(Path(snapshot))
     try:
-        return cand.load_rows(conn, hits)
+        return cand.load_rows(conn, hits, have)
     finally:
         conn.close()
 
@@ -163,6 +165,7 @@ def candidates_page() -> None:
                 "english": r.english,
                 "score": r.deep_score,
                 "hit_rate": None if r.hit_rate is None else round(r.hit_rate * 100),
+                "prog_rate": None if r.prog_rate is None else round(r.prog_rate * 100),
                 "url": r.url,
                 "fails": " · ".join(r.gates.fails),
                 "flags": " · ".join(r.gates.flags),
@@ -206,7 +209,15 @@ def candidates_page() -> None:
             "salary": "薪資",
             "english": st.column_config.CheckboxColumn("英文"),
             "score": st.column_config.NumberColumn("深評", format="%d"),
-            "hit_rate": st.column_config.NumberColumn("命中率", format="%d%%"),
+            "hit_rate": st.column_config.NumberColumn(
+                "命中率(LLM)", format="%d%%", help="LLM 逐條判定、程式算分;第 3 道用這個"
+            ),
+            "prog_rate": st.column_config.NumberColumn(
+                "命中率(程式)",
+                format="%d%%",
+                help="技能詞典比對,每筆都有。只供參考、不參與閘門:分不出核心、沒有部分符合,"
+                "沒全文的只看得到列表摘要",
+            ),
             "url": st.column_config.LinkColumn("104", display_text="開啟"),
             "fails": "排除原因",
             "flags": "警示",
@@ -232,6 +243,22 @@ def candidates_page() -> None:
         st.markdown(md)
     else:
         st.caption("還沒有標「投」的職缺。")
+
+
+def _skill_match_breakdown(job: JobRow) -> None:
+    m = job.skill_match
+    if m is None:
+        return
+    head = "無可辨識技能" if m.rate is None else f"{m.rate:.0%}"
+    with st.expander(f"命中率(程式){head} · 依{m.source}比對技能詞典"):
+        st.markdown(f"**✅ 履歷有:** {'、'.join(m.matched) or '—'}")
+        st.markdown(f"**❌ 履歷沒有(必備):** {'、'.join(m.missing) or '—'}")
+        if m.preferred_missing:
+            st.markdown(f"**加分但沒有:** {'、'.join(m.preferred_missing)}")
+        st.caption(
+            "只供參考,不參與閘門。詞典比對不懂等價經驗(自建排程 ≠ Airflow)、沒有部分符合;"
+            + ("沒有全文,只比對了約 123 字的列表摘要。" if m.source == "摘要" else "")
+        )
 
 
 def _jd_original(job: JobRow) -> None:
@@ -296,6 +323,7 @@ def _decision_panel(job: JobRow) -> None:
         if job.gates.flags:
             st.warning(" · ".join(job.gates.flags))
         _hit_rate_breakdown(job)
+        _skill_match_breakdown(job)
         _jd_original(job)
     with right:
         key = job.job_no
