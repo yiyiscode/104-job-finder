@@ -202,7 +202,9 @@ async def _fetch_and_screen(cfg, deps, repo, report, now, limit, rescore_all=Fal
         report.jobs_filtered_out = targeted.dropped_count
         report.warnings.extend(targeted.warnings)
         if targeted.dropped:
-            repo.mark_status([j.job_no for j in targeted.dropped], "screened_out")
+            # 刻意不是 screened_out —— 這些連 LLM 都沒看過。兩種淘汰原因共用同一個
+            # 狀態值的話,事後無法分辨「產業不對」與「模型覺得不適合」。
+            repo.mark_status([j.job_no for j in targeted.dropped], "filtered_out")
 
         if limit:
             new_jobs = new_jobs[:limit]
@@ -210,6 +212,13 @@ async def _fetch_and_screen(cfg, deps, repo, report, now, limit, rescore_all=Fal
         screen_outcome = await deps.scorer.screen(new_jobs)
         report.jobs_screened_in = len(screen_outcome.keep)
         report.llm_cost_usd += screen_outcome.cost_usd
+        # 粗篩刷掉的留一筆紀錄。留下來的不用存 —— 它們馬上會有 deep 紀錄。
+        repo.save_screen_drops(
+            screen_outcome.dropped,
+            run_id=report.run_id,
+            model=cfg.llm.screen.model,
+            now=now,
+        )
 
         if screen_outcome.keep:
             try:

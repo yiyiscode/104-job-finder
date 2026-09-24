@@ -215,15 +215,57 @@ async def test_filtered_out_count_is_persisted(cfg, setup):
     assert row["jobs_filtered_out"] == 1
 
 
-async def test_filtered_jobs_are_marked_screened_out(cfg, setup):
-    """濾掉的職缺要標記狀態,否則它們在 jobs 表裡永遠掛著 'new'。"""
+async def test_filtered_jobs_are_marked_filtered_out(cfg, setup):
+    """規則層濾掉的要標 `filtered_out`,**不是** `screened_out`。
+
+    兩種淘汰原因共用同一個狀態值的話,事後分不出「產業不對」與「模型覺得不適合」,
+    而那正是人工標註算 precision/recall 時唯一需要分開的兩件事。
+    """
     jobs = [targeted_job(0, code="1001001002", employees=8000)]
     deps, _, _, data_dir = setup(FakeSource(jobs))
     await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
 
     with Database(data_dir, cfg.paths.db_filename) as db:
         row = db.conn.execute("SELECT status FROM jobs WHERE job_no = 't0'").fetchone()
-    assert row["status"] == "screened_out"
+    assert row["status"] == "filtered_out"
+
+
+async def test_screen_drops_land_in_scores(cfg, setup):
+    """粗篩刷掉的要在 scores 留一筆 stage='screen',而且不能跟 deep 混在一起。"""
+    from jobfinder.models import RejectedJob
+
+    jobs = [
+        targeted_job(0, code="1001006002", employees=5000),
+        targeted_job(1, code="1001006002", employees=5000),
+    ]
+    scorer = FakeScorer()
+
+    async def screen_dropping_t1(batch):
+        keep = [j for j in batch if j.job_no != "t1"]
+        return ScreenOutcome(
+            keep=keep,
+            dropped=[
+                RejectedJob(job_no="t1", job_name="x", cust_name="y", total=31, reason="粗篩不適合")
+            ],
+        )
+
+    scorer.screen = screen_dropping_t1
+    deps, _, _, data_dir = setup(FakeSource(jobs), scorer)
+    report = await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
+
+    with Database(data_dir, cfg.paths.db_filename) as db:
+        rows = dict(
+            db.conn.execute("SELECT job_no, stage FROM scores WHERE run_id = ?", (report.run_id,))
+        )
+        dropped = db.conn.execute(
+            "SELECT total_score, one_liner, status FROM scores JOIN jobs USING (job_no)"
+            " WHERE job_no = 't1'"
+        ).fetchone()
+
+    assert rows == {"t0": "deep", "t1": "screen"}
+    assert dropped["total_score"] == 31
+    assert dropped["one_liner"] == "粗篩不適合"
+    assert dropped["status"] == "screened_out"
 
 
 async def test_targeting_fails_open_when_signals_missing(cfg, setup):

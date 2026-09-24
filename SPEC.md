@@ -278,9 +278,27 @@ SQLite,四張表:
 | 表 | 用途 | 關鍵欄位 |
 |---|---|---|
 | `jobs` | 職缺主檔與去重 | `job_no` (PK)、`first_seen_at`、`last_seen_at`、`appear_date`、`content_hash`、`matched_keywords`、`raw_summary`、`raw_detail`、`status` |
-| `scores` | 每次評分結果 | `job_no`、`run_id`、`stage`、`model`、五維分數、`total_score`、`verdict`、`one_liner`、`highlights`、`red_flags`、`raw_response` |
+| `scores` | 每次評分結果 | `job_no`、`run_id`、**`stage`(`screen`/`deep`)**、`model`、五維分數、`total_score`、`verdict`、`one_liner`、`highlights`、`red_flags`、`raw_response` |
 | `runs` | 每次執行的稽核 | `started_at`、`status`、`jobs_fetched/new/scored/notified`、**`jobs_filtered_out`**(規則層濾掉的筆數)、**`requests_used`**、`llm_cost_usd`、`error_kind`、`error_detail` |
 | `circuit_state` | 熔斷器 | `state`、`tripped_at`、`reason`、`consecutive_failures` |
+
+**`stage='screen'` 只寫被粗篩刷掉的**(留下的馬上會有 deep 紀錄,存兩次是冗餘)。
+粗篩沒有五維拆解,那幾欄留 NULL,`total_score` 放 `rough`、`one_liner` 放理由。
+沒有這些紀錄的話,被粗篩刷掉的職缺在 DB 裡完全沒有痕跡,就無從判斷
+`llm.screen.rough_threshold` 設得對不對。
+
+**`jobs.status` 的兩種淘汰原因刻意分開**:
+
+| 值 | 意思 |
+|---|---|
+| `filtered_out` | 產業/規模規則層濾掉的 —— **連 LLM 都沒看過** |
+| `screened_out` | LLM 粗篩看過之後刷掉的 —— `scores` 有對應的 `stage='screen'` |
+
+共用同一個值的話,事後無法分辨「產業不對」與「模型覺得不適合」,
+而那正是人工標註算 precision/recall 時唯一需要分開的兩件事。
+
+⚠️ `filtered_out` **不**觸發「重新上架不再通知」的短路(`_is_repost`)——
+那一層的判定依據是設定檔不是職缺本身,放寬 `targeting` 之後這些職缺該能重新被考慮。
 
 新增欄位一律走 `storage/db.py` 的 `MIGRATIONS`:`CREATE TABLE IF NOT EXISTS`
 對既有的表完全沒作用,少了遷移舊 db 會在 UPDATE 時炸 `no such column`。

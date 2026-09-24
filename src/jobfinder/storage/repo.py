@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from ..config import DedupeCfg
-from ..models import JobDetail, JobSummary, RunReport, ScoredJob
+from ..models import JobDetail, JobSummary, RejectedJob, RunReport, ScoredJob
 from ..scrape.blocking import CircuitState
 
 log = logging.getLogger(__name__)
@@ -107,7 +107,12 @@ class JobRepo:
         cooldown: timedelta,
     ) -> bool:
         if row["status"] == "screened_out":
-            # 已經判定過不適合,重新上架也不必再煩使用者
+            # LLM 已經判定過不適合,重新上架也不必再煩使用者。
+            #
+            # ⚠️ `filtered_out`(產業/規模規則層濾掉的)**刻意不放進來**。
+            # 那一層的判定依據是設定檔,不是職缺本身 —— 使用者哪天放寬
+            # `targeting` 之後,這些職缺應該要能重新被考慮。而在設定沒變的情況下
+            # 它們反正會再被濾一次,短路與否結果相同。
             return False
         if not job.appear_date or job.appear_date == row["appear_date"]:
             return False
@@ -207,6 +212,34 @@ class JobRepo:
                 raw_response,
                 (now or datetime.now()).isoformat(),
             ),
+        )
+        self.conn.commit()
+
+    def save_screen_drops(
+        self,
+        dropped: list[RejectedJob],
+        *,
+        run_id: int | None,
+        model: str = "",
+        now: datetime | None = None,
+    ) -> None:
+        """粗篩刷掉的職缺寫進 ``scores``(``stage='screen'``)。
+
+        **只寫被刷掉的。** 留下來的馬上就會有一筆 deep 紀錄,再存一次是冗餘。
+
+        欄位比 deep 少很多 —— 粗篩只給 ``rough`` 分數與一句理由,沒有五維拆解,
+        所以那幾欄留 NULL。存這個的用途是日後回頭看 ``llm.screen.rough_threshold``
+        設得對不對:沒有它,被刷掉的職缺在 DB 裡完全沒有痕跡,只剩當天摘要裡的一行字。
+        """
+        if not dropped:
+            return
+        stamp = (now or datetime.now()).isoformat()
+        self.conn.executemany(
+            """
+            INSERT INTO scores (job_no, run_id, stage, model, total_score, one_liner, created_at)
+            VALUES (?, ?, 'screen', ?, ?, ?, ?)
+            """,
+            [(r.job_no, run_id, model, r.total, r.reason, stamp) for r in dropped],
         )
         self.conn.commit()
 

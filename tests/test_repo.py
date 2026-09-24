@@ -171,3 +171,71 @@ def test_prune_removes_stale_rows(repo):
     assert repo.prune(DAY0) == 1
     remaining = [r["job_no"] for r in repo.conn.execute("SELECT job_no FROM jobs")]
     assert remaining == ["fresh"]
+
+
+# ── 粗篩紀錄與兩種淘汰狀態(2026-09-24)────────────────────────────
+
+
+def test_screen_drops_are_persisted(repo):
+    """粗篩刷掉的要留紀錄。沒有它,被刷掉的職缺在 DB 裡完全沒有痕跡,
+    日後就無從判斷 `llm.screen.rough_threshold` 設得對不對。"""
+    from jobfinder.models import RejectedJob
+
+    repo.register([make_job("j1"), make_job("j2")], DAY0)
+    run_id = repo.start_run(DAY0)
+    repo.save_screen_drops(
+        [
+            RejectedJob(
+                job_no="j1", job_name="A", cust_name="甲", total=31, reason="與資料工程無關"
+            ),
+            RejectedJob(job_no="j2", job_name="B", cust_name="乙", total=44, reason="要求資深"),
+        ],
+        run_id=run_id,
+        model="test/screen-model",
+        now=DAY0,
+    )
+
+    rows = list(
+        repo.conn.execute(
+            "SELECT job_no, stage, model, total_score, one_liner FROM scores"
+            " WHERE run_id = ? ORDER BY job_no",
+            (run_id,),
+        )
+    )
+    assert [r["stage"] for r in rows] == ["screen", "screen"]
+    assert [r["total_score"] for r in rows] == [31, 44]
+    assert rows[0]["one_liner"] == "與資料工程無關"
+    assert rows[0]["model"] == "test/screen-model"
+    # 粗篩沒有五維拆解,那幾欄留 NULL
+    assert repo.conn.execute("SELECT tech_fit FROM scores WHERE job_no='j1'").fetchone()[0] is None
+
+
+def test_screen_drops_empty_list_is_a_noop(repo):
+    run_id = repo.start_run(DAY0)
+    repo.save_screen_drops([], run_id=run_id)
+    assert repo.conn.execute("SELECT COUNT(*) FROM scores").fetchone()[0] == 0
+
+
+def test_filtered_out_is_a_valid_status(repo):
+    """規則層濾掉的與 LLM 刷掉的必須分得開,否則無法做 precision/recall 標註。"""
+    repo.register([make_job("j1"), make_job("j2")], DAY0)
+    repo.mark_status(["j1"], "filtered_out")
+    repo.mark_status(["j2"], "screened_out")
+    got = dict(repo.conn.execute("SELECT job_no, status FROM jobs"))
+    assert got == {"j1": "filtered_out", "j2": "screened_out"}
+
+
+def test_filtered_out_does_not_block_a_repost(repo):
+    """`screened_out` 會擋掉重新上架的通知,但 `filtered_out` 刻意不擋 ——
+    那一層的判定依據是設定檔,放寬 targeting 之後這些職缺該能重新被考慮。"""
+    later = DAY0 + timedelta(days=60)
+
+    repo.register([make_job("j1", appear_date="20260821")], DAY0)
+    repo.mark_status(["j1"], "filtered_out")
+    assert [j.job_no for j in repo.register([make_job("j1", appear_date="20261020")], later)] == [
+        "j1"
+    ]
+
+    repo.register([make_job("j2", appear_date="20260821")], DAY0)
+    repo.mark_status(["j2"], "screened_out")
+    assert repo.register([make_job("j2", appear_date="20261020")], later) == []

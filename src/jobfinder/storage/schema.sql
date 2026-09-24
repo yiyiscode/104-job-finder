@@ -26,8 +26,12 @@ CREATE TABLE IF NOT EXISTS jobs (
     matched_keywords TEXT,                       -- JSON array
     raw_summary      TEXT,                       -- 原始列表 JSON,供 --replay 與改版 diff
     raw_detail       TEXT,                       -- 原始詳細 JSON(粗篩通過者才有)
+    -- filtered_out 與 screened_out 是**不同**的淘汰原因,刻意分開:
+    --   filtered_out  = 產業/規模規則層濾掉的(連 LLM 都沒看過)
+    --   screened_out  = LLM 粗篩看過之後刷掉的(scores 表有 stage='screen' 紀錄)
+    -- 共用同一個值的話,事後無法做 precision/recall 標註。
     status           TEXT NOT NULL DEFAULT 'new'
-                     CHECK (status IN ('new', 'screened_out', 'scored', 'notified'))
+                     CHECK (status IN ('new', 'filtered_out', 'screened_out', 'scored', 'notified'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_jobs_first_seen ON jobs (first_seen_at);

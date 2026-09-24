@@ -291,6 +291,14 @@ AI 主敘事換成資料工程(`資料工程師`/`資料倉儲工程師`/`BI工�
   所以 `config.py` 直接拒絕啟動
 - `runs` 表加欄位要走 `storage/db.py` 的 `MIGRATIONS`。`CREATE TABLE IF NOT EXISTS`
   對既有的表完全沒作用,少了遷移舊 db 會在 UPDATE 時炸 `no such column`
+- **改 `jobs.status` 的 CHECK 要整表重建** —— SQLite 沒有 `DROP CONSTRAINT`。
+  `_widen_jobs_status_check()` 做這件事,兩個必踩的雷:`scores` 對 `jobs` 有
+  `ON DELETE CASCADE`,**外鍵沒關掉就 DROP TABLE 會把 scores 整張連帶刪光**;
+  而 `PRAGMA foreign_keys` 在交易裡是 no-op,必須在 BEGIN 之前設。
+  重建會連索引一起丟掉,所以 `ensure_schema()` 會再跑一次 schema.sql 補回來
+- **兩種淘汰原因分開記**:`filtered_out`(規則層濾掉,LLM 沒看過)vs
+  `screened_out`(LLM 粗篩刷掉,`scores` 有 `stage='screen'` 紀錄)。
+  共用一個值就無法做 precision/recall 標註
 - 加新的抓取行為時,**一定要走 `RequestBudget.acquire()`**,不要自己發請求
 - **`scripts/` 底下每個腳本都必須有 argparse** —— `tests/test_scripts.py` 會驗
   `--help` 印得出 `usage:`。少了它,`--help` 會把整個腳本跑一遍
