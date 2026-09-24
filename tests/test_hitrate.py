@@ -284,3 +284,51 @@ def test_cli_hitrate_fake_llm_end_to_end(tmp_path):
     )
     assert len(rows) == 1 and rows[0][:2] == ("J1", "fake")
     assert {r["item"] for r in json.loads(rows[0][2])} >= {"SQL", "Airflow"}
+
+
+# ── 手動補算(不打 API)──
+def test_export_pending_writes_batches(tmp_path):
+    from jobfinder.hitrate.manual import EXPORT_BATCH, export_pending
+
+    rows = _rows(EXPORT_BATCH + 2)
+    paths = export_pending(rows, tmp_path / "out")
+    assert len(paths) == 2
+    text = paths[0].read_text("utf-8")
+    assert text.count("### ") == EXPORT_BATCH and "建置 ETL" in text
+
+
+def test_import_judgments_scores_by_program_and_marks_model(tmp_path):
+    from jobfinder.hitrate.manual import MANUAL_MODEL, import_judgments
+
+    path = tmp_path / "j.json"
+    good = [
+        {"item": "SQL", "kind": "required", "match": "yes", "evidence": "x", "core": True},
+        {"item": "AWS", "kind": "required", "match": "no", "evidence": "x"},
+    ]
+    path.write_text(
+        json.dumps(
+            [
+                {"job_no": "J1", "requirements": good},
+                {"job_no": "J2", "requirements": [{"item": "X", "kind": "must"}]},  # 格式錯
+            ]
+        ),
+        encoding="utf-8",
+    )
+    store = HitRateStore(tmp_path / "hitrate.db")
+    ok, errors = import_judgments(path, store, "v1", NOW)
+    assert ok == 1 and len(errors) == 1 and errors[0].startswith("J2")
+    saved = store.for_resume("v1")["J1"]
+    assert saved.rate == 0.5 and saved.model == MANUAL_MODEL  # 分數由程式算,不是填進來的
+
+
+def test_cli_export_and_import_do_not_need_api_key(tmp_path, monkeypatch):
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    conn = connect(tmp_path / "jobs.db")
+    ensure_schema(conn)
+    conn.close()
+    assert (
+        main(["--data-dir", str(tmp_path), "hitrate", "--export-pending", str(tmp_path / "x")]) == 0
+    )
+    empty = tmp_path / "empty.json"
+    empty.write_text("[]", encoding="utf-8")
+    assert main(["--data-dir", str(tmp_path), "hitrate", "--import", str(empty)]) == 0

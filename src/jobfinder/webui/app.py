@@ -307,7 +307,7 @@ def _hit_rate_breakdown(job: JobRow) -> None:
             st.error("核心條件不符,第 3 道不過:" + "、".join(job.hit_core_missed))
         st.caption(
             "命中率 =(符合 + 0.5 × 部分)÷ 必備條數;加分條件不進分母。⭐ = 核心條件。"
-            "判定由 LLM 做,數字由程式算。"
+            f"判定:{job.hit_model}(claude-code = 手動補算,不經 API);數字由程式算。"
         )
 
 

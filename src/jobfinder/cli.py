@@ -58,6 +58,17 @@ def build_parser() -> argparse.ArgumentParser:
     hr.add_argument("--limit", type=int, help="本次最多算幾筆(不超過 config 的 max_jobs_per_run)")
     hr.add_argument("--dry-run", action="store_true", help="只列出會算哪些職缺,不呼叫 LLM")
     hr.add_argument("--fake-llm", action="store_true", help="用技能詞典粗估,不花錢(數字不可信)")
+    hr.add_argument(
+        "--export-pending",
+        metavar="DIR",
+        help="不呼叫 LLM:把所有待算職缺的 JD 匯出成 Markdown 批次檔,供手動判讀",
+    )
+    hr.add_argument(
+        "--import",
+        dest="import_path",
+        metavar="JSON",
+        help="不呼叫 LLM:匯入手動判讀的結果 [{job_no, requirements}],由程式算分",
+    )
 
     ui = sub.add_parser("ui", help="開啟本機 Web UI(候選清單 / 技能趨勢),只讀 jobs.db、不連 104")
     ui.add_argument("--port", type=int, default=8501)
@@ -113,6 +124,26 @@ async def _hitrate(cfg: Config, args: argparse.Namespace) -> int:
     limit = hcfg.max_jobs_per_run if args.limit is None else min(args.limit, hcfg.max_jobs_per_run)
     model = hcfg.model or cfg.llm.deep.model
     resume = load_resume(cfg.paths.resume)
+    store = HitRateStore(Path(args.data_dir) / hcfg.db_filename)
+    now = datetime.now(ZoneInfo(cfg.runtime.timezone))
+
+    if args.export_pending or args.import_path:
+        from .hitrate.manual import export_pending, import_judgments
+        from .hitrate.runner import pick_targets
+
+        if args.import_path:
+            ok, errors = import_judgments(
+                Path(args.import_path), store, resume_hash(resume.full), now
+            )
+            print(f"匯入 {ok} 筆" + (f",{len(errors)} 筆錯誤:" if errors else ""))
+            for err in errors:
+                print(f"  {err}")
+            return 1 if errors else 0
+        done = set(store.for_resume(resume_hash(resume.full)))
+        targets, pending = pick_targets(load_job_rows(jobs_db), done, limit=10**9)
+        paths = export_pending(targets, Path(args.export_pending))
+        print(f"待算 {pending} 筆 → 匯出 {len(paths)} 個批次檔到 {args.export_pending}")
+        return 0
 
     if args.fake_llm or args.dry_run:
         from .hitrate.fake import FakeHitRateClient
@@ -132,14 +163,14 @@ async def _hitrate(cfg: Config, args: argparse.Namespace) -> int:
     try:
         report = await run_hitrate(
             rows=load_job_rows(jobs_db),
-            store=HitRateStore(Path(args.data_dir) / hcfg.db_filename),
+            store=store,
             client=client,
             model="fake" if args.fake_llm else model,
             resume_text=resume.full,
             resume_hash=resume_hash(resume.full),
             limit=limit,
             cost_cap_usd=hcfg.cost_cap_usd,
-            now=datetime.now(ZoneInfo(cfg.runtime.timezone)),
+            now=now,
             dry_run=args.dry_run,
         )
     finally:
