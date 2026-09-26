@@ -121,26 +121,44 @@ def candidates_page() -> None:
         start, end = date_range(
             "首次出現日期", (cand.week_start(today()), today()), first_day, today(), "c_date"
         )
+        notified_only = st.toggle(
+            "📨 只看推播過的",
+            help="對照 Telegram 日報用。打開後只套用日期,下面的產業/職稱/閘門等條件全部不看",
+        )
+        off = notified_only  # 其他條件在這個模式下不生效,灰掉免得誤會
         f = cand.CandidateFilter(
             start=start,
             end=end,
-            industries=st.multiselect("產業", INDUSTRY_NAMES, default=DEFAULT_INDUSTRIES),
+            notified_only=notified_only,
+            industries=st.multiselect(
+                "產業", INDUSTRY_NAMES, default=DEFAULT_INDUSTRIES, disabled=off
+            ),
             title_groups=st.multiselect(
                 "職稱類別",
                 TITLE_GROUP_NAMES,
                 default=DEFAULT_TITLE_GROUPS,
                 help="依職稱關鍵字歸類,由上往下第一個命中為準"
                 "(資料工程優先,所以「AI 數據開發工程師」算資料工程)",
+                disabled=off,
             ),
             title_query=st.text_input(
-                "職稱關鍵字", placeholder="例:資料工程|ETL", help="不分大小寫;用 | 分隔表示「或」"
+                "職稱關鍵字",
+                placeholder="例:資料工程|ETL",
+                help="不分大小寫;用 | 分隔表示「或」",
+                disabled=off,
             ),
-            gate=st.radio("閘門", cand.GATE_FILTERS, index=1, help="規則見頁面上方的說明"),
-            no_english_only=st.checkbox("只看不要求英文"),
+            gate=st.radio(
+                "閘門", cand.GATE_FILTERS, index=1, help="規則見頁面上方的說明", disabled=off
+            ),
+            no_english_only=st.checkbox("只看不要求英文", disabled=off),
             pipeline_statuses=st.multiselect(
-                "pipeline 狀態", statuses, default=statuses, help=cand.PIPELINE_STATUS_LEGEND
+                "pipeline 狀態",
+                statuses,
+                default=statuses,
+                help=cand.PIPELINE_STATUS_LEGEND,
+                disabled=off,
             ),
-            hide_skipped=st.checkbox("隱藏已標「不投」", value=True),
+            hide_skipped=st.checkbox("隱藏已標「不投」", value=True, disabled=off),
         )
         sort_key = st.selectbox("排序", list(cand.SORT_KEYS))
 
@@ -321,6 +339,24 @@ def _hit_rate_breakdown(job: JobRow) -> None:
         )
 
 
+def _deep_score_details(job: JobRow) -> None:
+    """原本 Telegram 卡片上的內容。日報改成單則之後,完整版只在這裡看得到。"""
+    if job.highlights:
+        st.markdown("**為什麼適合你**")
+        st.markdown("\n".join(f"- {h}" for h in job.highlights))
+    if job.red_flags:
+        st.markdown("**注意**")
+        st.markdown("\n".join(f"- ⚠️ {r}" for r in job.red_flags))
+    if job.resume_tip:
+        st.markdown(f"**履歷建議** 💡 {job.resume_tip}")
+    if job.score_parts:
+        st.caption(
+            "細項 " + " · ".join(f"{name} {got}/{full}" for name, got, full in job.score_parts)
+        )
+    if job.company_url:
+        st.markdown(f"[🏢 這家公司的其他職缺]({job.company_url})")
+
+
 def _decision_panel(job: JobRow) -> None:
     st.divider()
     st.subheader(f"{job.company} — {job.title}")
@@ -328,6 +364,7 @@ def _decision_panel(job: JobRow) -> None:
     with left:
         if job.deep_score is not None:
             st.info(f"深評 {job.deep_score} 分:{job.one_liner}")
+            _deep_score_details(job)
         if job.gates.fails:
             st.error("第 1 道排除:" + " · ".join(job.gates.fails))
         if job.gates.flags:

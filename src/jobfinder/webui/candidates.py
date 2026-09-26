@@ -42,10 +42,12 @@ _ENGLISH_TEXT = ("英文", "english", "toeic", "多益")
 CANDIDATE_SQL = """
 SELECT j.job_no, j.job_name, j.cust_name, j.job_url, j.area_desc, j.edu_desc,
        j.first_seen_at, j.status, j.raw_summary, j.raw_detail,
-       s.total_score, s.one_liner, s.resume_tip, s.highlights, s.red_flags
+       s.total_score, s.one_liner, s.resume_tip, s.highlights, s.red_flags,
+       s.tech_fit, s.exp_fit, s.domain_fit, s.growth_fit, s.practical_fit
 FROM jobs j
 LEFT JOIN (
     SELECT job_no, total_score, one_liner, resume_tip, highlights, red_flags,
+           tech_fit, exp_fit, domain_fit, growth_fit, practical_fit,
            ROW_NUMBER() OVER (PARTITION BY job_no ORDER BY id DESC) AS rn
     FROM scores WHERE stage = 'deep'
 ) s ON s.job_no = j.job_no AND s.rn = 1
@@ -64,6 +66,34 @@ def load_rows(
         build_row(dict(r), hit_rates.get(r["job_no"]), have_skills)
         for r in conn.execute(CANDIDATE_SQL)
     ]
+
+
+#: 深評五個維度與滿分(與 scoring/prompts.py 的配分一致)
+SCORE_PARTS = (
+    ("tech_fit", "技術", 35),
+    ("exp_fit", "年資", 25),
+    ("domain_fit", "領域", 15),
+    ("growth_fit", "成長", 15),
+    ("practical_fit", "實務", 10),
+)
+_COMPANY_PREFIX = "https://www.104.com.tw/company/"
+
+
+def _score_parts(record: Mapping[str, Any]) -> list[tuple[str, int, int]]:
+    """(名稱, 得分, 滿分);沒有深評或欄位缺漏時回空的。"""
+    parts = [(label, record.get(col), full) for col, label, full in SCORE_PARTS]
+    if any(v is None for _, v, _ in parts):
+        return []
+    return [(label, int(v), full) for label, v, full in parts]
+
+
+def _company_url(summary: Mapping[str, Any]) -> str:
+    """列表 JSON 的 ``link.cust``。只收 104 公司頁,其他一律不給(UI 會把它做成連結)。"""
+    link = summary.get("link")
+    url = link.get("cust") if isinstance(link, dict) else None
+    if isinstance(url, str) and url.startswith("//"):
+        url = "https:" + url
+    return url if isinstance(url, str) and url.startswith(_COMPANY_PREFIX) else ""
 
 
 def build_row(
@@ -129,6 +159,8 @@ def build_row(
         resume_tip=record.get("resume_tip") or "",
         highlights=_loads(record.get("highlights")) or [],
         red_flags=_loads(record.get("red_flags")) or [],
+        score_parts=_score_parts(record),
+        company_url=_company_url(summary),
     )
     if detail:
         row.jd_description, row.jd_conditions = detail_sections(detail)
@@ -221,6 +253,9 @@ class CandidateFilter:
     no_english_only: bool = False
     pipeline_statuses: list[str] | None = None  # None = 不限
     hide_skipped: bool = True
+    #: 對照 Telegram 日報用:只看推播過的,**其他條件全部不套用**(只留日期)。
+    #: 否則預設的產業/職稱/閘門會把推播過的金融職缺藏起來,跟日報對不上。
+    notified_only: bool = False
 
 
 def in_range(rows: Iterable[JobRow], start: date, end: date) -> list[JobRow]:
@@ -232,6 +267,10 @@ def apply_filter(
 ) -> list[JobRow]:
     out = []
     for r in in_range(rows, f.start, f.end):
+        if f.notified_only:
+            if r.pipeline_status == "notified":
+                out.append(r)
+            continue
         if r.industry not in f.industries or r.title_group not in f.title_groups:
             continue
         if not title_matches(r.title, f.title_query):

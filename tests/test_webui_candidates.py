@@ -246,3 +246,37 @@ def test_detail_sections_follow_104_layout():
 def test_row_carries_original_jd_only_with_detail():
     assert row().jd_description == "" and row().jd_conditions == []
     assert row(detail_payload=detail(jd="負責 ETL")).jd_description == "負責 ETL"
+
+
+# ── 對照 Telegram 日報 ──
+def test_notified_only_ignores_every_other_filter_except_date():
+    """日報改成單則後,要能在 UI 對照「推過哪些」。預設的產業/職稱/閘門會把
+    推播過的金融職缺藏起來 —— 這個模式必須無視它們,只看日期。"""
+    rows = [
+        row(job_no="fin", status="notified", summary_overrides={"coIndustry": 1004001}),
+        row(job_no="small", status="notified", summary_overrides={"employeeCount": 10}),
+        row(job_no="scored", status="scored"),
+        row(job_no="old", status="notified", first_seen="2026-09-10T08:00:00+08:00"),
+    ]
+    f = _filter(
+        industries=["半導體/電子"],
+        title_groups=["資料工程"],
+        gate="通過第 1 道",
+        notified_only=True,
+    )
+    latest = {"small": decision("small", "skip")}
+    assert {r.job_no for r in apply_filter(rows, f, latest)} == {"fin", "small"}
+
+
+def test_row_carries_score_parts_and_company_link():
+    rec = record(summary_overrides={"link": {"cust": "https://www.104.com.tw/company/abc123"}})
+    rec.update(tech_fit=30, exp_fit=20, domain_fit=10, growth_fit=12, practical_fit=8)
+    r = build_row(rec)
+    assert r.score_parts[0] == ("技術", 30, 35)
+    assert sum(full for _, _, full in r.score_parts) == 100
+    assert r.company_url == "https://www.104.com.tw/company/abc123"
+
+
+def test_missing_score_parts_and_foreign_company_link_are_empty():
+    r = build_row(record(summary_overrides={"link": {"cust": "https://evil.example/x"}}))
+    assert r.score_parts == [] and r.company_url == ""
