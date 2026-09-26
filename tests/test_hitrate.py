@@ -349,3 +349,25 @@ def test_gate3_label_distinguishes_reasons():
     core_partial = label(0.88, [core("partial"), req(), req(), req()])
     assert core_partial.startswith("⛔ 88%") and "AWS 資料服務" in core_partial
     assert gate3_label(build_row(record())) == "無全文"
+
+
+# ── prompt 錨點:2026-09-26 收緊的規則不能被改回去 ──
+def test_prompt_keeps_tightened_rules():
+    from jobfinder.hitrate.prompts import SYSTEM_HITRATE
+
+    for rule in (
+        "禁止推論",
+        "不同語言／平台不要合併",
+        "空泛條件",
+        "資格限制",
+        "引用不到原文就不能判 yes",
+    ):
+        assert rule in SYSTEM_HITRATE, rule
+
+
+def test_prompt_labels_104_sections():
+    from jobfinder.hitrate.prompts import format_jd
+
+    text = format_jd("負責 ETL", [("擅長工具", "Python、SQL"), ("其他條件", "Airflow 者佳")])
+    assert "### 工作內容\n負責 ETL" in text
+    assert "【擅長工具】Python、SQL" in text and "【其他條件】Airflow 者佳" in text

@@ -13,7 +13,7 @@ from ..webui.candidates import load_rows
 from ..webui.rows import JobRow
 from ..webui.snapshot import connect_readonly, take_snapshot
 from .compute import MAX_REQUIREMENTS, HitRateCheck, hit_rate
-from .prompts import SYSTEM_HITRATE, build_hitrate_user
+from .prompts import SYSTEM_HITRATE, build_hitrate_user, format_jd
 from .store import HitRateStore
 
 log = logging.getLogger(__name__)
@@ -101,7 +101,12 @@ async def run_hitrate(
             check, cost = await client.structured(
                 model=model,
                 system=SYSTEM_HITRATE,
-                user=build_hitrate_user(resume_text, row.title, row.company, row.detail_text or ""),
+                user=build_hitrate_user(
+                    resume_text,
+                    row.title,
+                    row.company,
+                    format_jd(row.jd_description, row.jd_conditions),
+                ),
                 schema_model=HitRateCheck,
                 schema_name="hit_rate_check",
                 temperature=0.0,
