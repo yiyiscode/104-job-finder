@@ -360,7 +360,7 @@ def test_prompt_keeps_tightened_rules():
         "不同語言／平台不要合併",
         "空泛條件",
         "資格限制",
-        "引用不到原文就不能判 yes",
+        "找不到對應的技術就不能判 yes",
     ):
         assert rule in SYSTEM_HITRATE, rule
 
@@ -371,3 +371,13 @@ def test_prompt_labels_104_sections():
     text = format_jd("負責 ETL", [("擅長工具", "Python、SQL"), ("其他條件", "Airflow 者佳")])
     assert "### 工作內容\n負責 ETL" in text
     assert "【擅長工具】Python、SQL" in text and "【其他條件】Airflow 者佳" in text
+
+
+def test_accept_role_and_education_not_sent_to_llm():
+    """「接受身份」是歡迎誰應徵,不是限制;實測模型會把「原住民、二度就業」誤判成核心條件。"""
+    from jobfinder.hitrate.prompts import format_jd
+
+    text = format_jd(
+        "x", [("接受身份", "原住民、二度就業"), ("科系要求", "資訊工程"), ("擅長工具", "SQL")]
+    )
+    assert "原住民" not in text and "資訊工程" not in text and "SQL" in text
