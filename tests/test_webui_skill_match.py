@@ -56,7 +56,7 @@ def test_program_rate_is_sortable_and_skipped_without_resume():
         build_row(record("hi", detail_payload=detail(jd="Python SQL")), None, HAVE),
     ]
     assert [r.job_no for r in sort_rows(rows, "命中率(程式)")] == ["hi", "lo"]
-    assert set(SORT_KEYS) >= {"命中率(LLM)", "命中率(程式)"}
+    assert set(SORT_KEYS) >= {"③命中率", "命中率(程式)"}
 
 
 def test_real_resume_skills_are_recognized():

@@ -177,7 +177,7 @@ SORT_KEYS = {
     "深評分數": "deep_score",
     "首次出現": "first_seen",
     "員工數": "employees",
-    "命中率(LLM)": "hit_rate",
+    "③命中率": "hit_rate",
     "命中率(程式)": "prog_rate",
 }
 

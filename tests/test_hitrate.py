@@ -332,3 +332,20 @@ def test_cli_export_and_import_do_not_need_api_key(tmp_path, monkeypatch):
     empty = tmp_path / "empty.json"
     empty.write_text("[]", encoding="utf-8")
     assert main(["--data-dir", str(tmp_path), "hitrate", "--import", str(empty)]) == 0
+
+
+# ── 第 3 道的顯示:三種不過的原因要分得開 ──
+def test_gate3_label_distinguishes_reasons():
+    from jobfinder.hitrate.store import StoredHitRate
+    from jobfinder.webui.gates import gate3_label
+
+    def label(rate, reqs):
+        hit = StoredHitRate("1", rate, len(reqs), 0, 0, reqs, "m", "t")
+        return gate3_label(build_row(record(detail_payload=detail()), hit))
+
+    assert label(0.82, [req()]) == "✅ 82%"
+    assert label(0.55, [req()]).startswith("❌ 55%") and "未達" in label(0.55, [req()])
+    # 百分比過了但核心部分符合 → ⛔,不是 ❌;使用者看得出是哪一條卡住
+    core_partial = label(0.88, [core("partial"), req(), req(), req()])
+    assert core_partial.startswith("⛔ 88%") and "AWS 資料服務" in core_partial
+    assert gate3_label(build_row(record())) == "無全文"

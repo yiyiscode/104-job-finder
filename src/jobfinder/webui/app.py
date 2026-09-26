@@ -22,7 +22,13 @@ from jobfinder.webui import candidates as cand
 from jobfinder.webui import trends
 from jobfinder.webui.decisions import SKIP_REASONS, STATUS_LABELS, STATUSES, DecisionStore
 from jobfinder.webui.export import to_csv, to_markdown
-from jobfinder.webui.gates import GATE_HELP_MD, HIT_RATE_THRESHOLD, Light, Training
+from jobfinder.webui.gates import (
+    GATE3_LEGEND,
+    GATE_HELP_MD,
+    Light,
+    Training,
+    gate3_label,
+)
 from jobfinder.webui.groups import (
     DEFAULT_INDUSTRIES,
     DEFAULT_TITLE_GROUPS,
@@ -76,13 +82,6 @@ def load_rows() -> list[JobRow]:
         resume_hash(RESUME.read_text(encoding="utf-8")) if RESUME.exists() else "no-resume"
     )
     return _load(str(take_snapshot(JOBS_DB, SNAPSHOT_DIR)), hitrate_version, resume_version)
-
-
-def _gate3_text(r: JobRow) -> str:
-    if r.hit_rate is None:
-        return r.hit_rate_status
-    text = f"{LIGHT_ICONS[r.gates.gate3]} {r.hit_rate:.0%}"
-    return text + (f" · 卡在 {'、'.join(r.hit_core_missed)}" if r.hit_core_missed else "")
 
 
 @st.cache_resource
@@ -147,13 +146,14 @@ def candidates_page() -> None:
     c4.metric("已標記", sum(r.job_no in latest for r in period))
 
     st.caption(f"顯示 {len(view)} 筆 · 點一列可標記 · 欄位標題也可以點擊排序")
+    st.caption(GATE3_LEGEND)
     table = pd.DataFrame(
         [
             {
                 "decision": STATUS_LABELS[latest[r.job_no].status] if r.job_no in latest else "",
                 "gate1": LIGHT_ICONS[r.gates.gate1],
                 "gate2": f"❔ {TRAINING_TEXT[r.gates.training]}",
-                "gate3": _gate3_text(r),
+                "gate3": gate3_label(r),
                 "company": r.company,
                 "title": r.title,
                 "title_group": r.title_group,
@@ -164,7 +164,6 @@ def candidates_page() -> None:
                 "salary": r.salary_text,
                 "english": r.english,
                 "score": r.deep_score,
-                "hit_rate": None if r.hit_rate is None else round(r.hit_rate * 100),
                 "prog_rate": None if r.prog_rate is None else round(r.prog_rate * 100),
                 "url": r.url,
                 "fails": " · ".join(r.gates.fails),
@@ -195,9 +194,9 @@ def candidates_page() -> None:
                 help="自有產品(LLM,未判定)+ 新人培訓正則 + 非打雜職類。目前只有培訓正則有結果",
             ),
             "gate3": st.column_config.TextColumn(
-                "③命中率",
-                width="small",
-                help=f"必備命中 ≥{HIT_RATE_THRESHOLD:.0%} 通過。未計算/無全文/無明列必備都不算卡住",
+                "③命中率(LLM)",
+                width="medium",
+                help=GATE3_LEGEND + "。LLM 逐條判定、程式算分",
             ),
             "company": "公司",
             "title": st.column_config.TextColumn("職稱", width="medium"),
@@ -209,9 +208,6 @@ def candidates_page() -> None:
             "salary": "薪資",
             "english": st.column_config.CheckboxColumn("英文"),
             "score": st.column_config.NumberColumn("深評", format="%d"),
-            "hit_rate": st.column_config.NumberColumn(
-                "命中率(LLM)", format="%d%%", help="LLM 逐條判定、程式算分;第 3 道用這個"
-            ),
             "prog_rate": st.column_config.NumberColumn(
                 "命中率(程式)",
                 format="%d%%",

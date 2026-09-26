@@ -134,6 +134,27 @@ def evaluate(row: JobRow) -> GateResult:
     return result
 
 
+GATE3_LEGEND = (
+    f"③命中率:✅ ≥{HIT_RATE_THRESHOLD:.0%} 且核心條件都符合 · "
+    f"❌ 未達 {HIT_RATE_THRESHOLD:.0%} · "
+    "⛔ 百分比有過,但核心條件不符(部分符合也算不符)· "
+    "未計算/無全文/無明列必備 不算卡住"
+)
+
+
+def gate3_label(row: JobRow) -> str:
+    """第 3 道的顯示文字。三種不過的原因要一眼分得出來 ——
+    同樣是 ❌,「55% 未達標」跟「88% 但缺 AWS」是完全不同的處置。"""
+    if row.hit_rate is None:
+        return row.hit_rate_status
+    pct = f"{row.hit_rate:.0%}"
+    if row.hit_core_missed:
+        return f"⛔ {pct}|核心缺:{'、'.join(row.hit_core_missed)}"
+    if row.hit_rate < HIT_RATE_THRESHOLD:
+        return f"❌ {pct}|未達 {HIT_RATE_THRESHOLD:.0%}"
+    return f"✅ {pct}"
+
+
 GATE_HELP_MD = f"""
 **三道閘門依序由便宜到貴。「卡在哪一道」= 第一個出現 ❌ 的閘門;未判定不算卡住。**
 
@@ -172,8 +193,9 @@ GATE_HELP_MD = f"""
 
 | 顯示 | 意思 |
 |---|---|
-| ✅ / ❌ 百分比 | 已計算,依 {HIT_RATE_THRESHOLD:.0%} 與核心條件判定 |
-| ❌ 88% · 卡在 X | 百分比過了,但核心條件 X 不符 |
+| ✅ 82% | 達標:≥{HIT_RATE_THRESHOLD:.0%} 且核心條件都符合 |
+| ❌ 55%|未達 {HIT_RATE_THRESHOLD:.0%} | 百分比不夠 |
+| ⛔ 88%|核心缺:X | 百分比有過,但核心條件 X 不是「符合」(部分符合也算) |
 | 未計算 | 有全文但還沒輪到(每次最多算 config 的 `hitrate.max_jobs_per_run` 筆,由新到舊) |
 | 無全文 | 只有粗篩通過的職缺才有 JD 全文,其餘算不出來 |
 | 無明列必備 | JD 沒有可辨識的必備條件 |
