@@ -2,7 +2,7 @@
 
 > 說「讀 RESUME.md 繼續」即可接續。背景與更早的優化方向見 [docs/handoff-2026-09-23.md](docs/handoff-2026-09-23.md)。
 
-**最後更新:2026-09-26**　分支 `feat/webui`(未合併進 master)。486 個測試全過。
+**最後更新:2026-09-26**　`feat/webui` 已合併進 `master`(merge commit `b18f8a0`,未 push)。486 個測試全過。
 
 ---
 
