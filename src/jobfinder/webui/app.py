@@ -94,7 +94,15 @@ def today():
 
 
 def date_range(label: str, default, lo, hi, key: str):
-    rng = st.date_input(label, default, min_value=lo, max_value=hi, key=key)
+    # 值只放 session_state、不傳給 date_input —— 兩邊都給的話,按鈕改值時 Streamlit 會警告
+    if key not in st.session_state:
+        st.session_state[key] = default
+
+    def _select_all() -> None:
+        st.session_state[key] = (lo, hi)
+
+    rng = st.date_input(label, min_value=lo, max_value=hi, key=key)
+    st.button("全部期間", key=f"{key}_all", on_click=_select_all)
     if isinstance(rng, tuple) and len(rng) == 2:
         return rng
     return default  # 使用者只點了起始日,範圍還沒選完
@@ -154,6 +162,7 @@ def candidates_page() -> None:
                 "gate1": LIGHT_ICONS[r.gates.gate1],
                 "gate2": f"❔ {TRAINING_TEXT[r.gates.training]}",
                 "gate3": gate3_label(r),
+                "score": r.deep_score,
                 "company": r.company,
                 "title": r.title,
                 "title_group": r.title_group,
@@ -163,7 +172,6 @@ def candidates_page() -> None:
                 "education": r.education,
                 "salary": r.salary_text,
                 "english": r.english,
-                "score": r.deep_score,
                 "prog_rate": None if r.prog_rate is None else round(r.prog_rate * 100),
                 "url": r.url,
                 "fails": " · ".join(r.gates.fails),
@@ -318,48 +326,57 @@ def _decision_panel(job: JobRow) -> None:
             st.error("第 1 道排除:" + " · ".join(job.gates.fails))
         if job.gates.flags:
             st.warning(" · ".join(job.gates.flags))
+    with right:
+        _decision_form(job)
+
+    # 命中率與 104 原文並排:逐條判定要對著原文看才判斷得了對不對
+    hit_col, jd_col = st.columns(2)
+    with hit_col:
         _hit_rate_breakdown(job)
         _skill_match_breakdown(job)
+    with jd_col:
         _jd_original(job)
-    with right:
-        key = job.job_no
-        status = st.radio(
-            "標記", STATUSES, format_func=STATUS_LABELS.get, horizontal=True, key=f"st_{key}"
+
+
+def _decision_form(job: JobRow) -> None:
+    key = job.job_no
+    status = st.radio(
+        "標記", STATUSES, format_func=STATUS_LABELS.get, horizontal=True, key=f"st_{key}"
+    )
+    reason = None
+    if status == "skip":
+        reason = st.selectbox(
+            "不投原因(必填)",
+            SKIP_REASONS,
+            index=None,
+            placeholder="選一個原因",
+            key=f"rs_{key}",
         )
-        reason = None
-        if status == "skip":
-            reason = st.selectbox(
-                "不投原因(必填)",
-                SKIP_REASONS,
-                index=None,
-                placeholder="選一個原因",
-                key=f"rs_{key}",
-            )
-        note = st.text_input("備註", key=f"nt_{key}")
-        if st.button("儲存標記", type="primary", key=f"sv_{key}"):
-            try:
-                store().append(key, status, reason, note, datetime.now(cand.TAIPEI))
-            except ValueError as exc:
-                st.error(f"{exc} —— 不投原因是之後檢討閘門的唯一資料")
-            else:
-                st.rerun()
-        history = store().history(key)
-        if history:
-            st.caption("標記歷史(只追加)")
-            st.dataframe(
-                pd.DataFrame(
-                    [
-                        {
-                            "時間": d.decided_at,
-                            "標記": STATUS_LABELS[d.status],
-                            "原因": d.reason or "",
-                            "備註": d.note,
-                        }
-                        for d in history
-                    ]
-                ),
-                hide_index=True,
-            )
+    note = st.text_input("備註", key=f"nt_{key}")
+    if st.button("儲存標記", type="primary", key=f"sv_{key}"):
+        try:
+            store().append(key, status, reason, note, datetime.now(cand.TAIPEI))
+        except ValueError as exc:
+            st.error(f"{exc} —— 不投原因是之後檢討閘門的唯一資料")
+        else:
+            st.rerun()
+    history = store().history(key)
+    if history:
+        st.caption("標記歷史(只追加)")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "時間": d.decided_at,
+                        "標記": STATUS_LABELS[d.status],
+                        "原因": d.reason or "",
+                        "備註": d.note,
+                    }
+                    for d in history
+                ]
+            ),
+            hide_index=True,
+        )
 
 
 # ── 頁 2:技能趨勢 ──────────────────────────────────────────────────
