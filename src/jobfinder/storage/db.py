@@ -51,7 +51,22 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         # 重建會把表連同它的索引一起丟掉,重跑一次 schema 把索引補回來。
         # schema.sql 全是 IF NOT EXISTS,重跑是安全的。
         conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
+    _backfill_scored_status(conn)
     conn.commit()
+
+
+def _backfill_scored_status(conn: sqlite3.Connection) -> None:
+    """2026-09-26 前 pipeline 從沒設過 `scored`:深評過但沒推的職缺停在 `new`(當時 375 筆)。
+
+    冪等:每次開 db 都跑,但只會動「new 且有深評紀錄」的列。在 register 之前執行,
+    所以不會跟同一次執行裡剛被判為重新上架(reset 回 new)的職缺打架。
+    """
+    cur = conn.execute(
+        "UPDATE jobs SET status = 'scored' WHERE status = 'new' AND EXISTS ("
+        "  SELECT 1 FROM scores s WHERE s.job_no = jobs.job_no AND s.stage = 'deep')"
+    )
+    if cur.rowcount:
+        log.info("遷移:%d 筆「深評過但沒推播」的職缺由 new 補成 scored", cur.rowcount)
 
 
 def _apply_migrations(conn: sqlite3.Connection) -> bool:

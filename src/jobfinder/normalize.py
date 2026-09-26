@@ -6,7 +6,8 @@
 
 * 搜尋回應的 ``data`` **本身就是陣列**,沒有 ``data.list``;總數在 ``metadata.pagination``
 * 列表**沒有 ``salaryDesc``**,只有 ``salaryLow``/``salaryHigh``,薪資字串要自己組
-* ``period`` 是**實際要求年資的數字**(0 = 不拘),不是級距代碼
+* ``period`` 是**年資 + 1**(0 = 不拘,2 = 1年以上,3 = 2年以上),用 :func:`period_to_years` 轉。
+  2026-09-24 以前一直當成年數,全站多算 1 年(對 369 筆詳細頁 ``workExp`` 驗證過)
 * ``optionEdu`` 是 **int 陣列**,不是字串
 * ``tags`` 是 **dict**,不是陣列
 
@@ -43,6 +44,9 @@ SALARY_TYPES: dict[int, str] = {
 }
 
 #: 把各種薪資類型換算成可比較的月薪基準(用於「薪資是否達標」這類判斷)
+#: 104 用這個值代表「以上」型薪資沒有上限。它不是真的上限,不能拿來顯示或統計。
+OPEN_ENDED_SALARY = 9_999_999
+
 _TO_MONTHLY: dict[int, float] = {20: 176.0, 30: 22.0, 50: 1.0, 60: 1 / 12}
 
 
@@ -140,6 +144,8 @@ def format_salary(low: int | None, high: int | None, salary_type: int | None = N
     unit = SALARY_TYPES.get(salary_type or 0, "待遇")
     if unit == "面議":
         unit = "待遇"
+    if low and high and high >= OPEN_ENDED_SALARY:
+        return f"{unit} {low:,} 元以上"
     if low and high and low != high:
         return f"{unit} {low:,}~{high:,} 元"
     return f"{unit} {(low or high):,} 元"
@@ -155,8 +161,20 @@ def monthly_equivalent(low: int | None, salary_type: int | None) -> int | None:
     return int(low * _TO_MONTHLY[salary_type])
 
 
+def period_to_years(period: int | None) -> int | None:
+    """104 列表的 ``period`` → 要求的最低年資。
+
+    ``period`` 是「年資 + 1」,0 代表不拘。對 369 筆真實詳細頁的 ``workExp`` 驗證:
+    0 → 不拘(266 筆)、2 → 1年以上(59)、3 → 2年以上(41),各只有 1 筆例外(雇主上架後改過條件)。
+    1 沒出現過,保守當成不拘。
+    """
+    if period is None:
+        return None
+    return max(period - 1, 0)
+
+
 def format_experience(min_years: int | None) -> str:
-    """``period`` 是實際年數。0 = 不拘(已對照詳細頁的 ``workExp`` 驗證)。"""
+    """``min_years`` 是年數(已由 :func:`period_to_years` 換算過)。0 = 不拘。"""
     if min_years is None:
         return "未提供"
     if min_years <= 0:
@@ -243,7 +261,7 @@ def _normalize_summary_row(
     low, high = _as_int(row.get("salaryLow")), _as_int(row.get("salaryHigh"))
     # s10 是被混淆過的欄位名,內容就是詳細頁的 salaryType(已三筆交叉驗證)
     salary_type = _as_plain_int(row.get("s10")) or _as_plain_int(row.get("salaryType"))
-    min_years = _as_plain_int(row.get("period"))
+    min_years = period_to_years(_as_plain_int(row.get("period")))
     edu_codes = [c for c in (row.get("optionEdu") or []) if isinstance(c, int)]
 
     return JobSummary(

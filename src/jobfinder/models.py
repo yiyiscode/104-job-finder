@@ -41,7 +41,7 @@ class JobSummary(BaseModel):
     salary_type: int | None = None
     #: 換算成月薪基準後的下限,供「薪資是否達標」公平比較。面議時為 None。
     monthly_low: int | None = None
-    #: 要求年資的**實際數字**(來自 `period`),0 = 不拘。已實測確認不是級距代碼。
+    #: 要求的最低年資,0 = 不拘。由 `period`(= 年資 + 1)換算而來,見 normalize.period_to_years
     min_years: int | None = None
     period_desc: str | None = None  # 由 min_years 轉成的人話
     #: 學歷代碼 3=專科 4=大學 5=碩士 6=博士(已實測對照)

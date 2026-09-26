@@ -208,6 +208,18 @@ scoring:
   senior_years_cutoff: 5        # JD 要求 >= 幾年算資深
   senior_exp_fit_cap: 8         # 資深職缺的 exp_fit 強制上限
 
+# ── 第 3 道閘門:必備命中率(2026-09-24 新增,`jobfinder hitrate`)────────────
+# 排在每日 pipeline 之後跑(run_daily.cmd)。只打 OpenRouter、不打 104。
+# 讀 jobs.db 快照、結果寫獨立的 hitrate.db(理由同 docs/adr/0001)。
+# 只算「有全文且沒卡在第 1 道」的職缺,由新到舊;已用同一版履歷算過的不重算。
+# LLM 只負責拆條件並判斷符合 yes/partial/no,命中率由程式算(符合 1、部分 0.5、不符 0)。
+# 通過門檻 70% 定義在 webui/gates.py 的 HIT_RATE_THRESHOLD(UI 與這裡共用一份)。
+hitrate:
+  enabled: true
+  model: ""                     # 空 = 沿用 llm.deep.model
+  max_jobs_per_run: 30          # 【硬上限 100】補算舊資料時可暫時調高或重跑幾次
+  cost_cap_usd: 0.15            # 【硬上限 0.50】約 $0.002–0.003/筆
+
 notify:
   provider: "telegram"
   parse_mode: "HTML"            # 不用 MarkdownV2:要跳脫 18 個字元,職缺標題必爆

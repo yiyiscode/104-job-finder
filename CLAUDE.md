@@ -73,6 +73,15 @@ python -m jobfinder.cli run --replay <RUN_ID>    # 拿舊 raw JSON 重跑評分,
 python -m jobfinder.cli reset-circuit            # 熔斷後人工解除
 python -m jobfinder.cli status                   # 最近執行與 requests_used 稽核
 
+# 本機 Web UI(週一選家):只讀 jobs.db 快照、不連 104,只綁 127.0.0.1
+uv pip install -e ".[ui]"                        # streamlit 是選用依賴,排程環境不必裝
+python -m jobfinder.cli ui                       # http://127.0.0.1:8501
+
+# 第 3 道閘門「必備命中率」:只打 OpenRouter、不連 104。每日排程在 pipeline 之後自動跑
+python -m jobfinder.cli hitrate --dry-run        # 只列出會算哪些,不花錢
+python -m jobfinder.cli hitrate --fake-llm       # 技能詞典粗估,離線開發用(數字不可信)
+python -m jobfinder.cli hitrate                  # 真的算,每次 ≤ max_jobs_per_run 筆、≤ cost_cap_usd
+
 # 會連線 104 —— 每條都是一次性的,不要反覆跑
 python scripts/probe_api.py                      # 錄 fixture,已有檔案會拒絕執行
 python -m jobfinder.cli run --limit 5
@@ -129,7 +138,14 @@ src/jobfinder/
   storage/       Volume<->local 檔案同步、去重邏輯
   scoring/       兩階段 LLM 評分 + 程式端校正
   notify/        Telegram
+  webui/         ⭐ 本機 Web UI(Streamlit)。三道閘門、標記、技能趨勢
+    gates.py     閘門規則 + 說明文字(兩者放一起,改規則的人一定看得到說明)
+    snapshot.py  ⚠️ jobs.db 只讀快照 —— 見 docs/adr/0001
+    decisions.py 標記存獨立的 decisions.db,只追加
+    app.py       唯一 import streamlit/pandas 的檔案
 ```
+
+領域用詞(閘門 vs 規則層、摘要層 vs 全文層、標記…)見 [CONTEXT.md](CONTEXT.md)。
 
 ---
 
@@ -145,8 +161,10 @@ fixture 是 2026-08-21 錄下的真實回應。以下每一條都是踩過或驗
 - **沒有 `salaryDesc`**,只有 `salaryLow`/`salaryHigh`,薪資字串要自己組
 - **`s10` 是薪資類型**(混淆過的欄位名,等同詳細頁的 `salaryType`):
   `10`=面議 `50`=月薪 `60`=年薪。**不看它就會把年薪 567,000 寫成「月薪 56 萬」**
-- **`period` 是實際要求年資的數字**(0 = 不拘),不是級距代碼 ——
-  送 `jobexp=1,3` 回傳 0/2/3,送 `jobexp=10` 回傳 6~9
+- **`period` 是「年資 + 1」**(0 = 不拘、2 = 1年以上、3 = 2年以上),一律用
+  `normalize.period_to_years()` 換算。⚠️ 2026-09-24 以前這裡寫「是實際年數」,**錯了一個月**,
+  全站多算 1 年(使用者在 104 看到「1年以上」、卡片寫「2年以上」)。對 369 筆詳細頁 `workExp` 驗證:
+  0→不拘 266、2→1年以上 59、3→2年以上 41。送 `jobexp=1,3` 回 0/2/3,送 `jobexp=10` 回 6~9
 - **`optionEdu` 是 int 陣列**:`3`=專科 `4`=大學 `5`=碩士 `6`=博士;多碼取最低者加「以上」
 - **`tags` 是 dict**,以參數名為 key。`desc` 為空時**不要**退回 `param`(那是 `wf1`/`wf7` 之類的內部代碼)
 - **`coIndustry` / `employeeCount` 列表就有**,不必抓詳細頁(1,637 筆真實資料缺失率 0)。
@@ -203,7 +221,7 @@ fixture 是 2026-08-21 錄下的真實回應。以下每一條都是踩過或驗
 
 ## 現況:跑在本機,不在雲端
 
-**已上線。** Windows 工作排程器每天 08:00 觸發,256 個測試全綠。
+**已上線。** Windows 工作排程器每天 08:00 觸發,431 個測試全綠(2026-09-24,含 Web UI 與命中率)。
 
 ### 為什麼跑在本機而不是 Modal
 
@@ -300,6 +318,19 @@ AI 主敘事換成資料工程(`資料工程師`/`資料倉儲工程師`/`BI工�
   `screened_out`(LLM 粗篩刷掉,`scores` 有 `stage='screen'` 紀錄)。
   共用一個值就無法做 precision/recall 標註
 - 加新的抓取行為時,**一定要走 `RequestBudget.acquire()`**,不要自己發請求
+- **`webui/` 不得 import `scrape`/`http_source`/`pipeline`/`storage`/`httpx`**(`tests/test_webui_boundary.py` 會擋)。
+  UI 按鈕觸發抓取 = 繞過預算、節流、熔斷三道護欄;用 `storage.Database` = 結束時 checkpoint 把 jobs.db 整檔寫回。
+  **UI 絕不直接開 jobs.db**:pipeline 會 `os.replace` 蓋回它,Windows 上檔案被開著就會 checkpoint 失敗、
+  當次資料與熔斷器狀態靜靜遺失。一律 `snapshot.take_snapshot()` 後讀副本(docs/adr/0001)
+- **閘門 ≠ 規則層。** 規則層(`targeting.py`,≥500 人 + 產業)決定哪些職缺值得花 LLM;
+  閘門(`webui/gates.py`,≥30 人、不限產業)是使用者挑家的條件,在 UI 端對全部職缺計算。
+  別把兩者合併 —— 放寬規則層會改變每天的 LLM 成本與 18 個詳細頁名額
+- **命中率(`hitrate/`)** 讀 jobs.db 快照、寫獨立的 `hitrate.db`,以 (job_no, 履歷雜湊) 為鍵 ——
+  改 `profile-de.md` 會讓全部結果失效、下次排程重算(每次 30 筆,251 筆要約 9 天補完)。
+  **LLM 只給逐條判定,百分比與「核心不符」由程式算**。別把「核心條件」拿掉:平均分數會把
+  「卡在一個核心技術」稀釋掉(華碩 8vyka:平均 88%、人工 61%,差在 AWS 這一條)。
+  改 prompt 會讓數字位移(同一筆 83% → 75%),改完要重跑驗證、並考慮清掉舊結果
+- webui 的邏輯模組不能 import streamlit/pandas —— 256+ 個測試要在沒裝 `[ui]` 的環境也能跑
 - **`scripts/` 底下每個腳本都必須有 argparse** —— `tests/test_scripts.py` 會驗
   `--help` 印得出 `usage:`。少了它,`--help` 會把整個腳本跑一遍
   (`send_test_message.py` 曾因此在測試裡真的送出 6 次 Telegram 訊息)

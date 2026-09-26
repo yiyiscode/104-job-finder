@@ -25,8 +25,8 @@ _NO_REQUIREMENT = ("不拘", "無經驗可", "應屆", "新鮮人", "無須經�
 def required_years(summary: JobSummary, detail: JobDetail | None) -> int | None:
     """取得這則職缺要求的最低年資。
 
-    優先讀搜尋列表的 ``period`` 數字 —— 那是 104 直接給的整數(已實測確認是實際年數
-    而非級距代碼),比對中文字串做正規表達式可靠得多。解析文字只是 fallback。
+    優先讀搜尋列表換算好的 ``min_years``(``period`` - 1,見 ``normalize.period_to_years``),
+    比對中文字串做正規表達式可靠得多。解析文字只是 fallback。
     """
     if summary.min_years is not None:
         return summary.min_years

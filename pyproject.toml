@@ -22,6 +22,8 @@ dev = [
     "pytest-asyncio>=0.23",
     "ruff>=0.5",
 ]
+# 本機 Web UI(jobfinder ui)。每日 pipeline 不需要,排程環境不必裝
+ui = ["streamlit>=1.40"]
 # Modal 只在部署端需要,跑 pipeline 本身不需要
 deploy = ["modal>=0.64"]
 

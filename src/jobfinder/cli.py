@@ -54,7 +54,134 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("reset-circuit", help="手動解除熔斷器")
     sub.add_parser("status", help="顯示最近幾次執行與熔斷器狀態")
+    hr = sub.add_parser("hitrate", help="計算第 3 道閘門「必備命中率」(只打 OpenRouter,不連 104)")
+    hr.add_argument("--limit", type=int, help="本次最多算幾筆(不超過 config 的 max_jobs_per_run)")
+    hr.add_argument("--dry-run", action="store_true", help="只列出會算哪些職缺,不呼叫 LLM")
+    hr.add_argument("--fake-llm", action="store_true", help="用技能詞典粗估,不花錢(數字不可信)")
+    hr.add_argument(
+        "--export-pending",
+        metavar="DIR",
+        help="不呼叫 LLM:把所有待算職缺的 JD 匯出成 Markdown 批次檔,供手動判讀",
+    )
+    hr.add_argument(
+        "--import",
+        dest="import_path",
+        metavar="JSON",
+        help="不呼叫 LLM:匯入手動判讀的結果 [{job_no, requirements}],由程式算分",
+    )
+
+    ui = sub.add_parser("ui", help="開啟本機 Web UI(候選清單 / 技能趨勢),只讀 jobs.db、不連 104")
+    ui.add_argument("--port", type=int, default=8501)
     return parser
+
+
+def _ui(args: argparse.Namespace) -> int:
+    """啟動 Streamlit。**永遠只綁 127.0.0.1** —— jobs.db 含實際求職資料,
+    Streamlit 預設綁 0.0.0.0 會對整個區網公開。"""
+    import importlib.util
+    import subprocess
+
+    if importlib.util.find_spec("streamlit") is None:
+        print('需要先安裝 UI 依賴:uv pip install -e ".[ui]"', file=sys.stderr)
+        return 2
+    app = Path(__file__).with_name("webui") / "app.py"
+    # 命中率綁定履歷版本,UI 要知道是哪一份。設定讀不到也不該讓 UI 開不起來 → 退回預設
+    try:
+        resume = load_config(args.config).paths.resume
+    except JobFinderError:
+        resume = "profile-de.md"
+    cmd = [
+        sys.executable, "-m", "streamlit", "run", str(app),
+        "--server.address", "127.0.0.1",
+        "--server.port", str(args.port),
+        "--server.headless", "true",
+        "--browser.gatherUsageStats", "false",
+        "--", "--data-dir", str(Path(args.data_dir).resolve()),
+        "--resume", str(Path(resume).resolve()),
+    ]  # fmt: skip
+    print(f"Web UI:http://127.0.0.1:{args.port}(Ctrl+C 結束)")
+    return subprocess.call(cmd)
+
+
+async def _hitrate(cfg: Config, args: argparse.Namespace) -> int:
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    from .hitrate.compute import resume_hash
+    from .hitrate.runner import load_job_rows, run_hitrate
+    from .hitrate.store import HitRateStore
+    from .scoring import load_resume
+
+    hcfg = cfg.hitrate
+    if not hcfg.enabled:
+        print("hitrate.enabled = false,跳過")
+        return 0
+    jobs_db = Path(args.data_dir) / cfg.paths.db_filename
+    if not jobs_db.exists():
+        print(f"找不到 {jobs_db},pipeline 還沒跑過", file=sys.stderr)
+        return 1
+
+    limit = hcfg.max_jobs_per_run if args.limit is None else min(args.limit, hcfg.max_jobs_per_run)
+    model = hcfg.model or cfg.llm.deep.model
+    resume = load_resume(cfg.paths.resume)
+    store = HitRateStore(Path(args.data_dir) / hcfg.db_filename)
+    now = datetime.now(ZoneInfo(cfg.runtime.timezone))
+
+    if args.export_pending or args.import_path:
+        from .hitrate.manual import export_pending, import_judgments
+        from .hitrate.runner import pick_targets
+
+        if args.import_path:
+            ok, errors = import_judgments(
+                Path(args.import_path), store, resume_hash(resume.full), now
+            )
+            print(f"匯入 {ok} 筆" + (f",{len(errors)} 筆錯誤:" if errors else ""))
+            for err in errors:
+                print(f"  {err}")
+            return 1 if errors else 0
+        done = set(store.for_resume(resume_hash(resume.full)))
+        targets, pending = pick_targets(load_job_rows(jobs_db), done, limit=10**9)
+        paths = export_pending(targets, Path(args.export_pending))
+        print(f"待算 {pending} 筆 → 匯出 {len(paths)} 個批次檔到 {args.export_pending}")
+        return 0
+
+    if args.fake_llm or args.dry_run:
+        from .hitrate.fake import FakeHitRateClient
+
+        client, closer = FakeHitRateClient(), None
+    else:
+        from .scoring.llm_client import CostTracker, OpenRouterClient
+
+        secrets = Secrets()
+        if not secrets.openrouter_api_key:
+            raise SystemExit("缺少 OPENROUTER_API_KEY。離線請加 --fake-llm 或 --dry-run。")
+        client = OpenRouterClient(
+            secrets.openrouter_api_key, cfg.llm, tracker=CostTracker(hcfg.cost_cap_usd)
+        )
+        closer = client.aclose
+
+    try:
+        report = await run_hitrate(
+            rows=load_job_rows(jobs_db),
+            store=store,
+            client=client,
+            model="fake" if args.fake_llm else model,
+            resume_text=resume.full,
+            resume_hash=resume_hash(resume.full),
+            limit=limit,
+            cost_cap_usd=hcfg.cost_cap_usd,
+            now=now,
+            dry_run=args.dry_run,
+        )
+    finally:
+        if closer is not None:
+            await closer()
+
+    print(report.summary_line())
+    if args.dry_run:
+        for job_no, _ in report.rates:
+            print(f"  會算:{job_no}")
+    return 1 if report.stopped_reason.startswith("連續失敗") else 0
 
 
 def _validate_live_flags(cfg: Config, args: argparse.Namespace) -> None:
@@ -209,6 +336,9 @@ def _status(cfg: Config, args: argparse.Namespace) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "ui":
+        # 不載入設定:UI 只讀 db,不該因為 config 或秘密沒設好而開不起來
+        return _ui(args)
     try:
         cfg = load_config(args.config)
     except JobFinderError as exc:
@@ -223,6 +353,8 @@ def main(argv: list[str] | None = None) -> int:
             return _reset_circuit(cfg, args)
         if args.command == "status":
             return _status(cfg, args)
+        if args.command == "hitrate":
+            return asyncio.run(_hitrate(cfg, args))
 
         _validate_live_flags(cfg, args)
         return asyncio.run(_run(cfg, args))

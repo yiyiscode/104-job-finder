@@ -143,6 +143,8 @@ async def run_daily(
         await _notify(cfg, deps, report)
 
         repo.mark_notified([s.job_no for s in passing])
+        # 深評過但沒推的要標 scored —— 停在 new 會跟「沒看過」混在一起
+        repo.mark_scored([s.job_no for s in rejected_scored])
         repo.mark_status([r.job_no for r in screen_outcome.dropped], "screened_out")
         report.finished_at = datetime.now(tz)
         repo.save_circuit(blocking.reset(circuit))
