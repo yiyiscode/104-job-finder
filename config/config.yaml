@@ -225,7 +225,8 @@ notify:
   parse_mode: "HTML"            # 不用 MarkdownV2:要跳脫 18 個字元,職缺標題必爆
   min_interval_seconds: 1.2     # 單一聊天室建議 < 1 msg/sec
   disable_link_preview: true
-  send_summary_first: true
+  style: "digest"               # digest = 只發一則(預設);cards = 摘要 + 每職缺一則卡片
+  send_summary_first: true      # 只在 cards 模式有意義
   send_when_zero_matches: true  # 就算 0 則達標也送摘要,避免靜默讓人以為壞了
   alert_on_failure: true
 

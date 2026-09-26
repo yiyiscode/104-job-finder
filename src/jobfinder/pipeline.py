@@ -266,7 +266,13 @@ async def _deep_score_all(cfg, deps, repo, report, screen_outcome, details) -> l
 
 async def _notify(cfg, deps, report) -> None:
     try:
-        if cfg.notify.send_summary_first and (report.notified or cfg.notify.send_when_zero_matches):
+        wanted = report.notified or cfg.notify.send_when_zero_matches
+        if cfg.notify.style == "digest":
+            # 一則就好:職缺已經壓在摘要裡了,不再逐則推卡片
+            if wanted:
+                await deps.notifier.send_summary(report)
+            return
+        if cfg.notify.send_summary_first and wanted:
             await deps.notifier.send_summary(report)
         for job in report.notified:
             await deps.notifier.send_job(job)

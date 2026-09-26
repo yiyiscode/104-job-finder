@@ -114,7 +114,7 @@ Windows 工作排程器 (08:00 每日,錯過開機後補跑)
   └─ normalize → SQLite 去重(只留今天新出現的)
   └─ targeting.py 規則層:產業(半導體/金融代碼前綴)+ 公司規模(≥500人)
   └─ Stage 1 粗篩(批次 15 筆) → Stage 2 深評(逐筆)→ 程式端校正
-  └─ Telegram 摘要 + 每職缺一則卡片
+  └─ Telegram 日報只發一則(notify.style: digest;cards = 摘要 + 每職缺一則卡片)
 ```
 
 ### 模組邊界

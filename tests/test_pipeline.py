@@ -89,15 +89,23 @@ class FakeScorer:
 
 
 class FakeNotifier:
+    """``jobs`` = 推到使用者眼前的職缺,不管走哪種 style;``cards`` 只記逐則卡片。
+
+    digest 模式下職缺寫在摘要裡,所以摘要送出時就算「推過」了。
+    """
+
     def __init__(self):
         self.summaries = []
         self.jobs = []
+        self.cards = []
         self.alerts = []
 
     async def send_summary(self, report):
         self.summaries.append(report)
+        self.jobs.extend(report.notified)
 
     async def send_job(self, scored):
+        self.cards.append(scored)
         self.jobs.append(scored)
 
     async def send_alert(self, title, lines):
@@ -281,6 +289,26 @@ async def test_targeting_fails_open_when_signals_missing(cfg, setup):
 
 
 # ─── 正常路徑 ───────────────────────────────────────────────────────
+
+
+async def test_digest_style_sends_exactly_one_message(cfg, setup):
+    """預設 digest:整份日報只發一則,不逐則推卡片(一天 6 則訊息多到不想點開)。"""
+    assert cfg.notify.style == "digest"
+    deps, _, notifier, data_dir = setup()
+    await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
+
+    assert len(notifier.summaries) == 1
+    assert notifier.cards == []
+    assert len(notifier.summaries[0].notified) == 2
+
+
+async def test_cards_style_keeps_one_card_per_job(cfg, setup):
+    cfg = cfg.model_copy(update={"notify": cfg.notify.model_copy(update={"style": "cards"})})
+    deps, _, notifier, data_dir = setup()
+    await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
+
+    assert len(notifier.summaries) == 1
+    assert len(notifier.cards) == 2
 
 
 async def test_happy_path_notifies_and_records(cfg, setup):

@@ -78,6 +78,22 @@ def render_job_card(scored: ScoredJob, *, threshold: int = 70) -> tuple[str, dic
     return "\n".join(lines), {"inline_keyboard": [buttons]}
 
 
+def _digest_entry(job: ScoredJob, threshold: int, *, one_liner: bool) -> str:
+    """digest 模式裡的一筆職缺:三行 + 可選的一句話。職稱本身就是 104 連結。"""
+    s = job.summary
+    url = html.escape(s.job_url or "", quote=True)
+    lines = [
+        f"{_score_icon(job.total, threshold)} <code>{job.total}</code> "
+        f'<a href="{url}"><b>{esc(s.job_name)}</b></a>',
+        f"🏢 {esc(s.cust_name)}",
+        f"📍 {esc(s.area_desc or '地點未提供')} · 💰 {esc(s.salary_desc or '待遇面議')}"
+        f" · ⏳ {esc(s.period_desc or '經歷不拘')}",
+    ]
+    if one_liner and job.one_liner:
+        lines.append(f"💬 {esc(job.one_liner)}")
+    return "\n".join(lines)
+
+
 def render_summary(
     report: RunReport,
     *,
@@ -85,8 +101,35 @@ def render_summary(
     max_rejected: int = 10,
     mode: str = "threshold",
     top_n: int = 0,
+    digest: bool = False,
 ) -> str:
-    """先發的總覽。使用者掃一眼就知道今天值不值得細看。"""
+    """總覽。``digest=True`` 時職缺直接寫在裡面,**保證只有一則訊息**。
+
+    太長時依序犧牲:未達標清單 → 每筆的一句話 → 尾端的職缺(改成「另 N 則」)。
+    不交給 :func:`split_message` 切段 —— 切成兩則就違背了「只發一則」。
+    """
+    if not digest:
+        return _render_summary(report, threshold, max_rejected, mode, top_n, None)
+
+    jobs_n = len(report.notified)
+    attempts = [(max_rejected, True, jobs_n), (0, True, jobs_n), (0, False, jobs_n)]
+    attempts += [(0, False, n) for n in range(jobs_n - 1, -1, -1)]
+    text = ""
+    for rejected_n, one_liner, shown in attempts:
+        text = _render_summary(report, threshold, rejected_n, mode, top_n, (one_liner, shown))
+        if len(text) <= SAFE_LIMIT:
+            return text
+    return text[:SAFE_LIMIT]  # 理論上走不到:0 筆職缺的摘要不可能超長
+
+
+def _render_summary(
+    report: RunReport,
+    threshold: int,
+    max_rejected: int,
+    mode: str,
+    top_n: int,
+    digest: tuple[bool, int] | None,
+) -> str:
     d = report.started_at
     header = f"📊 <b>104 職缺日報</b> · {d.year}/{d.month:02d}/{d.day:02d}"
     header += f"({_WEEKDAYS[d.weekday()]})"
@@ -112,7 +155,14 @@ def render_summary(
         )
         lines.append(funnel)
 
-    if report.notified:
+    if report.notified and digest is not None:
+        one_liner, shown = digest
+        lines += ["", f"<b>▎今天推薦 {len(report.notified)} 則</b>(點職稱開 104)"]
+        for job in report.notified[:shown]:
+            lines += ["", _digest_entry(job, threshold, one_liner=one_liner)]
+        if (rest := len(report.notified) - shown) > 0:
+            lines += ["", f"…另 {rest} 則,在 Web UI 看"]
+    elif report.notified:
         lines += ["", f"<b>▎接下來會逐則推送 {len(report.notified)} 則</b>"]
         for job in report.notified:
             icon = _score_icon(job.total, threshold)

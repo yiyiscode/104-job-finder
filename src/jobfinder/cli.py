@@ -206,7 +206,9 @@ def _build_notifier(cfg: Config, args: argparse.Namespace):
     if args.dry_run:
         from .notify.telegram import ConsoleNotifier
 
-        return ConsoleNotifier(cfg.scoring, out_path=str(Path(args.data_dir) / "preview.html"))
+        return ConsoleNotifier(
+            cfg.scoring, out_path=str(Path(args.data_dir) / "preview.html"), notify=cfg.notify
+        )
 
     from .notify.telegram import TelegramNotifier
 

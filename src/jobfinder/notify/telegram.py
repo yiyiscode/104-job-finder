@@ -1,7 +1,7 @@
 """Telegram Bot API。
 
-節流 1.2 秒/則(單一聊天室建議 < 1 msg/sec)。每天最多 1 + 10 = 11 則,
-跑完約 13 秒,完全在安全範圍內,但仍要正確處理 429 的 ``retry_after``。
+節流 1.2 秒/則(單一聊天室建議 < 1 msg/sec)。預設 ``notify.style: digest`` 每天只發 1 則;
+``cards`` 模式最多 1 + 10 = 11 則。仍要正確處理 429 的 ``retry_after``。
 """
 
 from __future__ import annotations
@@ -54,6 +54,7 @@ class TelegramNotifier:
             ),
             mode=self.scoring.mode,
             top_n=self.scoring.top_n,
+            digest=self.cfg.style == "digest",
         )
         await self.send(text)
 
@@ -137,8 +138,14 @@ class TelegramNotifier:
 class ConsoleNotifier:
     """`--dry-run` 用。把訊息印到終端,並存一份 HTML 方便用瀏覽器預覽排版。"""
 
-    def __init__(self, scoring: ScoringCfg | None = None, out_path: str | None = None):
+    def __init__(
+        self,
+        scoring: ScoringCfg | None = None,
+        out_path: str | None = None,
+        notify: NotifyCfg | None = None,
+    ):
         self.scoring = scoring or ScoringCfg()
+        self.cfg = notify or NotifyCfg()
         self.out_path = out_path
         self.messages: list[str] = []
 
@@ -150,6 +157,7 @@ class ConsoleNotifier:
                 max_rejected=self.scoring.max_rejected_listed,
                 mode=self.scoring.mode,
                 top_n=self.scoring.top_n,
+                digest=self.cfg.style == "digest",
             )
         )
 
