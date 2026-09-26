@@ -7,6 +7,7 @@ local_data/
 *.db-journal
 debug/
 *.png
+!docs/images/*.png
 
 # Python
 __pycache__/

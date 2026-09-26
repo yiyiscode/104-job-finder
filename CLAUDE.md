@@ -82,6 +82,10 @@ python -m jobfinder.cli hitrate --dry-run        # 只列出會算哪些,不花�
 python -m jobfinder.cli hitrate --fake-llm       # 技能詞典粗估,離線開發用(數字不可信)
 python -m jobfinder.cli hitrate                  # 真的算,每次 ≤ max_jobs_per_run 筆、≤ cost_cap_usd
 
+# 祕密掃描(git hook 本體)。clone 後要跑一次 git config core.hooksPath .githooks
+python scripts/check_secrets.py --staged         # pre-commit 自動跑:金鑰格式 + .env 實際值 + .env/*.db 路徑
+python scripts/check_secrets.py --history        # pre-push 自動跑:整個 commit 歷史(轉公開前必跑)
+
 # 會連線 104 —— 每條都是一次性的,不要反覆跑
 python scripts/probe_api.py                      # 錄 fixture,已有檔案會拒絕執行
 python -m jobfinder.cli run --limit 5

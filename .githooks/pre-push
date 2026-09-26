@@ -1,0 +1,4 @@
+#!/bin/sh
+# push 前掃整個歷史:pre-commit 可以被 --no-verify 跳過,推上遠端就收不回來了。
+PY=".venv/Scripts/python.exe"; [ -x "$PY" ] || PY=".venv/bin/python"; [ -x "$PY" ] || PY="python"
+PYTHONIOENCODING=utf-8 "$PY" scripts/check_secrets.py --history --quiet-warn

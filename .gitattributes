@@ -1,0 +1,2 @@
+# hook 是 sh 腳本,CRLF 會讓 shebang 變成 "sh" 而執行失敗
+.githooks/* text eol=lf

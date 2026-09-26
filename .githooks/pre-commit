@@ -1,0 +1,5 @@
+#!/bin/sh
+# 擋下含金鑰或 .env/*.db 的 commit。本體在 scripts/check_secrets.py。
+# 安裝:git config core.hooksPath .githooks
+PY=".venv/Scripts/python.exe"; [ -x "$PY" ] || PY=".venv/bin/python"; [ -x "$PY" ] || PY="python"
+PYTHONIOENCODING=utf-8 "$PY" scripts/check_secrets.py --staged --quiet-warn
