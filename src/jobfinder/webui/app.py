@@ -270,10 +270,10 @@ def _skill_match_breakdown(job: JobRow) -> None:
 
 def _jd_original(job: JobRow) -> None:
     if not job.has_detail:
-        # 連結放在 expander 外面:沒全文的職缺,使用者第一個動作就是去 104 看
-        st.link_button("🔗 在 104 開啟完整 JD", job.url)
         with st.expander("JD(僅列表摘要 —— 這筆沒有抓全文,完整內容請開 104 連結)"):
             st.text(job.jd)
+        # 放在 expander 外面(JD 下方):不用展開就點得到
+        st.link_button("🔗 在 104 開啟完整 JD", job.url)
         return
     with st.expander("📄 104 原文:工作內容 + 條件要求", expanded=True):
         st.markdown(f"[🔗 在 104 開啟]({job.url})")
