@@ -170,6 +170,60 @@ def test_summary_surfaces_schema_drift_warning():
     assert "schema drift" in text
 
 
+# ─── digest(只發一則)─────────────────────────────────────────────
+
+
+def test_digest_puts_jobs_inline_with_title_links():
+    job = make_scored(
+        summary=make_scored().summary.model_copy(
+            update={"job_url": "https://www.104.com.tw/job/a1b2c?a=1&b=2"}
+        )
+    )
+    text = render_summary(make_report(notified=[job]), digest=True)
+    assert '<a href="https://www.104.com.tw/job/a1b2c?a=1&amp;b=2">' in text
+    assert "示範金融科技" in text and "月薪 60,000~90,000 元" in text
+    assert "💬" in text
+    assert "逐則推送" not in text, "digest 不會再逐則推,不能這樣寫"
+
+
+def test_cards_summary_is_unchanged():
+    text = render_summary(make_report(notified=[make_scored()]))
+    assert "逐則推送" in text and "<a href" not in text
+
+
+def test_digest_always_fits_in_one_message():
+    """塞不下時依序犧牲:未達標清單 → 一句話 → 尾端職缺。絕不切成兩則。"""
+    long = "很長的一句話" * 40
+    jobs = [make_scored(job_name=f"職缺{i}" + "X" * 60, one_liner=long) for i in range(20)]
+    rejected = [
+        RejectedJob(
+            job_no=f"r{i}", job_name="被刷掉" * 10, cust_name="某公司", total=50, reason="理由" * 30
+        )
+        for i in range(10)
+    ]
+    text = render_summary(
+        make_report(notified=jobs, rejected=rejected), digest=True, max_rejected=10
+    )
+    assert len(text) <= SAFE_LIMIT
+    assert len(split_message(text)) == 1
+    assert "未達標" not in text, "未達標清單最先被犧牲"
+    assert "另 " in text and "Web UI" in text, "砍掉的職缺要說一聲,不能無聲消失"
+
+
+def test_digest_keeps_rejected_list_when_it_fits():
+    rejected = [
+        RejectedJob(
+            job_no="x",
+            job_name="資料科學家",
+            cust_name="某電信",
+            total=68,
+            reason="要求 3 年 BI 實戰",
+        )
+    ]
+    text = render_summary(make_report(notified=[make_scored()], rejected=rejected), digest=True)
+    assert "要求 3 年 BI 實戰" in text
+
+
 # ─── 切段 ───────────────────────────────────────────────────────────
 
 

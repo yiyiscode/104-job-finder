@@ -294,6 +294,9 @@ class NotifyCfg(BaseModel):
     parse_mode: Literal["HTML"] = "HTML"  # 不開放 MarkdownV2,見 SPEC.md §7
     min_interval_seconds: float = Field(default=1.2, ge=1.0)
     disable_link_preview: bool = True
+    #: ``digest`` = 整份日報只發一則(職缺壓成三行、職稱是連結);
+    #: ``cards`` = 摘要 + 每職缺一則卡片。2026-09-26 改 digest:6 則訊息多到不想點開。
+    style: Literal["digest", "cards"] = "digest"
     send_summary_first: bool = True
     send_when_zero_matches: bool = True
     alert_on_failure: bool = True
