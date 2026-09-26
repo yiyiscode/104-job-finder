@@ -38,6 +38,7 @@ from jobfinder.webui.groups import (
 from jobfinder.webui.rows import JobRow
 from jobfinder.webui.skill_match import resume_skills
 from jobfinder.webui.snapshot import connect_readonly, take_snapshot
+from jobfinder.webui.tailoring import build_tailoring
 
 LIGHT_ICONS = {Light.PASS: "✅", Light.WARN: "⚠️", Light.FAIL: "❌", Light.UNKNOWN: "❔"}
 TRAINING_TEXT = {
@@ -136,7 +137,9 @@ def candidates_page() -> None:
             ),
             gate=st.radio("閘門", cand.GATE_FILTERS, index=1, help="規則見頁面上方的說明"),
             no_english_only=st.checkbox("只看不要求英文"),
-            pipeline_statuses=st.multiselect("pipeline 狀態", statuses, default=statuses),
+            pipeline_statuses=st.multiselect(
+                "pipeline 狀態", statuses, default=statuses, help=cand.PIPELINE_STATUS_LEGEND
+            ),
             hide_skipped=st.checkbox("隱藏已標「不投」", value=True),
         )
         sort_key = st.selectbox("排序", list(cand.SORT_KEYS))
@@ -225,7 +228,7 @@ def candidates_page() -> None:
             "url": st.column_config.LinkColumn("104", display_text="開啟"),
             "fails": "排除原因",
             "flags": "警示",
-            "pipeline": "pipeline",
+            "pipeline": st.column_config.TextColumn("pipeline", help=cand.PIPELINE_STATUS_LEGEND),
             "first_seen": st.column_config.DateColumn("首次出現"),
         },
     )
@@ -377,6 +380,98 @@ def _decision_form(job: JobRow) -> None:
             ),
             hide_index=True,
         )
+
+
+# ── 頁:已標投遞 ──────────────────────────────────────────────────
+def applied_page() -> None:
+    rows = load_rows()
+    latest = store().latest()
+    applied = [r for r in rows if (d := latest.get(r.job_no)) is not None and d.status == "apply"]
+    applied.sort(key=lambda r: latest[r.job_no].decided_at, reverse=True)
+
+    st.title("已標投遞")
+    st.caption(f"最新標記為「投」的職缺 {len(applied)} 筆(不限日期)· 點一列看履歷修改建議")
+    if not applied:
+        st.info("還沒有標「投」的職缺。到「候選清單」點一列、標記「✅ 投」後就會出現在這裡。")
+        return
+
+    table = pd.DataFrame(
+        [
+            {
+                "decided_at": latest[r.job_no].decided_at[:16].replace("T", " "),
+                "company": r.company,
+                "title": r.title,
+                "gate3": gate3_label(r),
+                "score": r.deep_score,
+                "area": r.area,
+                "salary": r.salary_text,
+                "note": latest[r.job_no].note,
+                "url": r.url,
+            }
+            for r in applied
+        ]
+    )
+    event = st.dataframe(
+        table,
+        hide_index=True,
+        width="stretch",
+        on_select="rerun",
+        selection_mode="single-row",
+        column_config={
+            "decided_at": "標記時間",
+            "company": "公司",
+            "title": st.column_config.TextColumn("職稱", width="medium"),
+            "gate3": st.column_config.TextColumn("③命中率(LLM)", width="medium"),
+            "score": st.column_config.NumberColumn("深評", format="%d"),
+            "area": "地點",
+            "salary": "薪資",
+            "note": "備註",
+            "url": st.column_config.LinkColumn("104", display_text="開啟"),
+        },
+    )
+    a, b = st.columns(2)
+    a.download_button("下載 Markdown", to_markdown(applied, latest), file_name="applied.md")
+    b.download_button("下載 CSV", to_csv(applied, latest), file_name="applied.csv", mime="text/csv")
+
+    selected = event.selection.rows if event else []
+    if selected:
+        job = applied[selected[0]]
+        st.divider()
+        st.subheader(f"{job.company} — {job.title}")
+        left, right = st.columns(2)
+        with left:
+            _tailoring_panel(job)
+        with right:
+            _jd_original(job)
+
+
+def _tailoring_panel(job: JobRow) -> None:
+    t = build_tailoring(job)
+    st.markdown("#### ✍️ 履歷修改建議")
+    if t.empty:
+        st.caption("這筆沒有命中率逐條判定也沒有深評,只能對照右邊的 104 原文自己比對。")
+    if t.resume_tip:
+        st.info(f"**深評建議:** {t.resume_tip}")
+    if t.actions:
+        st.markdown("**要補強的(必備條件中部分符合／不符)**")
+        for text in t.actions:
+            st.markdown(f"- {text}")
+    if t.emphasize:
+        st.markdown("**要強調的(已符合,自傳裡點名這些證據)**")
+        for item, evidence in t.emphasize:
+            st.markdown(f"- **{item}** —— {evidence}")
+    if t.highlights:
+        st.markdown("**深評看到的亮點**")
+        for h in t.highlights:
+            st.markdown(f"- {h}")
+    if t.red_flags:
+        st.markdown("**面試要準備說明的(深評紅旗)**")
+        for f in t.red_flags:
+            st.markdown(f"- {f}")
+    if t.preferred_gaps:
+        st.caption("加分條件沒有的:" + "、".join(t.preferred_gaps))
+    if t.missing_skills:
+        st.caption("JD 提到、履歷技能表沒寫的(程式比對,供參考):" + "、".join(t.missing_skills))
 
 
 # ── 頁 2:技能趨勢 ──────────────────────────────────────────────────
@@ -573,6 +668,7 @@ def main() -> None:
     st.navigation(
         [
             st.Page(candidates_page, title="候選清單", icon="📋", default=True),
+            st.Page(applied_page, title="已標投遞", icon="✅"),
             st.Page(trends_page, title="技能趨勢", icon="📈"),
         ]
     ).run()

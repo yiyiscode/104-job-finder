@@ -42,10 +42,10 @@ _ENGLISH_TEXT = ("英文", "english", "toeic", "多益")
 CANDIDATE_SQL = """
 SELECT j.job_no, j.job_name, j.cust_name, j.job_url, j.area_desc, j.edu_desc,
        j.first_seen_at, j.status, j.raw_summary, j.raw_detail,
-       s.total_score, s.one_liner
+       s.total_score, s.one_liner, s.resume_tip, s.highlights, s.red_flags
 FROM jobs j
 LEFT JOIN (
-    SELECT job_no, total_score, one_liner,
+    SELECT job_no, total_score, one_liner, resume_tip, highlights, red_flags,
            ROW_NUMBER() OVER (PARTITION BY job_no ORDER BY id DESC) AS rn
     FROM scores WHERE stage = 'deep'
 ) s ON s.job_no = j.job_no AND s.rn = 1
@@ -126,6 +126,9 @@ def build_row(
         detail_text=detail_skill_text(detail) if detail else None,
         deep_score=int(score) if score is not None else None,
         one_liner=record.get("one_liner") or "",
+        resume_tip=record.get("resume_tip") or "",
+        highlights=_loads(record.get("highlights")) or [],
+        red_flags=_loads(record.get("red_flags")) or [],
     )
     if detail:
         row.jd_description, row.jd_conditions = detail_sections(detail)
@@ -177,6 +180,19 @@ def _loads(value: str | None) -> Any:
         return json.loads(value)
     except json.JSONDecodeError:
         return None
+
+
+# ── pipeline 狀態(每日 pipeline 的處理結果,與閘門無關)──
+#: 設定處:pipeline.py 的 filtered_out / screened_out / scored / notified;new 是 register 的預設值
+PIPELINE_STATUS_HELP = {
+    "new": "已登記、還沒評過(主要是 8/22 首次執行登記後就沒評的舊資料)",
+    "filtered_out": "被規則層濾掉:產業不在半導體/電子/金融,或員工 <500。LLM 沒看過",
+    "screened_out": "LLM 粗篩刷掉(粗分 <45),沒抓全文、沒深評。"
+    "⚠️ 9/24 以前規則層濾掉的也標這個(當時兩種原因還沒分開)",
+    "scored": "粗篩通過、抓了全文、深評過,但分數沒擠進當天推播(前 5 名且 ≥60 分)",
+    "notified": "深評後進了當天前 5 名且 ≥60 分,已推播到 Telegram",
+}
+PIPELINE_STATUS_LEGEND = " · ".join(f"{k}:{v}" for k, v in PIPELINE_STATUS_HELP.items())
 
 
 # ── 篩選與排序 ──────────────────────────────────────────────────────

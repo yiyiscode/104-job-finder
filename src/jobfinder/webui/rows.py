@@ -40,6 +40,10 @@ class JobRow:
     jd_conditions: list[tuple[str, str]] = field(default_factory=list)
     deep_score: int | None = None
     one_liner: str = ""
+    #: 深評給的履歷建議、亮點、紅旗(沒深評的職缺為空)
+    resume_tip: str = ""
+    highlights: list[str] = field(default_factory=list)
+    red_flags: list[str] = field(default_factory=list)
     hit_rate: float | None = None  # 0–1;None 時看 hit_rate_status
     hit_rate_status: str = "未計算"  # 已計算 / 未計算 / 無全文 / 無明列必備
     hit_requirements: list = field(default_factory=list)  # hitrate.compute.Requirement
