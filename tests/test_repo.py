@@ -239,3 +239,20 @@ def test_filtered_out_does_not_block_a_repost(repo):
     repo.register([make_job("j2", appear_date="20260821")], DAY0)
     repo.mark_status(["j2"], "screened_out")
     assert repo.register([make_job("j2", appear_date="20261020")], later) == []
+
+
+def test_mark_scored_never_downgrades_notified(tmp_path):
+    """--replay 重評時,曾推播過的職缺這次沒被選上,也不能從 notified 降成 scored。"""
+    from jobfinder.storage import Database, JobRepo
+
+    with Database(str(tmp_path), "jobs.db") as db:
+        c = db.conn
+        for job_no, status in (("pushed", "notified"), ("fresh", "new")):
+            c.execute(
+                "INSERT INTO jobs (job_no, job_name, cust_name, job_url, first_seen_at,"
+                " last_seen_at, last_new_at, status) VALUES (?, 'x', 'y', 'u', 't', 't', 't', ?)",
+                (job_no, status),
+            )
+        JobRepo(c).mark_scored(["pushed", "fresh"])
+        rows = dict(c.execute("SELECT job_no, status FROM jobs"))
+    assert rows == {"pushed": "notified", "fresh": "scored"}

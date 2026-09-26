@@ -580,3 +580,48 @@ async def test_dedupe_still_applies_by_default(cfg, setup):
 
     assert report.jobs_new == 0
     assert notifier2.jobs == []
+
+
+# ─── 狀態:深評過但沒推播 = scored ────────────────────────────────────
+
+
+async def test_deep_scored_but_not_notified_is_marked_scored(cfg, setup):
+    """深評過但分數不夠推播的,要標 `scored`,**不能停在 `new`**。
+
+    2026-09-26 查出 375 筆這樣的職缺停在 new —— schema 有 scored,pipeline 卻從沒設過。
+    停在 new 會讓「沒看過」與「看過但分數不夠」分不出來。
+    """
+    deps, _, notifier, data_dir = setup(scorer=FakeScorer(score=30))  # 低於 top_n_floor
+    await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
+
+    with Database(data_dir, cfg.paths.db_filename) as db:
+        statuses = {r["job_no"]: r["status"] for r in db.conn.execute("SELECT * FROM jobs")}
+    assert notifier.jobs == []
+    assert set(statuses.values()) == {"scored"}
+
+
+async def test_notified_jobs_stay_notified(cfg, setup):
+    deps, _, notifier, data_dir = setup()  # 85 分,會推播
+    await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
+    with Database(data_dir, cfg.paths.db_filename) as db:
+        statuses = {r["status"] for r in db.conn.execute("SELECT status FROM jobs")}
+    assert notifier.jobs and statuses == {"notified"}
+
+
+def test_existing_new_jobs_with_deep_score_are_backfilled(tmp_path, cfg):
+    """舊 db 裡「new + 有深評」的,打開時補成 scored;沒深評的 new 不動。"""
+    with Database(str(tmp_path), cfg.paths.db_filename) as db:
+        c = db.conn
+        for job_no in ("scored_one", "untouched"):
+            c.execute(
+                "INSERT INTO jobs (job_no, job_name, cust_name, job_url, first_seen_at,"
+                " last_seen_at, last_new_at) VALUES (?, 'x', 'y', 'u', 't', 't', 't')",
+                (job_no,),
+            )
+        c.execute(
+            "INSERT INTO scores (job_no, stage, model, total_score, created_at)"
+            " VALUES ('scored_one', 'deep', 'm', 50, 't')"
+        )
+    with Database(str(tmp_path), cfg.paths.db_filename) as db:
+        rows = dict(db.conn.execute("SELECT job_no, status FROM jobs"))
+    assert rows == {"scored_one": "scored", "untouched": "new"}

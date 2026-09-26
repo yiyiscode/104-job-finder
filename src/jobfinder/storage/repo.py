@@ -246,6 +246,17 @@ class JobRepo:
     def mark_notified(self, job_nos: list[str]) -> None:
         self.mark_status(job_nos, "notified")
 
+    def mark_scored(self, job_nos: list[str]) -> None:
+        """深評過但沒推播。**不覆蓋 notified** —— `--replay` 重評時,曾經推過的職缺
+        這次沒被選上,也不該抹掉「使用者收過這張卡片」的事實。"""
+        if not job_nos:
+            return
+        self.conn.executemany(
+            "UPDATE jobs SET status = 'scored' WHERE job_no = ? AND status != 'notified'",
+            [(n,) for n in job_nos],
+        )
+        self.conn.commit()
+
     # ── 執行紀錄 ────────────────────────────────────────────────────
 
     def start_run(self, now: datetime) -> int:
