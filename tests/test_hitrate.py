@@ -194,17 +194,25 @@ async def test_dry_run_calls_nothing(tmp_path):
 
 
 # ── 接進第 3 道閘門 ──
+def _reqs_for(rate):
+    """UI 依逐條判定重算命中率,所以假資料的逐條判定要真的算得出指定的百分比(十條為底)。"""
+    if rate is None:
+        return [req(kind="preferred")]
+    yes = round(rate * 10)
+    return [req(match="yes")] * yes + [req(match="no")] * (10 - yes)
+
+
 def _stored(rate):
     from jobfinder.hitrate.store import StoredHitRate
 
-    return StoredHitRate("1", rate, 1, 0, 0, [req()], "m", "t")
+    return StoredHitRate("1", rate, 1, 0, 0, _reqs_for(rate), "m", "t")
 
 
 @pytest.mark.parametrize(
     ("rate", "light", "status"),
     [
         (0.70, Light.PASS, "已計算"),
-        (0.69, Light.FAIL, "已計算"),
+        (0.60, Light.FAIL, "已計算"),
         (None, Light.UNKNOWN, "無明列必備"),
     ],
 )
@@ -343,8 +351,8 @@ def test_gate3_label_distinguishes_reasons():
         hit = StoredHitRate("1", rate, len(reqs), 0, 0, reqs, "m", "t")
         return gate3_label(build_row(record(detail_payload=detail()), hit))
 
-    assert label(0.82, [req()]) == "✅ 82%"
-    assert label(0.55, [req()]).startswith("❌ 55%") and "未達" in label(0.55, [req()])
+    assert label(0.8, _reqs_for(0.8)) == "✅ 80%"
+    assert label(0.5, _reqs_for(0.5)).startswith("❌ 50%") and "未達" in label(0.5, _reqs_for(0.5))
     # 百分比過了但核心部分符合 → ⛔,不是 ❌;使用者看得出是哪一條卡住
     core_partial = label(0.88, [core("partial"), req(), req(), req()])
     assert core_partial.startswith("⛔ 88%") and "AWS 資料服務" in core_partial

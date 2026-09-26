@@ -15,6 +15,7 @@ from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
 
+from ..hitrate.compute import MAX_REQUIREMENTS, hit_rate
 from ..normalize import (
     OPEN_ENDED_SALARY,
     format_experience,
@@ -26,6 +27,7 @@ from . import gates
 from .decisions import Decision
 from .groups import industry_group, title_group, title_matches
 from .jd_view import detail_sections
+from .major import major_requirement
 from .rows import JobRow
 from .skill_match import skill_match
 from .skills import detail_skill_text, summary_skill_text
@@ -130,17 +132,23 @@ def build_row(
     if have_skills is not None:
         row.skill_match = skill_match(have_skills, summary, detail)
         row.prog_rate = row.skill_match.rate
-    _attach_hit_rate(row, hit)
+    majors = (detail.get("condition") or {}).get("major") or [] if detail else []
+    _attach_hit_rate(row, hit, majors)
     row.gates = gates.evaluate(row)
     return row
 
 
-def _attach_hit_rate(row: JobRow, hit: StoredHitRate | None) -> None:
+def _attach_hit_rate(row: JobRow, hit: StoredHitRate | None, majors: list[str]) -> None:
     if hit is not None:
-        row.hit_rate = hit.rate
-        row.hit_rate_status = "已計算" if hit.rate is not None else "無明列必備"
-        row.hit_requirements = list(hit.requirements)
-        row.hit_core_missed = hit.core_missed
+        # 科系要求由程式端比對、附加成一條必備,再重算 —— 已存的 LLM／手動判讀不必重跑
+        requirements = list(hit.requirements[:MAX_REQUIREMENTS])
+        if (major := major_requirement(majors)) is not None:
+            requirements.append(major)
+        result = hit_rate(requirements, limit=None)
+        row.hit_rate = result.rate
+        row.hit_rate_status = "已計算" if result.rate is not None else "無明列必備"
+        row.hit_requirements = requirements
+        row.hit_core_missed = result.core_missed
         row.hit_model = hit.model
     elif not row.has_detail:
         row.hit_rate_status = "無全文"
