@@ -38,6 +38,8 @@ class JobRow:
     #: 104 原文排版:工作內容 +「條件要求」各欄位。沒有全文時為空
     jd_description: str = ""
     jd_conditions: list[tuple[str, str]] = field(default_factory=list)
+    industry_code: str = ""  # 列表 coIndustry 原始代碼(第 2 道的 SI 訊號用)
+    welfare: str = ""  # 詳細頁福利制度原文(第 2 道的新人培訓訊號用);沒有全文時為空
     deep_score: int | None = None
     one_liner: str = ""
     #: 深評給的履歷建議、亮點、紅旗(沒深評的職缺為空)
