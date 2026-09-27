@@ -473,6 +473,7 @@ def _decision_form(job: JobRow) -> None:
 def applied_page() -> None:
     rows = load_rows()
     latest = store().latest()
+    desires = store().latest_desires()
     applied = [r for r in rows if (d := latest.get(r.job_no)) is not None and d.status == "apply"]
     applied.sort(key=lambda r: latest[r.job_no].decided_at, reverse=True)
 
@@ -486,6 +487,7 @@ def applied_page() -> None:
         [
             {
                 "decided_at": latest[r.job_no].decided_at[:16].replace("T", " "),
+                "desire": desire_stars(desires.get(r.job_no)),
                 "company": r.company,
                 "title": r.title,
                 "gate3": gate3_label(r),
@@ -506,6 +508,9 @@ def applied_page() -> None:
         selection_mode="single-row",
         column_config={
             "decided_at": "標記時間",
+            "desire": st.column_config.TextColumn(
+                "想去", width="small", help="想去程度 1–5;空白 = 還沒評,到候選清單點該職缺評分"
+            ),
             "company": "公司",
             "title": st.column_config.TextColumn("職稱", width="medium"),
             "gate3": st.column_config.TextColumn("③命中率(LLM)", width="medium"),
