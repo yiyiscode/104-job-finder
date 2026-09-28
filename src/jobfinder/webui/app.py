@@ -9,7 +9,7 @@ from __future__ import annotations
 import argparse
 import sys
 import tempfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import altair as alt
@@ -18,8 +18,9 @@ import streamlit as st
 
 from jobfinder.hitrate.compute import resume_hash
 from jobfinder.hitrate.store import HitRateStore
+from jobfinder.shortlist.store import SHORTLIST_DB, ShortlistStore
 from jobfinder.webui import candidates as cand
-from jobfinder.webui import trends
+from jobfinder.webui import planning, trends
 from jobfinder.webui.decisions import (
     DESIRE_LABELS,
     SKIP_REASONS,
@@ -79,28 +80,45 @@ DATA_DIR = Path(ARGS.data_dir)
 JOBS_DB = DATA_DIR / "jobs.db"
 DECISIONS_DB = DATA_DIR / "decisions.db"
 HITRATE_DB = DATA_DIR / "hitrate.db"
+SHORTLIST_PATH = DATA_DIR / SHORTLIST_DB
 RESUME = Path(ARGS.resume)
 SNAPSHOT_DIR = Path(tempfile.gettempdir()) / "jobfinder-webui"
 
 
 @st.cache_data(show_spinner="讀取 jobs.db 快照…")
-def _load(snapshot: str, hitrate_version: int, resume_version: str) -> list[JobRow]:
+def _load(
+    snapshot: str, hitrate_version: int, resume_version: str, shortlist_version: int
+) -> list[JobRow]:
     hits = HitRateStore(HITRATE_DB).for_resume(resume_version) if hitrate_version else {}
     have = resume_skills(RESUME.read_text(encoding="utf-8")) if RESUME.exists() else None
+    shortlist = ShortlistStore(SHORTLIST_PATH) if shortlist_version else None
     conn = connect_readonly(Path(snapshot))
     try:
-        return cand.load_rows(conn, hits, have)
+        return cand.load_rows(conn, hits, have, shortlist=shortlist)
     finally:
         conn.close()
 
 
 def load_rows() -> list[JobRow]:
-    # 快取鍵:快照檔名(含 mtime+size)、hitrate.db 的 mtime、履歷版本 —— 任一變了就重讀
+    # 快取鍵:快照檔名(含 mtime+size)、hitrate.db 與 shortlist.db 的 mtime、履歷版本
+    # —— 任一變了就重讀
     hitrate_version = HITRATE_DB.stat().st_mtime_ns if HITRATE_DB.exists() else 0
+    shortlist_version = SHORTLIST_PATH.stat().st_mtime_ns if SHORTLIST_PATH.exists() else 0
     resume_version = (
         resume_hash(RESUME.read_text(encoding="utf-8")) if RESUME.exists() else "no-resume"
     )
-    return _load(str(take_snapshot(JOBS_DB, SNAPSHOT_DIR)), hitrate_version, resume_version)
+    return _load(
+        str(take_snapshot(JOBS_DB, SNAPSHOT_DIR)),
+        hitrate_version,
+        resume_version,
+        shortlist_version,
+    )
+
+
+def marks(rows: list[JobRow]):
+    """(aliases, 最新標記, 想去程度)。投遞清單時期用 detail_id 存的,併到 jobs.db 的 job_no。"""
+    aliases = cand.detail_aliases(rows)
+    return aliases, store().latest(aliases), store().latest_desires(aliases)
 
 
 @st.cache_resource
@@ -130,8 +148,7 @@ def date_range(label: str, default, lo, hi, key: str):
 # ── 頁 1:候選清單 ──────────────────────────────────────────────────
 def candidates_page() -> None:
     rows = load_rows()
-    latest = store().latest()
-    desires = store().latest_desires()
+    _, latest, desires = marks(rows)
     first_day = min((r.first_seen for r in rows), default=today())
     statuses = sorted({r.pipeline_status for r in rows})
 
@@ -277,7 +294,7 @@ def candidates_page() -> None:
 
     selected = event.selection.rows if event else []
     if selected:
-        _decision_panel(view[selected[0]])
+        _decision_panel(view[selected[0]], desires)
 
     st.divider()
     chosen = cand.picks(rows, latest, start, end)
@@ -381,7 +398,7 @@ def _deep_score_details(job: JobRow) -> None:
         st.markdown(f"[🏢 這家公司的其他職缺]({job.company_url})")
 
 
-def _decision_panel(job: JobRow) -> None:
+def _decision_panel(job: JobRow, desires: dict[str, int]) -> None:
     st.divider()
     st.subheader(f"{job.company} — {job.title}")
     left, right = st.columns([3, 2])
@@ -394,7 +411,7 @@ def _decision_panel(job: JobRow) -> None:
         if job.gates.flags:
             st.warning(" · ".join(job.gates.flags))
     with right:
-        _decision_form(job)
+        _decision_form(job, desires)
 
     # 命中率與 104 原文並排:逐條判定要對著原文看才判斷得了對不對
     hit_col, jd_col = st.columns(2)
@@ -405,7 +422,7 @@ def _decision_panel(job: JobRow) -> None:
         _jd_original(job)
 
 
-def _decision_form(job: JobRow) -> None:
+def _decision_form(job: JobRow, desires: dict[str, int]) -> None:
     key = job.job_no
     # 不預選:預設選「投」的話,只想評想去程度的人會順手存進一筆假的「投」
     status = st.radio(
@@ -416,7 +433,7 @@ def _decision_form(job: JobRow) -> None:
         index=None,
         key=f"st_{key}",
     )
-    current_desire = store().latest_desires().get(key)
+    current_desire = desires.get(key)
     desire = st.select_slider(
         "想去程度(選填,跟投/不投分開)",
         options=[DESIRE_UNRATED, *DESIRE_LABELS],
@@ -450,7 +467,9 @@ def _decision_form(job: JobRow) -> None:
             st.error(f"{exc} —— 不投原因是之後檢討閘門的唯一資料")
         else:
             st.rerun()
-    history = store().history(key)
+    # 投遞清單匯入的標記是用 detail_id 存的;pipeline 抓到之後這筆的鍵變成 job_no
+    detail_id = cand.detail_id_of(job.url)
+    history = store().history(key, *([detail_id] if detail_id != key else []))
     if history:
         st.caption("標記歷史(只追加)")
         st.dataframe(
@@ -470,34 +489,110 @@ def _decision_form(job: JobRow) -> None:
 
 
 # ── 頁:已標投遞 ──────────────────────────────────────────────────
+WEEKDAY = "一二三四五六日"
+
+
 def applied_page() -> None:
     rows = load_rows()
-    latest = store().latest()
-    desires = store().latest_desires()
-    applied = [r for r in rows if (d := latest.get(r.job_no)) is not None and d.status == "apply"]
-    applied.sort(key=lambda r: latest[r.job_no].decided_at, reverse=True)
+    aliases, latest, desires = marks(rows)
+    plans = store().latest_plans(aliases)
+    sent = store().latest_sent(aliases)
+    this_week = cand.week_start(today())
+    board = planning.build_board(rows, latest, plans, sent, desires, this_week)
+    if "applied_gen" not in st.session_state:
+        # 動作完成後換表格的 key 來清掉勾選 —— 列會換區,留著舊的勾選索引會指到別筆
+        st.session_state.applied_gen = 0
 
     st.title("已標投遞")
-    st.caption(f"最新標記為「投」的職缺 {len(applied)} 筆(不限日期)· 點一列看履歷修改建議")
-    if not applied:
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("本週待投", len(board.due), help="排在本週或更早、還沒送出的")
+    c2.metric("之後幾週", len(board.later))
+    c3.metric("未排週次", len(board.unplanned))
+    c4.metric("已送出", len(board.done), help="只記送出日期;回覆／面試記在 Notion")
+    if not board.pool and not board.backups:
         st.info("還沒有標「投」的職缺。到「候選清單」點一列、標記「✅ 投」後就會出現在這裡。")
         return
 
+    def table(rs: list[JobRow], name: str, mode: str = "multi-row") -> list[JobRow]:
+        return _applied_table(rs, name, mode, latest, desires, plans, sent, this_week)
+
+    tab_tailor, tab_progress = st.tabs(["✍️ 履歷修改建議", "📨 投遞進度"])
+
+    with tab_progress:
+        st.caption(
+            "勾選表格左側的方塊可以一次選多筆、也可以跨區選 → 最下方一次「確認投遞」或排週次"
+        )
+        st.subheader(f"📅 本週待投 · {this_week:%m/%d} 那週")
+        chosen = table(board.due, "due")
+        with st.expander(f"之後幾週({len(board.later)})", expanded=True):
+            chosen += table(board.later, "later")
+        with st.expander(
+            f"未排週次({len(board.unplanned)})—— 標了「投」但還沒決定哪週", expanded=True
+        ):
+            chosen += table(board.unplanned, "unplanned")
+        with st.expander(
+            f"清單候補({len(board.backups)})—— 投遞清單裡標「待確認」的,只能排週次;"
+            "要投請先到候選清單改標「投」"
+        ):
+            backup_chosen = table(board.backups, "backups")
+        with st.expander(f"✅ 已送出({len(board.done)})"):
+            undo_chosen = table(board.done, "done")
+        st.divider()
+        _bulk_actions(chosen, chosen + backup_chosen, undo_chosen, this_week)
+
+        applied = board.pool
+        a, b = st.columns(2)
+        a.download_button("下載 Markdown", to_markdown(applied, latest), file_name="applied.md")
+        b.download_button(
+            "下載 CSV", to_csv(applied, latest), file_name="applied.csv", mime="text/csv"
+        )
+
+    with tab_tailor:
+        options = planning.week_options(board, plans)
+        option = st.selectbox(
+            "週次",
+            options,
+            format_func=lambda o: planning.option_label(o, board, plans, this_week),
+            key="tailor_week",
+        )
+        pool = planning.filter_pool(board, option, plans)
+        st.caption("點一列看這家的履歷修改建議與 104 原文 · 排序:本週 → 之後 → 未排 → 已送出")
+        picked = table(pool, f"tailor_{option}", mode="single-row")
+        if not picked:
+            st.info("點上面表格的一列,下方就會顯示履歷修改建議與 104 原文。")
+        else:
+            job = picked[0]
+            st.subheader(f"{job.company} — {job.title}")
+            left, right = st.columns(2)
+            with left:
+                _tailoring_panel(job)
+            with right:
+                _jd_original(job)
+
+
+def _applied_table(rs, name, mode, latest, desires, plans, sent, this_week) -> list[JobRow]:
+    """已標投遞頁共用的表格。回傳勾選的列。"""
+    if not rs:
+        st.caption("(沒有)")
+        return []
     table = pd.DataFrame(
         [
             {
-                "decided_at": latest[r.job_no].decided_at[:16].replace("T", " "),
+                "week": planning.week_label(plans.get(r.job_no), this_week),
+                "sent": sent.get(r.job_no),
                 "desire": desire_stars(desires.get(r.job_no)),
                 "company": r.company,
                 "title": r.title,
+                "gates": LIGHT_ICONS[r.gates.gate1] + LIGHT_ICONS[r.gates.gate2],
                 "gate3": gate3_label(r),
                 "score": r.deep_score,
                 "area": r.area,
                 "salary": r.salary_text,
-                "note": latest[r.job_no].note,
+                "note": latest[r.job_no].note if r.job_no in latest else "",
+                "data": r.fetch_note or ("清單" if r.in_shortlist else ""),
                 "url": r.url,
             }
-            for r in applied
+            for r in rs
         ]
     )
     event = st.dataframe(
@@ -505,36 +600,89 @@ def applied_page() -> None:
         hide_index=True,
         width="stretch",
         on_select="rerun",
-        selection_mode="single-row",
+        selection_mode=mode,
+        key=f"applied_{name}_{st.session_state.applied_gen}",
         column_config={
-            "decided_at": "標記時間",
+            "week": st.column_config.TextColumn("週次", width="small"),
+            "sent": st.column_config.DateColumn("送出日"),
             "desire": st.column_config.TextColumn(
                 "想去", width="small", help="想去程度 1–5;空白 = 還沒評,到候選清單點該職缺評分"
             ),
             "company": "公司",
             "title": st.column_config.TextColumn("職稱", width="medium"),
+            "gates": st.column_config.TextColumn("①②", width="small"),
             "gate3": st.column_config.TextColumn("③命中率(LLM)", width="medium"),
             "score": st.column_config.NumberColumn("深評", format="%d"),
             "area": "地點",
             "salary": "薪資",
-            "note": "備註",
+            "note": st.column_config.TextColumn("備註", width="large"),
+            "data": st.column_config.TextColumn(
+                "資料",
+                width="small",
+                help="清單 = 投遞清單匯入的;其他文字 = 詳細頁還沒抓到(`jobfinder shortlist fetch`)",
+            ),
             "url": st.column_config.LinkColumn("104", display_text="開啟"),
         },
     )
-    a, b = st.columns(2)
-    a.download_button("下載 Markdown", to_markdown(applied, latest), file_name="applied.md")
-    b.download_button("下載 CSV", to_csv(applied, latest), file_name="applied.csv", mime="text/csv")
+    return [rs[i] for i in (event.selection.rows if event else [])]
 
-    selected = event.selection.rows if event else []
-    if selected:
-        job = applied[selected[0]]
-        st.divider()
-        st.subheader(f"{job.company} — {job.title}")
-        left, right = st.columns(2)
-        with left:
-            _tailoring_panel(job)
-        with right:
-            _jd_original(job)
+
+def _bulk_actions(
+    to_send: list[JobRow], to_plan: list[JobRow], to_undo: list[JobRow], this_week
+) -> None:
+    gen = st.session_state.applied_gen
+    if not (to_plan or to_undo):
+        st.info("還沒勾選。")
+    if to_send:
+        st.markdown(f"#### 📨 已選 {len(to_send)} 筆:" + "、".join(j.company for j in to_send))
+        d1, d2 = st.columns([1, 2], vertical_alignment="bottom")
+        day = d1.date_input("送出日期", value=today(), max_value=today(), key=f"sd_{gen}")
+        if d2.button(f"✅ 確認投遞 {len(to_send)} 筆", type="primary"):
+            _confirm_sent(to_send, day)
+    if to_plan:
+        weeks = [None] + [this_week + timedelta(weeks=i) for i in range(6)]
+        w1, w2 = st.columns([1, 2], vertical_alignment="bottom")
+        week = w1.selectbox(
+            f"把已選的 {len(to_plan)} 筆排到",
+            weeks,
+            format_func=lambda w: (
+                "不排(取消週次)" if w is None else planning.week_label(w, this_week)
+            ),
+            key=f"wk_{gen}",
+        )
+        if w2.button(f"📅 排入週次({len(to_plan)} 筆)"):
+            now = datetime.now(cand.TAIPEI)
+            for j in to_plan:
+                store().plan(j.job_no, week, now)
+            _after_bulk_action()
+    if to_undo and st.button(f"↩️ 撤銷已送出({len(to_undo)} 筆,勾錯了)"):
+        now = datetime.now(cand.TAIPEI)
+        for j in to_undo:
+            store().mark_sent(j.job_no, None, now)
+        _after_bulk_action()
+
+
+@st.dialog("確認投遞")
+def _confirm_sent(jobs: list[JobRow], day) -> None:
+    st.markdown(
+        f"以下 **{len(jobs)} 筆**要記為 **{day:%Y-%m-%d}(週{WEEKDAY[day.weekday()]})已送出**:"
+    )
+    for j in jobs:
+        st.markdown(f"- {j.company} — {j.title}")
+    st.caption("記完會移到「已送出」;勾錯了可以在「已送出」勾選後撤銷。回覆／面試照舊記在 Notion。")
+    a, b = st.columns(2)
+    if a.button("✅ 確認", type="primary", width="stretch"):
+        now = datetime.now(cand.TAIPEI)
+        for j in jobs:
+            store().mark_sent(j.job_no, day, now)
+        _after_bulk_action()
+    if b.button("取消", width="stretch"):
+        st.rerun()
+
+
+def _after_bulk_action() -> None:
+    st.session_state.applied_gen += 1
+    st.rerun()
 
 
 def _tailoring_panel(job: JobRow) -> None:
