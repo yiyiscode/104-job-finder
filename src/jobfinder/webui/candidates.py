@@ -87,6 +87,13 @@ def _score_parts(record: Mapping[str, Any]) -> list[tuple[str, int, int]]:
     return [(label, int(v), full) for label, v, full in parts]
 
 
+def _welfare_text(detail: Mapping[str, Any] | None) -> str:
+    """詳細頁的福利制度原文(`welfare.welfare`)。第 2 道的新人培訓多半寫在這裡。"""
+    welfare = (detail or {}).get("welfare")
+    text = welfare.get("welfare") if isinstance(welfare, dict) else None
+    return text if isinstance(text, str) else ""
+
+
 def _company_url(summary: Mapping[str, Any]) -> str:
     """列表 JSON 的 ``link.cust``。只收 104 公司頁,其他一律不給(UI 會把它做成連結)。"""
     link = summary.get("link")
@@ -161,6 +168,8 @@ def build_row(
         red_flags=_loads(record.get("red_flags")) or [],
         score_parts=_score_parts(record),
         company_url=_company_url(summary),
+        industry_code=str(summary.get("coIndustry") or ""),
+        welfare=_welfare_text(detail),
     )
     if detail:
         row.jd_description, row.jd_conditions = detail_sections(detail)
@@ -228,7 +237,7 @@ PIPELINE_STATUS_LEGEND = " · ".join(f"{k}:{v}" for k, v in PIPELINE_STATUS_HELP
 
 
 # ── 篩選與排序 ──────────────────────────────────────────────────────
-GATE_FILTERS = ("全部", "通過第 1 道", "卡在第 1 道", "命中率達標", "卡在第 3 道")
+GATE_FILTERS = ("全部", "通過第 1 道", "卡在第 1 道", "卡在第 2 道", "命中率達標", "卡在第 3 道")
 SORT_KEYS = {
     "深評分數": "deep_score",
     "首次出現": "first_seen",
@@ -283,6 +292,8 @@ def apply_filter(
         if f.gate == "命中率達標" and not (
             r.gates.passes_through(1) and r.gates.gate3 is gates.Light.PASS
         ):
+            continue
+        if f.gate == "卡在第 2 道" and r.gates.stuck_at != 2:
             continue
         if f.gate == "卡在第 3 道" and r.gates.stuck_at != 3:
             continue

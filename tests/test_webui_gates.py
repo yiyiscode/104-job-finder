@@ -174,13 +174,35 @@ def test_training_unknown_without_detail():
     assert row().gates.training is Training.UNKNOWN
 
 
-def test_chore_category_flagged():
+def test_training_found_in_welfare_section():
+    """培訓多半寫在福利制度不是 JD(實測 JD 命中 14/382,加福利制度 154/382)。"""
+    payload = detail(jd="負責 ETL")
+    payload["data"]["welfare"] = {"tag": [], "welfare": "完善教育訓練制度,每年補助外訓"}
+    assert row(detail_payload=payload).gates.training is Training.FOUND
+
+
+def test_chore_category_is_gate2_red():
     r = row(detail_payload=detail(categories=("數位行銷企劃",)))
-    assert "行銷/行政/業務" in flags(r)
+    assert "職類含行銷/行政/業務" in r.gates.signals
+    assert r.gates.gate2 is Light.FAIL and r.gates.stuck_at == 2
+
+
+def test_si_industry_code_is_gate2_red():
+    """比對代碼前綴,不比中文名 —— 104 改名稱時代碼不會變。"""
+    r = row(summary_overrides={"coIndustry": 1001001001, "coIndustryDesc": "改了名字"})
+    assert r.gates.signals == ["SI產業"] and r.gates.stuck_at == 2
+    assert row(summary_overrides={"coIndustry": 1001001002}).gates.signals == []
+
+
+def test_training_not_mentioned_is_not_a_red_light():
+    """沒寫培訓 ≠ 沒有培訓。當紅燈會讓六成有全文的職缺憑空卡住。"""
+    r = row(detail_payload=detail(jd="負責 ETL"))
+    assert r.gates.training is Training.NOT_FOUND
+    assert r.gates.gate2 is Light.PASS
 
 
 def test_undetermined_gates_do_not_block():
-    """第 2、3 道要 LLM,還沒跑 → 未判定。未判定不能算卡住,否則全部職缺都卡在第 2 道。"""
+    """沒有全文 → 第 2 道缺職務類別、第 3 道算不出命中率 → 未判定。未判定不能算卡住。"""
     r = row()
     assert r.gates.gate2 is Light.UNKNOWN and r.gates.gate3 is Light.UNKNOWN
     assert r.gates.passes_through(3)

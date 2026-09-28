@@ -64,6 +64,38 @@ def test_db_check_blocks_skip_without_reason_even_bypassing_python(tmp_path):
     conn.close()
 
 
+def test_desire_is_independent_of_decision_and_latest_wins(tmp_path):
+    """想去程度選填、跟投/不投分開:可以只評分不標記,之後才分析得了「很想去卻不投」。"""
+    store = DecisionStore(tmp_path / "decisions.db")
+    store.rate("J1", 2, NOW)
+    store.rate("J1", 5, NOW)
+    store.append("J2", "skip", "SI接案", "", NOW)
+    assert store.latest_desires() == {"J1": 5}
+    assert "J1" not in store.latest()
+
+
+@pytest.mark.parametrize("bad", [0, 6])
+def test_desire_out_of_range_is_rejected_in_python_and_db(tmp_path, bad):
+    path = tmp_path / "decisions.db"
+    with pytest.raises(ValueError):
+        DecisionStore(path).rate("J1", bad, NOW)
+    conn = sqlite3.connect(path)
+    with pytest.raises(sqlite3.IntegrityError):
+        conn.execute("INSERT INTO desires (job_no, desire, rated_at) VALUES ('J1', ?, 'x')", (bad,))
+    conn.close()
+
+
+def test_existing_decisions_db_gets_desires_table(tmp_path):
+    """舊的 decisions.db 沒有 desires 表 —— 開 store 時要自動補上,不能炸。"""
+    path = tmp_path / "decisions.db"
+    conn = sqlite3.connect(path)
+    conn.execute("CREATE TABLE decisions (id INTEGER PRIMARY KEY, job_no TEXT)")
+    conn.commit()
+    conn.close()
+    DecisionStore(path).rate("J1", 4, NOW)
+    assert DecisionStore(path).latest_desires() == {"J1": 4}
+
+
 def test_store_does_not_hold_file_open(tmp_path):
     """短交易:每個操作後連線都關掉,檔案可以被搬走。"""
     path = tmp_path / "decisions.db"

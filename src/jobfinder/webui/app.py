@@ -20,7 +20,13 @@ from jobfinder.hitrate.compute import resume_hash
 from jobfinder.hitrate.store import HitRateStore
 from jobfinder.webui import candidates as cand
 from jobfinder.webui import trends
-from jobfinder.webui.decisions import SKIP_REASONS, STATUS_LABELS, STATUSES, DecisionStore
+from jobfinder.webui.decisions import (
+    DESIRE_LABELS,
+    SKIP_REASONS,
+    STATUS_LABELS,
+    STATUSES,
+    DecisionStore,
+)
 from jobfinder.webui.export import to_csv, to_markdown
 from jobfinder.webui.gates import (
     GATE3_LEGEND,
@@ -43,9 +49,21 @@ from jobfinder.webui.tailoring import build_tailoring
 LIGHT_ICONS = {Light.PASS: "✅", Light.WARN: "⚠️", Light.FAIL: "❌", Light.UNKNOWN: "❔"}
 TRAINING_TEXT = {
     Training.FOUND: "培訓✅",
-    Training.NOT_FOUND: "培訓未掃到",
+    Training.NOT_FOUND: "培訓未提",
     Training.UNKNOWN: "未判定",
 }
+DESIRE_UNRATED = "未評"
+
+
+def gate2_label(job: JobRow) -> str:
+    """🔴 紅燈原因 / ✅ 或 ❔ + 培訓訊號(培訓不是紅燈,只當附帶資訊)。"""
+    if job.gates.signals:
+        return "🔴 " + "·".join(job.gates.signals)
+    return f"{LIGHT_ICONS[job.gates.gate2]} {TRAINING_TEXT[job.gates.training]}"
+
+
+def desire_stars(value: int | None) -> str:
+    return "★" * value if value else ""
 
 
 def _args() -> argparse.Namespace:
@@ -113,6 +131,7 @@ def date_range(label: str, default, lo, hi, key: str):
 def candidates_page() -> None:
     rows = load_rows()
     latest = store().latest()
+    desires = store().latest_desires()
     first_day = min((r.first_seen for r in rows), default=today())
     statuses = sorted({r.pipeline_status for r in rows})
 
@@ -166,7 +185,7 @@ def candidates_page() -> None:
     period = cand.in_range(rows, start, end)
 
     st.title("候選清單")
-    with st.expander("📖 閘門規則說明:硬門檻 ／ 想不想去 ／ 命中率"):
+    with st.expander("📖 閘門規則說明:硬門檻 ／ 職缺訊號 ／ 命中率"):
         st.markdown(GATE_HELP_MD)
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("期間新職缺", len(period))
@@ -180,8 +199,9 @@ def candidates_page() -> None:
         [
             {
                 "decision": STATUS_LABELS[latest[r.job_no].status] if r.job_no in latest else "",
+                "desire": desire_stars(desires.get(r.job_no)),
                 "gate1": LIGHT_ICONS[r.gates.gate1],
-                "gate2": f"❔ {TRAINING_TEXT[r.gates.training]}",
+                "gate2": gate2_label(r),
                 "gate3": gate3_label(r),
                 "score": r.deep_score,
                 "company": r.company,
@@ -212,15 +232,19 @@ def candidates_page() -> None:
         selection_mode="single-row",
         column_config={
             "decision": st.column_config.TextColumn("標記", width="small"),
+            "desire": st.column_config.TextColumn(
+                "想去", width="small", help="想去程度 1–5(你自己評的,選填)"
+            ),
             "gate1": st.column_config.TextColumn(
                 "①硬門檻",
                 width="small",
                 help="✅ 全過 · ⚠️ 有黃/紅標但不排除 · ❌ 排除(原因見「排除原因」欄)",
             ),
             "gate2": st.column_config.TextColumn(
-                "②想不想去",
+                "②職缺訊號",
                 width="small",
-                help="自有產品(LLM,未判定)+ 新人培訓正則 + 非打雜職類。目前只有培訓正則有結果",
+                help="🔴 SI產業 / 職類含行銷行政業務 → 卡在第 2 道。"
+                "培訓✅/培訓未提 只是附帶資訊(沒寫 ≠ 沒有),不影響通過",
             ),
             "gate3": st.column_config.TextColumn(
                 "③命中率(LLM)",
@@ -383,8 +407,23 @@ def _decision_panel(job: JobRow) -> None:
 
 def _decision_form(job: JobRow) -> None:
     key = job.job_no
+    # 不預選:預設選「投」的話,只想評想去程度的人會順手存進一筆假的「投」
     status = st.radio(
-        "標記", STATUSES, format_func=STATUS_LABELS.get, horizontal=True, key=f"st_{key}"
+        "標記",
+        STATUSES,
+        format_func=STATUS_LABELS.get,
+        horizontal=True,
+        index=None,
+        key=f"st_{key}",
+    )
+    current_desire = store().latest_desires().get(key)
+    desire = st.select_slider(
+        "想去程度(選填,跟投/不投分開)",
+        options=[DESIRE_UNRATED, *DESIRE_LABELS],
+        value=current_desire or DESIRE_UNRATED,
+        format_func=lambda v: DESIRE_LABELS.get(v, v),
+        help="你主觀有多想去這家。之後拿來分析偏好,例如「很想去卻不投」通常代表卡在命中率",
+        key=f"ds_{key}",
     )
     reason = None
     if status == "skip":
@@ -397,8 +436,16 @@ def _decision_form(job: JobRow) -> None:
         )
     note = st.text_input("備註", key=f"nt_{key}")
     if st.button("儲存標記", type="primary", key=f"sv_{key}"):
+        rated = desire != DESIRE_UNRATED and desire != current_desire
+        if status is None and not rated:
+            st.error("沒有要存的東西:選一個標記,或拉一下想去程度")
+            return
+        now = datetime.now(cand.TAIPEI)
         try:
-            store().append(key, status, reason, note, datetime.now(cand.TAIPEI))
+            if status is not None:
+                store().append(key, status, reason, note, now)
+            if rated:
+                store().rate(key, desire, now)
         except ValueError as exc:
             st.error(f"{exc} —— 不投原因是之後檢討閘門的唯一資料")
         else:
@@ -426,6 +473,7 @@ def _decision_form(job: JobRow) -> None:
 def applied_page() -> None:
     rows = load_rows()
     latest = store().latest()
+    desires = store().latest_desires()
     applied = [r for r in rows if (d := latest.get(r.job_no)) is not None and d.status == "apply"]
     applied.sort(key=lambda r: latest[r.job_no].decided_at, reverse=True)
 
@@ -439,6 +487,7 @@ def applied_page() -> None:
         [
             {
                 "decided_at": latest[r.job_no].decided_at[:16].replace("T", " "),
+                "desire": desire_stars(desires.get(r.job_no)),
                 "company": r.company,
                 "title": r.title,
                 "gate3": gate3_label(r),
@@ -459,6 +508,9 @@ def applied_page() -> None:
         selection_mode="single-row",
         column_config={
             "decided_at": "標記時間",
+            "desire": st.column_config.TextColumn(
+                "想去", width="small", help="想去程度 1–5;空白 = 還沒評,到候選清單點該職缺評分"
+            ),
             "company": "公司",
             "title": st.column_config.TextColumn("職稱", width="medium"),
             "gate3": st.column_config.TextColumn("③命中率(LLM)", width="medium"),
