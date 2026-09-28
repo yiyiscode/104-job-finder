@@ -2,7 +2,8 @@
 
 > 說「讀 RESUME.md 繼續」即可接續。背景與更早的優化方向見 [docs/handoff-2026-09-23.md](docs/handoff-2026-09-23.md)。
 
-**最後更新:2026-09-28**　分支 `feat/shortlist-tracking`(從 `feat/gate2-signals-desire` 開),574 個測試全過。
+**最後更新:2026-09-28**　分支 `feat/shortlist-tracking`(從 `c9f9173`(docs/readme-ai-collab)開出來 —— 當時另一個 session 已把工作目錄切到那裡),574 個測試全過。
+**merge 回 master 前先 rebase 到 master**:`4159147` 與 master 的 `491a04d` 內容相同,rebase 會自動略過;兩個 README commit 已經透過 `a11be58` 進了 master。
 
 ---
 
