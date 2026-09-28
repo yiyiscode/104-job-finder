@@ -12,5 +12,19 @@
       "Bash(.venv/Scripts/python.exe scripts/send_test_message.py --help)",
       "Bash(.venv/Scripts/python.exe scripts/send_test_message.py --dry-run)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell|Read|Grep|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }
