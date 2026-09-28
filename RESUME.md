@@ -2,7 +2,31 @@
 
 > 說「讀 RESUME.md 繼續」即可接續。背景與更早的優化方向見 [docs/handoff-2026-09-23.md](docs/handoff-2026-09-23.md)。
 
-**最後更新:2026-09-26**　`feat/webui` 已合併進 `master`(merge commit `b18f8a0`,未 push)。486 個測試全過。
+**最後更新:2026-09-28**　分支 `feat/shortlist-tracking`(從 `feat/gate2-signals-desire` 開),574 個測試全過。
+
+---
+
+## 2026-09-28:投遞清單匯入 + 已標投遞頁加「週次／送出日期」(進行中)
+
+來源:`D:\Career\applications\apply-shortlist-2026-09-23.md`(注意是 D:\Career,不是 ../Career)。
+決策細節見 memory `job-finder-shortlist-tracking-decision`。
+
+**✅ 已完成(commit `a3d09d6`)**
+- `shortlist.db` + `jobfinder shortlist import|list|fetch`;`normalize.detail_as_summary`(詳細頁 → 列表形狀)
+- decisions.db 加 `plans`(週次)與 `submissions`(送出日期);`aliases` 把 detail_id 與 job_no 的標記合併
+- **已實際匯入**主清單 13 筆 + 軟體候補 4 筆(`local_data/shortlist-2026-09-23.csv`)。
+  匯入前的備份:`local_data/decisions.db.bak-20260928`
+- 週次假設:**第 1 週 = 2026-09-28**(清單寫於 09-23 週三,之後第一個週一)
+
+**⏳ 等使用者**
+1. 自己跑 `jobfinder shortlist fetch --limit 5` 三次(5+5+1),避開 08:00 排程前後
+2. 看 demo 給回饋:`scratchpad/demo_applied.py`(127.0.0.1:8502,讀 db 副本)
+
+**下一步(demo 定案後)**
+- 正式版:`app.py` 的 `_load` 傳 `shortlist=`、所有 `store().latest*()` 傳 `aliases`、
+  `_decision_form` 的 history 帶 detail_id;已標投遞頁改成 本週／之後／未排／已送出／清單候補
+- 排序/分組邏輯抽成純模組(webui 邏輯模組不能 import streamlit)+ 測試
+- CONTEXT.md:「已標投遞」的 _Avoid_ 寫著「已投遞不在系統記錄」—— 要改成「送出日期有記、回覆在 Notion」
 
 ---
 

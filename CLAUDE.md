@@ -86,9 +86,15 @@ python -m jobfinder.cli hitrate                  # 真的算,每次 ≤ max_jobs
 python scripts/check_secrets.py --staged         # pre-commit 自動跑:金鑰格式 + .env 實際值 + .env/*.db 路徑
 python scripts/check_secrets.py --history        # pre-push 自動跑:整個 commit 歷史(轉公開前必跑)
 
+# 投遞清單(shortlist.db):import / list 不連 104
+python -m jobfinder.cli shortlist import local_data/shortlist-2026-09-23.csv   # 只播種,不覆蓋 UI 改過的
+python -m jobfinder.cli shortlist list                        # 每筆的抓取狀態
+python -m jobfinder.cli shortlist fetch --limit 5 --dry-run   # 只列出會抓哪些
+
 # 會連線 104 —— 每條都是一次性的,不要反覆跑
 python scripts/probe_api.py                      # 錄 fixture,已有檔案會拒絕執行
 python -m jobfinder.cli run --limit 5
+python -m jobfinder.cli shortlist fetch --limit 5   # 補抓清單的詳細頁;--limit 必填 ≤5、熔斷器非 closed 不抓、不寫 runs
 
 # 排程(每天 08:00,錯過會在開機後補跑)
 powershell -ExecutionPolicy Bypass -File scripts\install_task.ps1
