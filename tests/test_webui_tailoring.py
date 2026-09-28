@@ -59,4 +59,5 @@ def test_every_pipeline_status_is_explained():
         "screened_out",
         "scored",
         "notified",
+        "shortlist",  # 投遞清單手動加的,不是 pipeline 的判定
     }

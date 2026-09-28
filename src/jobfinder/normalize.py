@@ -18,6 +18,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -367,3 +368,70 @@ def normalize_detail_response(
         employment_type=_as_text(detail.get("manageResp")),
         raw=payload if isinstance(payload, dict) else {},
     )
+
+
+# ── 詳細頁 → 列表形狀(投遞清單補抓用)─────────────────────────────────
+#: 詳細頁 API 對下架/不存在的職缺回 ``{"error": {"code": 11201, "message": "職務不存在"}}``
+DETAIL_NOT_FOUND = 11201
+_WORK_EXP_RX = re.compile(r"(\d+)\s*年以上")
+_EMPLOYEES_RX = re.compile(r"(\d+)人")
+
+
+def detail_error(payload: dict[str, Any]) -> tuple[int | None, str] | None:
+    """詳細頁回的是錯誤就給 (代碼, 訊息),正常回應給 None。"""
+    if not isinstance(payload, dict) or not payload.get("error"):
+        return None
+    code = _as_plain_int(pick(payload, "error.code"))
+    return code, str(pick(payload, "error.message", "未知錯誤"))
+
+
+def work_exp_to_period(text: str | None) -> int | None:
+    """詳細頁 ``condition.workExp`` 的文字 → 列表的 ``period``(年資 + 1)。
+
+    :func:`period_to_years` 的反函數。對 387 筆同時有兩邊的真實資料驗證過:
+    「不拘」↔ 0、「N年以上」↔ N+1,只有 3 筆例外(雇主上架後改過條件)。
+    """
+    if not text:
+        return None
+    if text.strip() == "不拘":
+        return 0
+    m = _WORK_EXP_RX.search(text)
+    return int(m.group(1)) + 1 if m else None
+
+
+def detail_as_summary(payload: dict[str, Any]) -> dict[str, Any]:
+    """詳細頁 API 回應 → 列表(搜尋)JSON 的**形狀**。
+
+    只有「投遞清單」補抓的職缺會用到:它們不在 pipeline 的關鍵字裡,手上只有詳細頁,
+    但 UI 的閘門讀的是列表欄位。對應關係都對 387 筆真實資料驗證過(2026-09-28):
+    ``industryNo`` 等於 ``coIndustry``(387/387)、「以上」型薪資兩邊都是 9999999、
+    ``employees`` 是「150人」/「暫不提供」這種文字、語言代碼兩邊一致。
+
+    詳細頁**沒有 jobNo**,所以這份也沒有 —— 呼叫端用 detail_id 當鍵。
+    """
+    data = pick(payload, "data", {})
+    data = data if isinstance(data, dict) else {}
+    header = data.get("header") if isinstance(data.get("header"), dict) else {}
+    detail = data.get("jobDetail") if isinstance(data.get("jobDetail"), dict) else {}
+    condition = data.get("condition") if isinstance(data.get("condition"), dict) else {}
+
+    employees = re.sub(r"[,\s]", "", str(data.get("employees") or ""))
+    m = _EMPLOYEES_RX.fullmatch(employees)
+    langs = condition.get("language") if isinstance(condition.get("language"), list) else []
+    return {
+        "jobName": _as_text(header.get("jobName")) or "",
+        "custName": _as_text(header.get("custName")) or "",
+        "coIndustry": _as_plain_int(data.get("industryNo")),
+        "coIndustryDesc": _as_text(data.get("industry")) or "",
+        # 列表的「暫不提供」是 0,build_row 會把 0 當成沒提供
+        "employeeCount": int(m.group(1)) if m else 0,
+        "s10": _as_plain_int(detail.get("salaryType")),
+        "salaryLow": _as_plain_int(detail.get("salaryMin")) or 0,
+        "salaryHigh": _as_plain_int(detail.get("salaryMax")) or 0,
+        "period": work_exp_to_period(_as_text(condition.get("workExp"))),
+        "languageRequirements": [{"language": x.get("code")} for x in langs if isinstance(x, dict)],
+        "link": {"cust": _as_text(header.get("custUrl")) or ""},
+        "description": _as_text(detail.get("jobDescription")) or "",
+        "jobAddrNoDesc": _as_text(detail.get("addressRegion")) or "",
+        "appearDate": _as_text(header.get("appearDate")) or "",
+    }

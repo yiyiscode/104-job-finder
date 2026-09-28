@@ -61,6 +61,34 @@ def test_hitrate_never_touches_104_or_jobs_db_writer(path):
         assert not bad, f"hitrate/{path.name} import 了 {name}"
 
 
+SHORTLIST = WEBUI.parent / "shortlist"
+#: 投遞清單裡只有 fetch.py 會連 104;UI 與命中率讀 store.py 的資料
+SHORTLIST_NETWORK = "fetch"
+
+
+@pytest.mark.parametrize(
+    "path", [*MODULES, *sorted(HITRATE.glob("*.py"))], ids=lambda p: f"{p.parent.name}/{p.name}"
+)
+def test_ui_and_hitrate_never_import_shortlist_fetch(path):
+    for name in _imports(path):
+        parts = name.lstrip(".").split(".")
+        assert not ("shortlist" in parts and SHORTLIST_NETWORK in parts), (
+            f"{path.parent.name}/{path.name} import 了 {name} —— 那是會連 104 的補抓"
+        )
+
+
+@pytest.mark.parametrize(
+    "path",
+    [p for p in sorted(SHORTLIST.glob("*.py")) if p.stem != SHORTLIST_NETWORK],
+    ids=lambda p: p.name,
+)
+def test_shortlist_store_side_never_touches_104_or_jobs_db_writer(path):
+    for name in _imports(path):
+        parts = name.lstrip(".").split(".")
+        bad = [p for p in parts if p in FORBIDDEN_EVERYWHERE]
+        assert not bad, f"shortlist/{path.name} import 了 {name}"
+
+
 def test_app_binds_localhost_only():
     """jobs.db 含實際求職資料,不能對區網公開。"""
     cli = (WEBUI.parent / "cli.py").read_text(encoding="utf-8")

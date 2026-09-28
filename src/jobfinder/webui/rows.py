@@ -58,3 +58,7 @@ class JobRow:
     prog_rate: float | None = None
     skill_match: SkillMatch | None = None
     gates: GateResult = field(default_factory=GateResult)
+    #: 在投遞清單(shortlist.db)裡。不在 jobs.db 的那些 job_no 其實是 detail_id
+    in_shortlist: bool = False
+    #: 投遞清單補抓的狀態:「尚未抓取」/ 104 回的錯誤;抓到了或不需要抓時為空
+    fetch_note: str = ""
