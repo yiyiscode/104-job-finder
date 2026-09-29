@@ -35,7 +35,7 @@
 | 代表專案 | 半導體晶圓缺陷分類(不平衡資料、SHAP、AutoML)、RAG 資安文件問答(FastAPI/LangChain/ChromaDB)、資安 LLM fine-tuning、i 郵箱 BI 平台(郵政大數據競賽 Top 15) |
 | 技術棧(主線) | Python、SQL、爬蟲、排程、ETL 流程設計、API 串接、Pandas/NumPy、FastAPI、AWS/GCP |
 | 技術棧(輔線) | LangChain/RAG/Fine-tuning、PyTorch/CNN/BERT、XGBoost/SHAP、OpenCV/YOLO、Power BI/Tableau/Streamlit |
-| 目標產業的實績 | **金融**:國泰人壽 CAP 資安大數據實習;**半導體**:晶圓缺陷分類(FNR 100%→0%) |
+| 目標產業的實績 | **金融**:國泰人壽 CAP 資安大數據實習;**半導體**:晶圓缺陷分類(FNR 100%→0%)—— 學術專案,**沒有半導體產業經歷** |
 
 ⚠️ **評分時最關鍵的一點**:此人「專案豐富但正式年資 0–1 年」,是 LLM 極容易誤判的組合 —— 模型看到滿滿的 BERT/YOLO/RAG 專案,傾向把他當成 3 年資深工程師,於是給「要求 5 年經驗」的職缺高分,結果投了全無回音。**規格上必須用程式規則壓制這個誤判**(見 §6.4)。
 
@@ -208,7 +208,7 @@ bot detection 時才切過去 —— 告警會明確告訴你是哪一種。
 ```
 tech_fit       0-35   技術棧重疊度
 exp_fit        0-25   年資可行性 ← 對 0-1 年年資者,這是最關鍵的過濾維度
-domain_fit     0-15   領域重疊(金融/保險/資安、半導體/製造 有實績 → 高)
+domain_fit     0-15   領域重疊(金融/保險/資安 有實習 → 高;半導體/製造 只有專案 → 中高)
 growth_fit     0-15   對「第一份正職」的成長價值(是否真在做資料工程,而非掛「資料」之名的報表維護)
 practical_fit  0-10   薪資揭露、地點、非派遣約聘
 ```

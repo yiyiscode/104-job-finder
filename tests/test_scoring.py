@@ -495,10 +495,13 @@ def test_prompts_score_through_a_data_engineering_lens():
 
 
 def test_deep_prompt_names_the_two_target_industries():
-    """半導體與金融是 targeting 層硬篩出來的產業,domain_fit 要有對應的實績依據,
-    否則模型只會看產業名稱猜,而他在這兩個產業都有真實專案。"""
+    """半導體與金融是 targeting 層硬篩出來的產業,domain_fit 要有對應的依據,
+    否則模型只會看產業名稱猜。金融是真實實習;半導體**只有專案、沒有產業經歷** ——
+    寫成「兩個產業的真實實績」會讓模型高估他,面試時也會被問到他答不出的製程經驗。"""
     assert "半導體" in SYSTEM_DEEP
     assert "國泰人壽" in SYSTEM_DEEP
+    assert "不是產業經歷" in SYSTEM_DEEP
+    assert "兩個產業的真實實績" not in SYSTEM_DEEP
 
 
 def test_deep_prompt_location_matches_search_areas():
