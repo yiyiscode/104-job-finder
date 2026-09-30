@@ -76,6 +76,9 @@ python -m jobfinder.cli status                   # 最近執行與 requests_used
 # 本機 Web UI(週一選家):只讀 jobs.db 快照、不連 104,只綁 127.0.0.1
 uv pip install -e ".[ui]"                        # streamlit 是選用依賴,排程環境不必裝
 python -m jobfinder.cli ui                       # http://127.0.0.1:8501
+# 免終端機:桌面捷徑 → scripts\open_ui.cmd(沿用 .venv;已在跑就只開瀏覽器;關黑窗即結束)
+# open_ui.cmd 刻意純 ASCII —— chcp 65001 下 cmd 會把中文註解行切碎當指令執行
+powershell -ExecutionPolicy Bypass -File scripts\install_ui_shortcut.ps1      # -Uninstall 移除
 
 # 第 3 道閘門「必備命中率」:只打 OpenRouter、不連 104。每日排程在 pipeline 之後自動跑
 python -m jobfinder.cli hitrate --dry-run        # 只列出會算哪些,不花錢

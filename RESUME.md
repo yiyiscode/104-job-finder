@@ -2,8 +2,22 @@
 
 > 說「讀 RESUME.md 繼續」即可接續。背景與更早的優化方向見 [docs/handoff-2026-09-23.md](docs/handoff-2026-09-23.md)。
 
-**最後更新:2026-09-28**　分支 `feat/shortlist-tracking`(從 `c9f9173`(docs/readme-ai-collab)開出來 —— 當時另一個 session 已把工作目錄切到那裡),583 個測試全過。
-**merge 回 master 前先 rebase 到 master**:`4159147` 與 master 的 `491a04d` 內容相同,rebase 會自動略過;兩個 README commit 已經透過 `a11be58` 進了 master。
+**最後更新:2026-09-30**　分支 `feat/ui-launcher`(從 master `be33505` 開出),586 個測試全過。
+(`feat/shortlist-tracking` 已經在 `eb96774` merge 進 master。)
+
+---
+
+## 2026-09-30:Web UI 桌面捷徑(✅ 完成,待 merge)
+
+目標:不開 Claude Code / 終端機也能用 UI。grill 定案(memory `job-finder-ui-deploy-decision`):
+沿用 `.venv`(不用 Docker / miniconda)、跟排程共用同一個資料夾、桌面捷徑隨用隨開。
+
+- `scripts/open_ui.cmd`:啟動 `jobfinder ui`,等 port 開始監聽才開瀏覽器;已經在跑就只開瀏覽器
+- `scripts/install_ui_shortcut.ps1`:建立桌面捷徑「Job Finder UI」(已經裝好),`-Uninstall` 移除
+- 已驗證:只監聽 `127.0.0.1:8501`、第二次雙擊不會開第二個服務、結束後 port 會釋放
+- 踩到的雷:`.cmd` 含中文註解時,在 chcp 65001 下會被切碎當成指令執行 → 整份改成純 ASCII
+
+**下一步**:merge 到 master(等使用者說)。
 
 ---
 
