@@ -31,7 +31,7 @@ if ($Uninstall) {
 
 if (-not (Test-Path $Runner)) { throw "找不到 $Runner" }
 if (-not (Test-Path (Join-Path $ProjectRoot ".venv\Scripts\python.exe"))) {
-    throw "找不到虛擬環境。請先跑:uv venv --python 3.12 && uv pip install -e `".[dev]`""
+    throw "找不到虛擬環境。請先跑:uv sync --all-extras"
 }
 if (-not (Test-Path (Join-Path $ProjectRoot ".env"))) {
     throw "找不到 .env —— 沒有 Telegram 與 OpenRouter 憑證就跑不起來"

@@ -37,11 +37,11 @@ if ($Uninstall) {
 if (-not (Test-Path $Launcher)) { throw "找不到 $Launcher" }
 $Python = Join-Path $ProjectRoot ".venv\Scripts\python.exe"
 if (-not (Test-Path $Python)) {
-    throw "找不到虛擬環境。請先跑:uv venv --python 3.12 && uv pip install -e `".[dev,ui]`""
+    throw "找不到虛擬環境。請先跑:uv sync --all-extras"
 }
 & $Python -c "import streamlit" 2>$null
 if ($LASTEXITCODE -ne 0) {
-    throw "虛擬環境沒有 streamlit。請先跑:uv pip install -e `".[ui]`""
+    throw "虛擬環境沒有 streamlit。請先跑:uv sync --all-extras"
 }
 
 $shell = New-Object -ComObject WScript.Shell

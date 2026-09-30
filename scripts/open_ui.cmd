@@ -25,7 +25,7 @@ set URL=http://127.0.0.1:%PORT%
 
 if not exist ".venv\Scripts\python.exe" (
     echo .venv not found. From the project root run:
-    echo   uv venv --python 3.12 ^&^& uv pip install -e ".[dev,ui]"
+    echo   uv sync --all-extras
     pause
     exit /b 1
 )

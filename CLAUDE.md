@@ -63,7 +63,8 @@
 ## 指令
 
 ```bash
-uv venv --python 3.12 && uv pip install -e ".[dev]"   # 安裝
+uv sync --all-extras                     # 安裝:照 uv.lock 裝出完全相同的版本(Python 由 .python-version 固定 3.12)
+uv lock --upgrade && pytest              # 升級套件是主動決定的事:升完跑測試、確認後才 commit uv.lock
 pytest                                   # 全部離線,跑真實 fixture
 ruff check src tests && ruff format src tests
 
@@ -74,7 +75,7 @@ python -m jobfinder.cli reset-circuit            # 熔斷後人工解除
 python -m jobfinder.cli status                   # 最近執行與 requests_used 稽核
 
 # 本機 Web UI(週一選家):只讀 jobs.db 快照、不連 104,只綁 127.0.0.1
-uv pip install -e ".[ui]"                        # streamlit 是選用依賴,排程環境不必裝
+uv sync --extra dev --extra ui           # streamlit 是選用依賴(--all-extras 已含);⚠️ sync 會移除沒列到的 extras
 python -m jobfinder.cli ui                       # http://127.0.0.1:8501
 # 免終端機:桌面捷徑 → scripts\open_ui.cmd(沿用 .venv;已在跑就只開瀏覽器;關黑窗即結束)
 # 關分頁不會停 Streamlit → 捷徑帶 --idle-minutes 10:連續 10 分鐘沒分頁連著就自動結束(ui_idle.py)

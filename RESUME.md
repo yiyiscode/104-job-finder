@@ -20,6 +20,12 @@
   netstat 失敗當成有人在用)。捷徑用 10 分鐘。實測:保持連線時不關,連線放開約 30 秒 + 輪詢間隔後結束
 - 修掉:`start /b` + `-WindowStyle Hidden` 會把主視窗一起藏起來(使用者找不到黑窗)→ 改用 `start /min`
 
+- 已標投遞頁:拿掉候選清單的重複匯出;投遞進度的分區預設收合(`4aeedf4`)
+- Docker 評估:這台筆電不值得(Docker Desktop 常駐、127.0.0.1 護欄移到部署設定、ui_idle 用 Windows netstat、SQLite 在 bind mount 上的鎖)。
+  等有 24 小時開著的家用主機再做。先做 uv.lock
+- `uv.lock` + `.python-version`(3.12):版本對齊當時的 .venv(用 `--upgrade-package 名==版` 逐一固定),
+  `uv sync --all-extras` 前後 freeze 完全相同。安裝指令全部改成 `uv sync --all-extras`
+
 **下一步**:merge 到 master(等使用者說)。
 
 ---

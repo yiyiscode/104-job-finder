@@ -102,7 +102,7 @@ def _ui(args: argparse.Namespace) -> int:
     import subprocess
 
     if importlib.util.find_spec("streamlit") is None:
-        print('需要先安裝 UI 依賴:uv pip install -e ".[ui]"', file=sys.stderr)
+        print("需要先安裝 UI 依賴:uv sync --all-extras", file=sys.stderr)
         return 2
     app = Path(__file__).with_name("webui") / "app.py"
     # 命中率綁定履歷版本,UI 要知道是哪一份。設定讀不到也不該讓 UI 開不起來 → 退回預設
