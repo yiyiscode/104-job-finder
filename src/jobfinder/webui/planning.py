@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 
 from .decisions import Decision
 from .rows import JobRow
@@ -122,6 +122,31 @@ def option_label(
         n = sum(plans.get(r.job_no) == option for r in board.later)
         return f"{week_label(option, this_week)} · {n}"
     return f"{names[option]} · {counts[option]}"
+
+
+#: 「排入週次」可選到幾週後(本週 + 5 週;清單排程是 4 週)
+PLAN_WEEKS_AHEAD = 5
+
+
+def plan_week_choices(this_week: date) -> list[date | None]:
+    """批次排週次的選項:本週 → +5 週,**「取消週次」(None)放最後**。
+
+    放第一個的話它就是預設值 —— 勾幾筆、沒改選單就按下去,會把原本的週次全部清掉。
+    """
+    return [this_week + timedelta(weeks=i) for i in range(PLAN_WEEKS_AHEAD + 1)] + [None]
+
+
+def default_plan_week(
+    selected: Iterable[JobRow], plans: Mapping[str, date], choices: list[date | None]
+) -> int:
+    """預設選哪一個(索引)。勾選的全都排在同一週、且那週在選項裡 → 那一週;否則本週。
+
+    絕不預設成「取消週次」。
+    """
+    weeks = {plans.get(r.job_no) for r in selected}
+    if len(weeks) == 1 and (week := weeks.pop()) is not None and week in choices:
+        return choices.index(week)
+    return 0
 
 
 def filter_pool(board: Board, option: str | date, plans: Mapping[str, date]) -> list[JobRow]:

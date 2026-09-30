@@ -89,6 +89,25 @@ def test_week_filter_options_and_counts():
     assert [r.job_no for r in planning.filter_pool(board, planning.WEEK_ALL, plans)] == list("ABCD")
 
 
+def test_cancel_week_is_last_so_it_is_never_the_default():
+    """「取消週次」若排第一就是預設值:勾幾筆沒改選單直接按,原本的週次會全被清掉。"""
+    choices = planning.plan_week_choices(THIS_WEEK)
+    assert choices[0] == THIS_WEEK and choices[-1] is None
+    assert len(choices) == planning.PLAN_WEEKS_AHEAD + 2
+
+
+def test_default_plan_week_keeps_a_shared_week_else_this_week():
+    choices = planning.plan_week_choices(THIS_WEEK)
+    a, b, c = row(job_no="A"), row(job_no="B"), row(job_no="C")
+    plans = {"A": NEXT_WEEK, "B": NEXT_WEEK, "C": WEEK_3}
+    assert choices[planning.default_plan_week([a, b], plans, choices)] == NEXT_WEEK
+    assert choices[planning.default_plan_week([a, c], plans, choices)] == THIS_WEEK  # 不同週
+    unplanned = row(job_no="D")
+    assert choices[planning.default_plan_week([unplanned], plans, choices)] == THIS_WEEK
+    far = {"A": date(2027, 1, 4)}  # 不在選項裡的週
+    assert choices[planning.default_plan_week([a], far, choices)] == THIS_WEEK
+
+
 def test_week_label():
     assert planning.week_label(None, THIS_WEEK) == "未排"
     assert planning.week_label(date(2026, 9, 21), THIS_WEEK) == "上週(09/21)"

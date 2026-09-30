@@ -9,7 +9,7 @@ from __future__ import annotations
 import argparse
 import sys
 import tempfile
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 import altair as alt
@@ -538,7 +538,7 @@ def applied_page() -> None:
         with st.expander(f"✅ 已送出({len(board.done)})"):
             undo_chosen = table(board.done, "done")
         st.divider()
-        _bulk_actions(chosen, chosen + backup_chosen, undo_chosen, this_week)
+        _bulk_actions(chosen, chosen + backup_chosen, undo_chosen, plans, this_week)
 
         applied = board.pool
         a, b = st.columns(2)
@@ -628,7 +628,11 @@ def _applied_table(rs, name, mode, latest, desires, plans, sent, this_week) -> l
 
 
 def _bulk_actions(
-    to_send: list[JobRow], to_plan: list[JobRow], to_undo: list[JobRow], this_week
+    to_send: list[JobRow],
+    to_plan: list[JobRow],
+    to_undo: list[JobRow],
+    plans: dict,
+    this_week,
 ) -> None:
     gen = st.session_state.applied_gen
     if not (to_plan or to_undo):
@@ -640,15 +644,17 @@ def _bulk_actions(
         if d2.button(f"✅ 確認投遞 {len(to_send)} 筆", type="primary"):
             _confirm_sent(to_send, day)
     if to_plan:
-        weeks = [None] + [this_week + timedelta(weeks=i) for i in range(6)]
+        weeks = planning.plan_week_choices(this_week)
         w1, w2 = st.columns([1, 2], vertical_alignment="bottom")
         week = w1.selectbox(
             f"把已選的 {len(to_plan)} 筆排到",
             weeks,
+            index=planning.default_plan_week(to_plan, plans, weeks),
             format_func=lambda w: (
                 "不排(取消週次)" if w is None else planning.week_label(w, this_week)
             ),
-            key=f"wk_{gen}",
+            # key 帶上勾選內容:勾選一變就重新套用預設值,不沿用上一組勾選時選的週
+            key=f"wk_{gen}_{'-'.join(sorted(j.job_no for j in to_plan))}",
         )
         if w2.button(f"📅 排入週次({len(to_plan)} 筆)"):
             now = datetime.now(cand.TAIPEI)
