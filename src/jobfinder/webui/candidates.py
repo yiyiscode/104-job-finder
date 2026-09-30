@@ -18,9 +18,11 @@ from zoneinfo import ZoneInfo
 from ..hitrate.compute import MAX_REQUIREMENTS, hit_rate
 from ..normalize import (
     OPEN_ENDED_SALARY,
+    detail_as_summary,
     format_experience,
     format_salary,
     monthly_equivalent,
+    normalize_detail_response,
     period_to_years,
 )
 from . import gates
@@ -34,6 +36,7 @@ from .skills import detail_skill_text, summary_skill_text
 
 if TYPE_CHECKING:
     from ..hitrate.store import StoredHitRate
+    from ..shortlist.store import Entry, Fetch, ShortlistStore
 
 TAIPEI = ZoneInfo("Asia/Taipei")
 ENGLISH_CODE = 1  # languageRequirements[].language;已對照詳細頁的「英文」驗證
@@ -58,14 +61,88 @@ def load_rows(
     conn: sqlite3.Connection,
     hit_rates: Mapping[str, StoredHitRate] | None = None,
     have_skills: frozenset[str] | None = None,
+    shortlist: ShortlistStore | None = None,
 ) -> list[JobRow]:
     """``hit_rates`` 是 hitrate.db 裡「目前這版履歷」的結果;不給就全部視為未計算。
-    ``have_skills`` 是履歷的技能集合(程式版命中率用);不給就不算。"""
+    ``have_skills`` 是履歷的技能集合(程式版命中率用);不給就不算。
+    ``shortlist`` 給了就把投遞清單裡、jobs.db 沒有的職缺也組成列。"""
     hit_rates = hit_rates or {}
-    return [
+    rows = [
         build_row(dict(r), hit_rates.get(r["job_no"]), have_skills)
         for r in conn.execute(CANDIDATE_SQL)
     ]
+    if shortlist is None:
+        return rows
+    return merge_shortlist(
+        rows, shortlist.entries(), shortlist.latest_fetches(), hit_rates, have_skills
+    )
+
+
+# ── 投遞清單 ────────────────────────────────────────────────────────
+SHORTLIST_STATUS = "shortlist"
+_JOB_URL = "https://www.104.com.tw/job/"
+
+
+def detail_id_of(url: str) -> str:
+    """職缺連結的尾段(``https://www.104.com.tw/job/7j5sn`` → ``7j5sn``)。"""
+    return url.split("?", 1)[0].rstrip("/").rsplit("/", 1)[-1]
+
+
+def detail_aliases(rows: Iterable[JobRow]) -> dict[str, str]:
+    """detail_id → job_no,只收 jobs.db 的列。投遞清單時期用 detail_id 存的標記靠它併過來。"""
+    return {detail_id_of(r.url): r.job_no for r in rows if r.pipeline_status != SHORTLIST_STATUS}
+
+
+def merge_shortlist(
+    rows: list[JobRow],
+    entries: Iterable[Entry],
+    fetches: Mapping[str, Fetch],
+    hit_rates: Mapping[str, StoredHitRate],
+    have_skills: frozenset[str] | None,
+) -> list[JobRow]:
+    """清單裡已在 jobs.db 的只打上標記(那邊資料比較完整);其餘用詳細頁組出新列。"""
+    by_detail = {detail_id_of(r.url): r for r in rows}
+    out = list(rows)
+    for entry in entries:
+        if (existing := by_detail.get(entry.detail_id)) is not None:
+            existing.in_shortlist = True
+            continue
+        fetch = fetches.get(entry.detail_id)
+        out.append(shortlist_row(entry, fetch, hit_rates.get(entry.detail_id), have_skills))
+    return out
+
+
+def shortlist_row(
+    entry: Entry,
+    fetch: Fetch | None,
+    hit: StoredHitRate | None = None,
+    have_skills: frozenset[str] | None = None,
+) -> JobRow:
+    """只有詳細頁(或什麼都還沒抓)的職缺 → 跟 jobs.db 同形狀的 record → ``build_row``。
+
+    這樣閘門、命中率、JD 原文全部沿用同一套程式,不必為清單另寫一份。
+    """
+    payload = _loads(fetch.raw_detail) if fetch and fetch.raw_detail else None
+    summary = detail_as_summary(payload) if payload else {}
+    record = {
+        "job_no": entry.detail_id,
+        "job_name": summary.get("jobName") or entry.title,
+        "cust_name": summary.get("custName") or entry.company,
+        "job_url": _JOB_URL + entry.detail_id,
+        "area_desc": summary.get("jobAddrNoDesc") or "",
+        "edu_desc": (normalize_detail_response(payload, entry.detail_id).edu or "")
+        if payload
+        else "",
+        "first_seen_at": entry.added_at,
+        "status": SHORTLIST_STATUS,
+        "raw_summary": json.dumps(summary, ensure_ascii=False),
+        "raw_detail": fetch.raw_detail if payload else None,
+    }
+    row = build_row(record, hit, have_skills)
+    row.in_shortlist = True
+    if payload is None:
+        row.fetch_note = (fetch.error or "") if fetch else "尚未抓取"
+    return row
 
 
 #: 深評五個維度與滿分(與 scoring/prompts.py 的配分一致)
@@ -232,6 +309,7 @@ PIPELINE_STATUS_HELP = {
     "⚠️ 9/24 以前規則層濾掉的也標這個(當時兩種原因還沒分開)",
     "scored": "粗篩通過、抓了全文、深評過,但分數沒擠進當天推播(前 5 名且 ≥60 分)",
     "notified": "深評後進了當天前 5 名且 ≥60 分,已推播到 Telegram",
+    SHORTLIST_STATUS: "不在 pipeline 裡,是投遞清單手動加的(`jobfinder shortlist fetch` 補抓詳細頁)",
 }
 PIPELINE_STATUS_LEGEND = " · ".join(f"{k}:{v}" for k, v in PIPELINE_STATUS_HELP.items())
 

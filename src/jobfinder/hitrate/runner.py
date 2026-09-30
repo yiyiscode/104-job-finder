@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Protocol
 
+from ..shortlist.store import SHORTLIST_DB, ShortlistStore
 from ..webui.candidates import load_rows
 from ..webui.rows import JobRow
 from ..webui.snapshot import connect_readonly, take_snapshot
@@ -64,9 +65,12 @@ def pick_targets(rows: list[JobRow], done: set[str], limit: int) -> tuple[list[J
 
 
 def load_job_rows(jobs_db: Path) -> list[JobRow]:
+    """jobs.db 的職缺,加上投遞清單補抓回來的(同目錄的 shortlist.db,有的話)。"""
+    shortlist_db = jobs_db.with_name(SHORTLIST_DB)
+    shortlist = ShortlistStore(shortlist_db) if shortlist_db.exists() else None
     conn = connect_readonly(take_snapshot(jobs_db, SNAPSHOT_DIR))
     try:
-        return load_rows(conn)
+        return load_rows(conn, shortlist=shortlist)
     finally:
         conn.close()
 

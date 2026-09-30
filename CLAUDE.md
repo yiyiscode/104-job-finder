@@ -86,9 +86,15 @@ python -m jobfinder.cli hitrate                  # 真的算,每次 ≤ max_jobs
 python scripts/check_secrets.py --staged         # pre-commit 自動跑:金鑰格式 + .env 實際值 + .env/*.db 路徑
 python scripts/check_secrets.py --history        # pre-push 自動跑:整個 commit 歷史(轉公開前必跑)
 
+# 投遞清單(shortlist.db):import / list 不連 104
+python -m jobfinder.cli shortlist import local_data/shortlist-2026-09-23.csv   # 只播種,不覆蓋 UI 改過的
+python -m jobfinder.cli shortlist list                        # 每筆的抓取狀態
+python -m jobfinder.cli shortlist fetch --limit 5 --dry-run   # 只列出會抓哪些
+
 # 會連線 104 —— 每條都是一次性的,不要反覆跑
 python scripts/probe_api.py                      # 錄 fixture,已有檔案會拒絕執行
 python -m jobfinder.cli run --limit 5
+python -m jobfinder.cli shortlist fetch --limit 5   # 補抓清單的詳細頁;--limit 必填 ≤5、熔斷器非 closed 不抓、不寫 runs
 
 # 排程(每天 08:00,錯過會在開機後補跑)
 powershell -ExecutionPolicy Bypass -File scripts\install_task.ps1
@@ -301,8 +307,9 @@ AI 主敘事換成資料工程(`資料工程師`/`資料倉儲工程師`/`BI工�
 的 jobCat **有**資料工程師。硬篩會殺掉最好的缺、留下 AI 缺,剛好做反。
 
 `scoring/prompts.py` 也同步換成資料工程視角:`tech_fit` 的高權重是 SQL/ETL/排程/爬蟲
-而非 LLM/RAG;`domain_fit` 直接點名他在金融(國泰人壽 CAP)與半導體(晶圓缺陷分類)
-的真實實績;JD 要求 Spark/Airflow/dbt 這類他沒實作過的工具**扣分但不歸零**
+而非 LLM/RAG;`domain_fit` 點名金融(國泰人壽 CAP,**真實實習**)與半導體
+(晶圓缺陷分類,**只是專案、沒有產業經歷** —— 2026-09-29 更正,之前誤寫成「兩個產業的真實實績」,
+半導體因此降為中高);JD 要求 Spark/Airflow/dbt 這類他沒實作過的工具**扣分但不歸零**
 (他自建過等價的排程與 ETL 管線)。`tests/test_scoring.py` 有錨點測試擋回頭改。
 
 ### 改動時的注意事項

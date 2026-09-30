@@ -70,6 +70,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="不呼叫 LLM:匯入手動判讀的結果 [{job_no, requirements}],由程式算分",
     )
 
+    sl = sub.add_parser("shortlist", help="投遞清單:匯入 / 列出(不連 104)、補抓詳細頁(會連 104)")
+    sl_sub = sl.add_subparsers(dest="action", required=True)
+    sl_import = sl_sub.add_parser("import", help="匯入清單 CSV,並播種標記與週次(不連 104)")
+    sl_import.add_argument("csv", help="欄位:detail_id,company,title,decision,week,note")
+    sl_sub.add_parser("list", help="列出清單與每筆的抓取狀態(不連 104)")
+    sl_fetch = sl_sub.add_parser("fetch", help="補抓 jobs.db 沒有的詳細頁(⚠️ 會連 104)")
+    sl_fetch.add_argument(
+        "--limit",
+        type=int,
+        required=True,
+        help=f"本次最多抓幾筆,必填,硬上限 {HARD_MAX_LIVE_LIMIT}",
+    )
+    sl_fetch.add_argument("--dry-run", action="store_true", help="只列出會抓哪些,不連線")
+
     ui = sub.add_parser("ui", help="開啟本機 Web UI(候選清單 / 技能趨勢),只讀 jobs.db、不連 104")
     ui.add_argument("--port", type=int, default=8501)
     return parser
@@ -182,6 +196,145 @@ async def _hitrate(cfg: Config, args: argparse.Namespace) -> int:
         for job_no, _ in report.rates:
             print(f"  會算:{job_no}")
     return 1 if report.stopped_reason.startswith("連續失敗") else 0
+
+
+async def _shortlist(cfg: Config, args: argparse.Namespace) -> int:
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    from .shortlist.store import SHORTLIST_DB, ShortlistStore
+
+    tz = ZoneInfo(cfg.runtime.timezone)
+    data_dir = Path(args.data_dir)
+    store = ShortlistStore(data_dir / SHORTLIST_DB)
+    aliases, circuit = _read_jobs_db(cfg, data_dir)
+
+    if args.action == "import":
+        from .shortlist.importer import import_csv
+        from .webui.decisions import DecisionStore
+
+        report = import_csv(
+            Path(args.csv), store, DecisionStore(data_dir / "decisions.db"), datetime.now(tz),
+            aliases,
+        )  # fmt: skip
+        print(
+            f"新加入 {report.added} 筆、更新 {report.updated} 筆;"
+            f"播種標記 {report.decided} 筆、週次 {report.planned} 筆(已有的不覆蓋)"
+        )
+        for err in report.errors:
+            print(f"  ❌ {err}", file=sys.stderr)
+        return 1 if report.errors else 0
+
+    if args.action == "list":
+        fetches = store.latest_fetches()
+        for e in store.entries():
+            f = fetches.get(e.detail_id)
+            if e.detail_id in aliases:
+                state = "jobs.db 已有"
+            elif f is None:
+                state = "尚未抓取"
+            elif f.raw_detail:
+                state = f"✅ 已抓 {f.fetched_at[:10]}"
+            else:
+                state = ("⛔ " if f.gone else "⚠️ ") + (f.error or "")
+            print(f"{e.detail_id:<8} {state:<16} {e.company} — {e.title}")
+        return 0
+
+    return await _shortlist_fetch(cfg, args, store, set(aliases), circuit, tz)
+
+
+def _read_jobs_db(cfg: Config, data_dir: Path):
+    """從 jobs.db 的**唯讀快照**讀 (detail_id → job_no, 熔斷器狀態)。
+
+    不開 ``Database``:它結束時會把整個 jobs.db 寫回,跟排程撞在一起就會蓋掉對方。
+    """
+    import tempfile
+
+    from .scrape.blocking import CircuitState
+    from .webui.candidates import detail_id_of
+    from .webui.snapshot import connect_readonly, take_snapshot
+
+    jobs_db = data_dir / cfg.paths.db_filename
+    if not jobs_db.exists():
+        return {}, CircuitState.closed()
+    snap = take_snapshot(jobs_db, Path(tempfile.gettempdir()) / "jobfinder-shortlist")
+    conn = connect_readonly(snap)
+    try:
+        aliases = {
+            detail_id_of(r["job_url"]): r["job_no"]
+            for r in conn.execute("SELECT job_no, job_url FROM jobs")
+        }
+        return aliases, JobRepo(conn, cfg.dedupe).get_circuit()
+    finally:
+        conn.close()
+
+
+async def _shortlist_fetch(cfg, args, store, known: set[str], circuit, tz) -> int:
+    """⚠️ 會連 104。護欄順序跟 pipeline 一樣:全部檢查完才發第一個請求。"""
+    from datetime import datetime
+
+    if not 1 <= args.limit <= HARD_MAX_LIVE_LIMIT:
+        raise SystemExit(f"--limit 要在 1–{HARD_MAX_LIVE_LIMIT} 之間(連線模式的硬上限)")
+    if not cfg.scraping_allowed():
+        print("抓取已停用(config scrape.enabled 或 JOBFINDER_SCRAPE_DISABLED),不抓。")
+        return 1
+    if cfg.scrape.mode != "http":
+        print(f"scrape.mode 是 {cfg.scrape.mode};這個指令只走純 HTTP,不抓。")
+        return 1
+    # 比 pipeline 保守:冷卻期過了的 half_open 試探留給每日排程,手動指令只在 closed 時動
+    if circuit.state != "closed":
+        print(f"熔斷器是 {circuit.state}({circuit.reason}),不抓。", file=sys.stderr)
+        return 1
+
+    pending = store.to_fetch(known)
+    batch = pending[: args.limit]
+    print(f"待抓 {len(pending)} 筆,本次 {len(batch)} 筆:")
+    for e in batch:
+        print(f"  {e.detail_id:<8} {e.company} — {e.title}")
+    if args.dry_run or not batch:
+        return 0
+
+    from .errors import FatalScrapeError, SourceMisconfigured
+    from .http_source import http_source
+    from .scrape import blocking
+    from .shortlist.fetch import fetch_entries
+
+    def clock() -> datetime:
+        return datetime.now(tz)
+
+    try:
+        async with http_source(cfg) as source:
+            report = await fetch_entries(batch, source, store, clock)
+            used = source.requests_used
+    except SourceMisconfigured as exc:
+        # 我方請求少了東西(通常是 Referer),不是被擋 —— 跟 pipeline 一樣不熔斷
+        print(f"104 回 403,但這是設定問題不是封鎖,熔斷器沒有啟動:{exc}", file=sys.stderr)
+        return 1
+    except FatalScrapeError as exc:
+        kind = type(exc).__name__
+        # 只有真的被擋才短暫開 Database 寫熔斷器 —— 絕不重試
+        with Database(args.data_dir, cfg.paths.db_filename) as db:
+            repo = JobRepo(db.conn, cfg.dedupe)
+            repo.save_circuit(
+                blocking.trip(repo.get_circuit(), f"{kind}(shortlist fetch): {exc}", clock())
+            )
+        print(
+            f"🛑 被 104 擋了({kind}):{exc}\n"
+            "已停止所有請求、不重試,熔斷器已打開。已抓到的那幾筆有存起來。",
+            file=sys.stderr,
+        )
+        return 1
+
+    print(
+        f"請求 {used} 次 · 抓到 {len(report.fetched)} 筆 · 已關閉 {len(report.gone)} 筆"
+        f" · 暫時失敗 {len(report.failed)} 筆"
+        + (" · 預算用盡提前停止" if report.stopped_by_budget else "")
+    )
+    for detail_id in report.gone:
+        print(f"  ⛔ {detail_id}:104 說職務不存在(多半已關閉),之後不會再抓")
+    for detail_id, reason in report.failed:
+        print(f"  ⚠️ {detail_id}:{reason}(下次執行會再試)")
+    return 1 if report.failed else 0
 
 
 def _validate_live_flags(cfg: Config, args: argparse.Namespace) -> None:
@@ -357,6 +510,8 @@ def main(argv: list[str] | None = None) -> int:
             return _status(cfg, args)
         if args.command == "hitrate":
             return asyncio.run(_hitrate(cfg, args))
+        if args.command == "shortlist":
+            return asyncio.run(_shortlist(cfg, args))
 
         _validate_live_flags(cfg, args)
         return asyncio.run(_run(cfg, args))

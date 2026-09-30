@@ -2,7 +2,28 @@
 
 > 說「讀 RESUME.md 繼續」即可接續。背景與更早的優化方向見 [docs/handoff-2026-09-23.md](docs/handoff-2026-09-23.md)。
 
-**最後更新:2026-09-26**　`feat/webui` 已合併進 `master`(merge commit `b18f8a0`,未 push)。486 個測試全過。
+**最後更新:2026-09-28**　分支 `feat/shortlist-tracking`(從 `c9f9173`(docs/readme-ai-collab)開出來 —— 當時另一個 session 已把工作目錄切到那裡),583 個測試全過。
+**merge 回 master 前先 rebase 到 master**:`4159147` 與 master 的 `491a04d` 內容相同,rebase 會自動略過;兩個 README commit 已經透過 `a11be58` 進了 master。
+
+---
+
+## 2026-09-28:投遞清單匯入 + 已標投遞頁加「週次／送出日期」(✅ 完成,待 merge)
+
+來源:`D:\Career\applications\apply-shortlist-2026-09-23.md`(注意是 D:\Career,不是 ../Career)。
+決策細節見 memory `job-finder-shortlist-tracking-decision`。
+
+- `shortlist.db` + `jobfinder shortlist import|list|fetch`;`normalize.detail_as_summary`(詳細頁 → 列表形狀)
+- decisions.db 加 `plans`(週次)與 `submissions`(送出日期);`aliases` 把 detail_id 與 job_no 的標記合併
+- **已匯入**主清單 13 筆 + 軟體候補 4 筆(`local_data/shortlist-2026-09-23.csv`),備份 `local_data/decisions.db.bak-20260928`。
+  週次假設:**第 1 週 = 2026-09-28**
+- **已補抓** 11 筆詳細頁(使用者 17:42–17:55 分三次跑,第 2 次中途中斷;11 筆全成功,請求 11 或 12 個,熔斷器 closed)
+- 已標投遞頁正式版(demo 回饋兩輪後定案):
+  - tab 1「✍️ 履歷修改建議」:週次篩選 + 單選表格 → 履歷修改建議與 104 原文
+  - tab 2「📨 投遞進度」:本週待投／之後／未排／清單候補／已送出;多選跨區 → 一次「確認投遞」(確認對話框、共用一個日期)、批次排週次、撤銷送出
+  - 分區/排序/篩選在 `webui/planning.py`(純邏輯,有測試)
+- CONTEXT.md:已標投遞、排定週次、送出日期、投遞清單、清單候補
+
+**下一步**:rebase 到 master 後 merge(等使用者說)。
 
 ---
 
