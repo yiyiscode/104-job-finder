@@ -296,20 +296,6 @@ def candidates_page() -> None:
     if selected:
         _decision_panel(view[selected[0]], desires)
 
-    st.divider()
-    chosen = cand.picks(rows, latest, start, end)
-    st.subheader(f"匯出:期間內標「投」的 {len(chosen)} 筆")
-    if chosen:
-        md = to_markdown(chosen, latest)
-        a, b = st.columns(2)
-        a.download_button("下載 Markdown", md, file_name=f"picks-{start}.md", mime="text/markdown")
-        b.download_button(
-            "下載 CSV", to_csv(chosen, latest), file_name=f"picks-{start}.csv", mime="text/csv"
-        )
-        st.markdown(md)
-    else:
-        st.caption("還沒有標「投」的職缺。")
-
 
 def _skill_match_breakdown(job: JobRow) -> None:
     m = job.skill_match
@@ -524,11 +510,10 @@ def applied_page() -> None:
         )
         st.subheader(f"📅 本週待投 · {this_week:%m/%d} 那週")
         chosen = table(board.due, "due")
-        with st.expander(f"之後幾週({len(board.later)})", expanded=True):
+        # 全部預設收合:只留「本週待投」攤開,看資訊時不被其他區塊擠下去
+        with st.expander(f"之後幾週({len(board.later)})"):
             chosen += table(board.later, "later")
-        with st.expander(
-            f"未排週次({len(board.unplanned)})—— 標了「投」但還沒決定哪週", expanded=True
-        ):
+        with st.expander(f"未排週次({len(board.unplanned)})—— 標了「投」但還沒決定哪週"):
             chosen += table(board.unplanned, "unplanned")
         with st.expander(
             f"清單候補({len(board.backups)})—— 投遞清單裡標「待確認」的,只能排週次;"
