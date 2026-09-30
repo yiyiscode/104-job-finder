@@ -4,7 +4,8 @@ REM ============================================================
 REM  Job Finder Web UI launcher - target of the desktop shortcut.
 REM  Double-click: start the UI and open the browser. If it is already
 REM  running, only open the browser (never a second server).
-REM  Close this window (or Ctrl+C) to stop it.
+REM  Close this window (or Ctrl+C) to stop it; it also stops by itself
+REM  after IDLE_MINUTES with no browser tab open.
 REM
 REM  Binds 127.0.0.1 only (via `jobfinder ui`), reads a jobs.db snapshot,
 REM  never talks to 104.
@@ -18,6 +19,8 @@ setlocal
 cd /d "%~dp0.."
 set PYTHONIOENCODING=utf-8
 set PORT=8501
+REM Stop automatically after this many minutes with no browser tab open
+set IDLE_MINUTES=10
 set URL=http://127.0.0.1:%PORT%
 
 if not exist ".venv\Scripts\python.exe" (
@@ -37,11 +40,13 @@ if not errorlevel 1 (
 
 REM Open the browser once Streamlit actually listens (up to 60 s);
 REM a fixed delay is often too short on a cold start.
-start "" /b powershell -NoProfile -WindowStyle Hidden -Command ^
+REM NOT `start /b`: that shares this console, and -WindowStyle Hidden then
+REM hides THIS window too, leaving the server running with no window to close.
+start "" /min powershell -NoProfile -WindowStyle Hidden -Command ^
   "for ($i = 0; $i -lt 60; $i++) { try { (New-Object Net.Sockets.TcpClient).Connect('127.0.0.1', %PORT%); Start-Process '%URL%'; break } catch { Start-Sleep 1 } }"
 
 title Job Finder UI - close this window to stop
-".venv\Scripts\python.exe" -m jobfinder.cli ui --port %PORT%
+".venv\Scripts\python.exe" -m jobfinder.cli ui --port %PORT% --idle-minutes %IDLE_MINUTES%
 set RC=%ERRORLEVEL%
 
 REM Closing the window never reaches here; a non-zero exit means startup

@@ -2,7 +2,7 @@
 
 > 說「讀 RESUME.md 繼續」即可接續。背景與更早的優化方向見 [docs/handoff-2026-09-23.md](docs/handoff-2026-09-23.md)。
 
-**最後更新:2026-09-30**　分支 `feat/ui-launcher`(從 master `be33505` 開出),586 個測試全過。
+**最後更新:2026-09-30**　分支 `feat/ui-launcher`(從 master `be33505` 開出),592 個測試全過。
 (`feat/shortlist-tracking` 已經在 `eb96774` merge 進 master。)
 
 ---
@@ -16,6 +16,9 @@
 - `scripts/install_ui_shortcut.ps1`:建立桌面捷徑「Job Finder UI」(已經裝好),`-Uninstall` 移除
 - 已驗證:只監聽 `127.0.0.1:8501`、第二次雙擊不會開第二個服務、結束後 port 會釋放
 - 踩到的雷:`.cmd` 含中文註解時,在 chcp 65001 下會被切碎當成指令執行 → 整份改成純 ASCII
+- 閒置自動關閉:`jobfinder ui --idle-minutes N`(`ui_idle.py`,看 netstat 裡 127.0.0.1:8501 伺服器側 ESTABLISHED 的連線數;
+  netstat 失敗當成有人在用)。捷徑用 10 分鐘。實測:保持連線時不關,連線放開約 30 秒 + 輪詢間隔後結束
+- 修掉:`start /b` + `-WindowStyle Hidden` 會把主視窗一起藏起來(使用者找不到黑窗)→ 改用 `start /min`
 
 **下一步**:merge 到 master(等使用者說)。
 
