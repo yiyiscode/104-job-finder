@@ -15,7 +15,6 @@ from jobfinder.webui.candidates import (
     apply_filter,
     build_row,
     load_rows,
-    picks,
     sort_rows,
     week_start,
 )
@@ -175,21 +174,6 @@ def test_sort_puts_missing_last():
 
 
 # ── 匯出 ──
-def test_picks_are_latest_apply_in_range():
-    rows = [
-        row(job_no="a"),
-        row(job_no="b"),
-        row(job_no="old", first_seen="2026-09-01T08:00:00+08:00"),
-    ]
-    latest = {
-        "a": decision("a", "apply"),
-        "b": decision("b", "pending"),
-        "old": decision("old", "apply"),
-    }
-    got = picks(rows, latest, date(2026, 9, 21), date(2026, 9, 27))
-    assert [r.job_no for r in got] == ["a"]
-
-
 def test_markdown_escapes_pipe_in_title():
     r = row(job_no="a", title="資料工程師 | 金融")
     md = to_markdown([r], {"a": decision("a", "apply", note="優先")})

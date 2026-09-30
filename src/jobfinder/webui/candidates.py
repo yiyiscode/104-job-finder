@@ -392,14 +392,3 @@ def sort_rows(rows: list[JobRow], key: str) -> list[JobRow]:
     present = [r for r in rows if getattr(r, attr) is not None]
     missing = [r for r in rows if getattr(r, attr) is None]
     return sorted(present, key=lambda r: getattr(r, attr), reverse=True) + missing
-
-
-def picks(
-    rows: Iterable[JobRow], latest: Mapping[str, Decision], start: date, end: date
-) -> list[JobRow]:
-    """匯出用:最新標記是「投」且首次出現在期間內。"""
-    return [
-        r
-        for r in in_range(rows, start, end)
-        if (d := latest.get(r.job_no)) is not None and d.status == "apply"
-    ]

@@ -75,10 +75,12 @@ Windows 工作排程 08:00
 ## 安裝
 
 ```bash
-uv venv --python 3.12
-uv pip install -e ".[dev]"
+uv sync --all-extras            # 照 uv.lock 裝出完全相同的版本;Python 由 .python-version 固定 3.12
 .venv/Scripts/activate          # Windows;macOS/Linux 用 source .venv/bin/activate
 ```
+
+`uv.lock` 鎖住全部 78 個套件(含間接依賴)的版本與雜湊。要升級就跑 `uv lock --upgrade`、
+跑完 `pytest` 確認沒壞才 commit —— 升級是主動的決定,不會在重裝時意外發生。
 
 **不需要安裝瀏覽器。** 只有切到 `scrape.mode: browser` 備援時才需要
 `patchright install chromium`。

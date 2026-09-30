@@ -86,6 +86,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     ui = sub.add_parser("ui", help="開啟本機 Web UI(候選清單 / 技能趨勢),只讀 jobs.db、不連 104")
     ui.add_argument("--port", type=int, default=8501)
+    ui.add_argument(
+        "--idle-minutes",
+        type=float,
+        default=0,
+        help="連續幾分鐘沒有分頁連著就自動關閉(0 = 不自動關;桌面捷徑用 10)",
+    )
     return parser
 
 
@@ -96,7 +102,7 @@ def _ui(args: argparse.Namespace) -> int:
     import subprocess
 
     if importlib.util.find_spec("streamlit") is None:
-        print('需要先安裝 UI 依賴:uv pip install -e ".[ui]"', file=sys.stderr)
+        print("需要先安裝 UI 依賴:uv sync --all-extras", file=sys.stderr)
         return 2
     app = Path(__file__).with_name("webui") / "app.py"
     # 命中率綁定履歷版本,UI 要知道是哪一份。設定讀不到也不該讓 UI 開不起來 → 退回預設
@@ -114,7 +120,37 @@ def _ui(args: argparse.Namespace) -> int:
         "--resume", str(Path(resume).resolve()),
     ]  # fmt: skip
     print(f"Web UI:http://127.0.0.1:{args.port}(Ctrl+C 結束)")
-    return subprocess.call(cmd)
+    if args.idle_minutes <= 0:
+        return subprocess.call(cmd)
+    return _run_until_idle(cmd, args.port, args.idle_minutes)
+
+
+def _run_until_idle(cmd: list[str], port: int, idle_minutes: float) -> int:
+    """跑 Streamlit,連續 ``idle_minutes`` 分鐘沒有分頁連著就把它關掉。"""
+    import subprocess
+
+    from .ui_idle import IdleWatcher, active_connections
+
+    print(f"關掉所有分頁 {idle_minutes:g} 分鐘後自動結束")
+    watcher = IdleWatcher(idle_minutes * 60)
+    proc = subprocess.Popen(cmd)
+    try:
+        while True:
+            try:
+                return proc.wait(timeout=15)
+            except subprocess.TimeoutExpired:
+                pass
+            if watcher.observe(active_connections(port)):
+                print(f"已經 {idle_minutes:g} 分鐘沒有分頁連著,自動結束 Web UI")
+                return 0
+    finally:
+        # 閒置、Ctrl+C、任何例外都走這裡 —— 不能把 Streamlit 孤兒留在背景
+        if proc.poll() is None:
+            proc.terminate()
+            try:
+                proc.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                proc.kill()
 
 
 async def _hitrate(cfg: Config, args: argparse.Namespace) -> int:
