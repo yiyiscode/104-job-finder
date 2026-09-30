@@ -89,6 +89,17 @@ def test_week_filter_options_and_counts():
     assert [r.job_no for r in planning.filter_pool(board, planning.WEEK_ALL, plans)] == list("ABCD")
 
 
+def test_tailor_filter_defaults_to_this_week_else_all():
+    rows = [row(job_no="A"), row(job_no="B")]
+    with_due = _board(rows, dict.fromkeys("AB", "apply"), plans={"A": THIS_WEEK})
+    options = planning.week_options(with_due, {"A": THIS_WEEK})
+    assert options[planning.default_week_option(options)] == planning.WEEK_DUE
+
+    no_due = _board(rows, dict.fromkeys("AB", "apply"), plans={"A": NEXT_WEEK})
+    options = planning.week_options(no_due, {"A": NEXT_WEEK})
+    assert options[planning.default_week_option(options)] == planning.WEEK_ALL
+
+
 def test_cancel_week_is_last_so_it_is_never_the_default():
     """「取消週次」若排第一就是預設值:勾幾筆沒改選單直接按,原本的週次會全被清掉。"""
     choices = planning.plan_week_choices(THIS_WEEK)

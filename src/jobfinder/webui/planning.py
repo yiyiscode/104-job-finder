@@ -103,6 +103,11 @@ def week_options(board: Board, plans: Mapping[str, date]) -> list[str | date]:
     return options
 
 
+def default_week_option(options: list[str | date]) -> int:
+    """週次篩選的預設:本週待投;本週沒有待投的(選項裡沒有)就退回「全部」。"""
+    return options.index(WEEK_DUE) if WEEK_DUE in options else 0
+
+
 def option_label(
     option: str | date, board: Board, plans: Mapping[str, date], this_week: date
 ) -> str:

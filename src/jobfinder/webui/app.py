@@ -552,6 +552,7 @@ def applied_page() -> None:
         option = st.selectbox(
             "週次",
             options,
+            index=planning.default_week_option(options),
             format_func=lambda o: planning.option_label(o, board, plans, this_week),
             key="tailor_week",
         )
