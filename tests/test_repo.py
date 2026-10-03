@@ -173,6 +173,30 @@ def test_prune_removes_stale_rows(repo):
     assert remaining == ["fresh"]
 
 
+def test_prune_keeps_old_runs_still_referenced_by_scores(repo):
+    """職缺 180 天後仍持續被抓到 → 它的評分還在、指向一次很舊的執行。
+    刪掉那次執行會撞 scores.run_id 的外鍵(FOREIGN KEY constraint failed),
+    而 prune 跑在 checkpoint 之前 —— 整天的執行會以錯誤結束。2026-10-03 修。"""
+    from jobfinder.models import RejectedJob
+
+    old = DAY0 - timedelta(days=400)
+    repo.register([make_job("kept")], old)
+    old_run = repo.start_run(old)
+    unused_run = repo.start_run(old)
+    repo.save_screen_drops(
+        [RejectedJob(job_no="kept", job_name="A", cust_name="甲", total=30, reason="x")],
+        run_id=old_run,
+        now=old,
+    )
+    repo.register([make_job("kept")], DAY0)  # 今天又看到它 → last_seen 更新,不會被刪
+
+    repo.prune(DAY0)
+
+    runs = {r[0] for r in repo.conn.execute("SELECT id FROM runs")}
+    assert old_run in runs, "還被評分引用的舊執行要留著"
+    assert unused_run not in runs, "沒被引用的舊執行照常清掉"
+
+
 # ── 粗篩紀錄與兩種淘汰狀態(2026-09-24)────────────────────────────
 
 

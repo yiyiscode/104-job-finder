@@ -39,6 +39,8 @@ class Board:
     unplanned: list[JobRow] = field(default_factory=list)
     done: list[JobRow] = field(default_factory=list)
     backups: list[JobRow] = field(default_factory=list)
+    #: 標了投、沒送出,職缺卻已關閉。不進履歷修改的母體(投不成了,不必改履歷)
+    closed: list[JobRow] = field(default_factory=list)
 
     @property
     def pool(self) -> list[JobRow]:
@@ -53,7 +55,9 @@ def build_board(
     sent: Mapping[str, date],
     desires: Mapping[str, int],
     this_week: date,
+    closed: Mapping[str, date] | None = None,
 ) -> Board:
+    closed = closed or {}
     board = Board()
     for r in rows:
         decision = latest.get(r.job_no)
@@ -65,7 +69,9 @@ def build_board(
             continue
         week = plans.get(r.job_no)
         if r.job_no in sent:
-            board.done.append(r)
+            board.done.append(r)  # 送出優先:送了之後才下架,仍然算投過
+        elif r.job_no in closed:
+            board.closed.append(r)
         elif week is None:
             board.unplanned.append(r)
         elif week <= this_week:
@@ -87,6 +93,7 @@ def build_board(
     board.due, board.later = order(board.due), order(board.later)
     board.unplanned, board.backups = order(board.unplanned), order(board.backups)
     board.done.sort(key=lambda r: sent[r.job_no], reverse=True)
+    board.closed.sort(key=lambda r: closed[r.job_no], reverse=True)
     return board
 
 

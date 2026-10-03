@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Finder 資料庫圖解</title>
+<style>
+:root {
+  --bg: #fbfaf8; --surface: #ffffff; --ink: #1f2328; --muted: #5d6470; --line: #d9dce1;
+  --accent: #2f6fb3; --pipeline: #2f6fb3; --ui: #b5592a; --hit: #5f7d2c; --short: #7a4fa3;
+  --warn-bg: #fff4e0; --warn-ink: #7a4b00; --code-bg: #f1f2f4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171a; --surface: #1d2024; --ink: #e6e8eb; --muted: #9aa2ad; --line: #353a41;
+    --accent: #6ea8e6; --pipeline: #6ea8e6; --ui: #e08a5c; --hit: #a3c46a; --short: #b993dd;
+    --warn-bg: #3a2c12; --warn-ink: #f2c98a; --code-bg: #262a30;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15171a; --surface: #1d2024; --ink: #e6e8eb; --muted: #9aa2ad; --line: #353a41;
+  --accent: #6ea8e6; --pipeline: #6ea8e6; --ui: #e08a5c; --hit: #a3c46a; --short: #b993dd;
+  --warn-bg: #3a2c12; --warn-ink: #f2c98a; --code-bg: #262a30;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.7 system-ui, "Microsoft JhengHei", "PingFang TC", sans-serif;
+}
+main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: 1.9rem; margin: 0 0 4px; }
+h2 { font-size: 1.35rem; margin: 48px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+h3 { font-size: 1.1rem; margin: 28px 0 6px; }
+p, li { color: var(--ink); }
+.sub { color: var(--muted); margin: 0 0 24px; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+.tag { display: inline-block; font-size: .8rem; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; margin-left: 6px; vertical-align: 2px; }
+.pipeline { color: var(--pipeline); } .ui { color: var(--ui); } .hit { color: var(--hit); } .short { color: var(--short); }
+.callout { background: var(--warn-bg); color: var(--warn-ink); border-radius: 8px; padding: 12px 16px; margin: 16px 0; }
+.callout b { color: inherit; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 16px 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid currentColor; border-radius: 8px; padding: 12px 14px; }
+.card h4 { margin: 0 0 4px; font-size: 1rem; }
+.card p { margin: 0; font-size: .9rem; color: var(--muted); }
+.card .who { color: var(--ink); font-size: .9rem; margin-top: 6px; }
+figure { margin: 16px 0; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-x: auto; }
+figcaption { color: var(--muted); font-size: .85rem; margin-top: 6px; }
+svg text { fill: var(--ink); font-family: system-ui, "Microsoft JhengHei", sans-serif; }
+svg .muted { fill: var(--muted); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; background: var(--surface); }
+th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+th { background: var(--code-bg); font-weight: 600; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.src { color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Job Finder 資料庫圖解</h1>
+<p class="sub">四個 SQLite 檔各是什麼、誰在寫、彼此怎麼對得起來。數字是 <b>2026-10-03</b> 讀 <code>local_data/</code> 副本統計的(jobs.db 檔案時間 12:02、decisions.db 12:39、hitrate.db 10/02 23:29、shortlist.db 09/28 17:55)。每一條說明後面標了對應的原始碼位置。</p>
+
+<h2>一句話版本</h2>
+<p><b>一個資料庫只給一個寫入者。</b>每日 pipeline 寫 <code>jobs.db</code>、Web UI 寫 <code>decisions.db</code>、命中率排程寫 <code>hitrate.db</code>、投遞清單指令寫 <code>shortlist.db</code>。四個檔之間<b>沒有外鍵</b>,是程式讀取時用職缺編號把它們對起來的。</p>
+
+<div class="cards">
+  <div class="card pipeline"><h4>jobs.db</h4><p>職缺主檔、評分、執行紀錄、熔斷器</p><p class="who">寫入者:每日 pipeline(08:00)</p></div>
+  <div class="card ui"><h4>decisions.db</h4><p>你的投／不投、想去程度、週次、送出、已關閉</p><p class="who">寫入者:Web UI</p></div>
+  <div class="card hit"><h4>hitrate.db</h4><p>第 3 道閘門「必備命中率」逐條判定</p><p class="who">寫入者:<code>jobfinder hitrate</code>(排程在 pipeline 之後)</p></div>
+  <div class="card short"><h4>shortlist.db</h4><p>手動匯入的投遞清單,與補抓的詳細頁</p><p class="who">寫入者:<code>jobfinder shortlist</code></p></div>
+</div>
+
+<h2>為什麼要拆成四個檔</h2>
+<p>pipeline 不是在 <code>jobs.db</code> 上直接改,而是<b>複製一份到暫存區操作,結束時整檔換名蓋回去</b>(<span class="src">src/jobfinder/storage/db.py:206 <code>os.replace</code></span>)。這帶來兩個後果:</p>
+<ul>
+  <li>別人寫進 <code>jobs.db</code> 的東西,會在 pipeline 蓋回檔案時消失。所以你的標記不能放在這裡。</li>
+  <li>Windows 上只要有程式開著 <code>jobs.db</code>,換名就會失敗,當天的資料與熔斷器狀態會靜靜遺失。所以 Web UI 只讀它的<b>快照副本</b>(<span class="src">src/jobfinder/webui/snapshot.py:16</span>),從不直接開原檔。</li>
+</ul>
+<p>完整理由見 <a href="adr/0001-decisions-in-separate-db.md">ADR 0001</a>。</p>
+
+<h2>全景圖</h2>
+<figure>
+<svg viewBox="0 0 940 515" width="100%" role="img" aria-label="四個資料庫、各自的表與彼此的關聯">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <!-- jobs.db -->
+  <g style="color: var(--pipeline)">
+    <rect x="10" y="10" width="430" height="260" rx="10" fill="none" stroke="currentColor" stroke-width="2"/>
+    <text x="24" y="36" font-weight="700" font-size="16" style="fill: currentColor">jobs.db · 每日 pipeline</text>
+    <rect x="30" y="56" width="170" height="92" rx="6" fill="none" stroke="currentColor"/>
+    <text x="42" y="78" font-weight="700">jobs</text><text x="150" y="78" class="muted" font-size="13">2,183</text>
+    <text x="42" y="100" font-size="13">job_no 🔑</text>
+    <text x="42" y="120" font-size="13" class="muted">status · raw_summary</text>
+    <text x="42" y="138" font-size="13" class="muted">raw_detail …</text>
+    <rect x="250" y="56" width="170" height="92" rx="6" fill="none" stroke="currentColor"/>
+    <text x="262" y="78" font-weight="700">scores</text><text x="370" y="78" class="muted" font-size="13">730</text>
+    <text x="262" y="100" font-size="13">job_no → jobs</text>
+    <text x="262" y="120" font-size="13">run_id → runs</text>
+    <text x="262" y="138" font-size="13" class="muted">stage · total_score …</text>
+    <rect x="250" y="172" width="170" height="80" rx="6" fill="none" stroke="currentColor"/>
+    <text x="262" y="194" font-weight="700">runs</text><text x="370" y="194" class="muted" font-size="13">43</text>
+    <text x="262" y="216" font-size="13">id 🔑</text>
+    <text x="262" y="236" font-size="13" class="muted">requests_used · 成本</text>
+    <rect x="30" y="172" width="170" height="80" rx="6" fill="none" stroke="currentColor"/>
+    <text x="42" y="194" font-weight="700">circuit_state</text><text x="170" y="194" class="muted" font-size="13">1</text>
+    <text x="42" y="216" font-size="13">id = 1(只有一列)</text>
+    <text x="42" y="236" font-size="13" class="muted">熔斷器狀態</text>
+    <!-- scores -> jobs CASCADE -->
+    <line x1="250" y1="100" x2="204" y2="100" stroke="currentColor" stroke-width="1.6" marker-end="url(#arr)"/>
+    <text x="206" y="92" font-size="11" style="fill: currentColor">CASCADE</text>
+    <!-- scores -> runs -->
+    <line x1="335" y1="148" x2="335" y2="168" stroke="currentColor" stroke-width="1.6" marker-end="url(#arr)"/>
+  </g>
+  <!-- decisions.db -->
+  <g style="color: var(--ui)">
+    <rect x="470" y="10" width="460" height="260" rx="10" fill="none" stroke="currentColor" stroke-width="2"/>
+    <text x="484" y="36" font-weight="700" font-size="16" style="fill: currentColor">decisions.db · Web UI(只追加)</text>
+    <g font-size="13">
+      <rect x="490" y="56" width="130" height="56" rx="6" fill="none" stroke="currentColor"/>
+      <text x="500" y="78" font-weight="700" font-size="15">decisions</text><text x="500" y="100" class="muted">投/不投/待確認 · 24</text>
+      <rect x="640" y="56" width="130" height="56" rx="6" fill="none" stroke="currentColor"/>
+      <text x="650" y="78" font-weight="700" font-size="15">desires</text><text x="650" y="100" class="muted">想去程度 · 4</text>
+      <rect x="790" y="56" width="125" height="56" rx="6" fill="none" stroke="currentColor"/>
+      <text x="800" y="78" font-weight="700" font-size="15">plans</text><text x="800" y="100" class="muted">排定週次 · 19</text>
+      <rect x="490" y="132" width="130" height="56" rx="6" fill="none" stroke="currentColor"/>
+      <text x="500" y="154" font-weight="700" font-size="15">submissions</text><text x="500" y="176" class="muted">送出日期 · 0</text>
+      <rect x="640" y="132" width="130" height="56" rx="6" fill="none" stroke="currentColor"/>
+      <text x="650" y="154" font-weight="700" font-size="15">closures</text><text x="650" y="176" class="muted">職缺已關閉 · 1</text>
+      <text x="490" y="222" class="muted">五張表都用 job_no 當鍵、彼此沒有外鍵</text>
+      <text x="490" y="244" class="muted">改判 = 新增一列;讀取時取最新一筆</text>
+    </g>
+  </g>
+  <!-- hitrate.db -->
+  <g style="color: var(--hit)">
+    <rect x="10" y="320" width="430" height="150" rx="10" fill="none" stroke="currentColor" stroke-width="2"/>
+    <text x="24" y="346" font-weight="700" font-size="16" style="fill: currentColor">hitrate.db · 命中率排程</text>
+    <rect x="30" y="364" width="390" height="88" rx="6" fill="none" stroke="currentColor"/>
+    <text x="42" y="386" font-weight="700">hitrates</text><text x="370" y="386" class="muted" font-size="13">323</text>
+    <text x="42" y="408" font-size="13">🔑 (job_no, resume_hash)</text>
+    <text x="42" y="428" font-size="13" class="muted">rate · requirements(逐條判定 JSON)</text>
+    <text x="42" y="446" font-size="13" class="muted">換履歷 → 雜湊不同 → 全部重算</text>
+  </g>
+  <!-- shortlist.db -->
+  <g style="color: var(--short)">
+    <rect x="470" y="320" width="460" height="150" rx="10" fill="none" stroke="currentColor" stroke-width="2"/>
+    <text x="484" y="346" font-weight="700" font-size="16" style="fill: currentColor">shortlist.db · 投遞清單指令</text>
+    <rect x="490" y="364" width="190" height="88" rx="6" fill="none" stroke="currentColor"/>
+    <text x="502" y="386" font-weight="700">entries</text><text x="640" y="386" class="muted" font-size="13">17</text>
+    <text x="502" y="408" font-size="13">detail_id 🔑</text>
+    <text x="502" y="428" font-size="13" class="muted">company · title</text>
+    <rect x="720" y="364" width="190" height="88" rx="6" fill="none" stroke="currentColor"/>
+    <text x="732" y="386" font-weight="700">fetches</text><text x="870" y="386" class="muted" font-size="13">11</text>
+    <text x="732" y="408" font-size="13">detail_id</text>
+    <text x="732" y="428" font-size="13" class="muted">raw_detail 或 error</text>
+    <text x="732" y="446" font-size="13" class="muted">gone = 職務不存在</text>
+  </g>
+  <!-- cross-file program joins (dashed) -->
+  <g stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="6 5" fill="none">
+    <path d="M225 270 L 225 295 L 600 295 L 600 270"/>
+    <path d="M115 270 L 115 320"/>
+    <path d="M800 320 L 800 270"/>
+  </g>
+  <g font-size="12">
+    <text x="330" y="312" class="muted">job_no(程式對應)</text>
+    <text x="122" y="312" class="muted">job_no</text>
+    <text x="808" y="300" class="muted">detail_id → job_no</text>
+  </g>
+  <text x="470" y="500" font-size="12" class="muted">detail_id:投遞清單時期的標記,讀取時換算成 job_no 再合併</text>
+</svg>
+<figcaption>實線箭頭 = 真的外鍵(只存在 jobs.db 內部);虛線 = 沒有外鍵,是程式讀取時用編號對起來的。</figcaption>
+</figure>
+
+<h2>jobs.db <span class="tag pipeline">每日 pipeline</span></h2>
+
+<h3>jobs — 職缺主檔(2,183 筆)</h3>
+<p>每一筆 104 職缺一列,<code>job_no</code> 是主鍵,也是去重的依據。列表的原始 JSON 存在 <code>raw_summary</code>;通過粗篩、抓過詳細頁的才有 <code>raw_detail</code>(目前 401 筆)。<span class="src">schema.sql:8 · 寫入 repo.py:39 register()</span></p>
+<p><code>status</code> 記的是 pipeline 對這筆的處理結果,跟你在 UI 的閘門無關:</p>
+<div class="tbl-wrap"><table>
+<tr><th>status</th><th>意思</th><th class="num">筆數</th></tr>
+<tr><td><code>new</code></td><td>已登記,還沒被評過</td><td class="num">131</td></tr>
+<tr><td><code>filtered_out</code></td><td>規則層(產業/規模)濾掉,LLM 沒看過</td><td class="num">525</td></tr>
+<tr><td><code>screened_out</code></td><td>LLM 粗篩看過後刷掉</td><td class="num">1,044</td></tr>
+<tr><td><code>scored</code></td><td>深評過,但沒擠進當天推播</td><td class="num">333</td></tr>
+<tr><td><code>notified</code></td><td>已推到 Telegram</td><td class="num">150</td></tr>
+</table></div>
+<p><code>filtered_out</code> 與 <code>screened_out</code> 刻意分開:一個是規則擋的、一個是 LLM 擋的,混在一起就無法事後檢討哪一關設得對不對。</p>
+
+<h3>scores — 評分紀錄(730 筆)</h3>
+<p>粗篩(<code>stage='screen'</code>,47 筆)與深評(<code>stage='deep'</code>,683 筆)都存,包含五個維度分數、一句話、亮點、紅旗、履歷建議與模型原始回應。同一筆職缺可以有多筆評分,UI 取最新的深評。<span class="src">schema.sql:64 · 寫入 repo.py:176 save_score()</span></p>
+<ul>
+  <li><b><code>job_no → jobs</code>,ON DELETE CASCADE</b>:職缺被清掉時,它的評分一起刪。</li>
+  <li><b><code>run_id → runs</code></b>:記這筆是哪一次執行評的。沒有設刪除行為,所以清理舊 runs 時必須跳過還被引用的(見下方「清理」)。</li>
+</ul>
+
+<h3>runs — 每次執行的稽核(43 筆)</h3>
+<p>一次執行一列:抓了幾筆、新的幾筆、各關淘汰幾筆、<b>對 104 發了幾個請求</b>、LLM 花多少錢、錯誤類型。目前 success 40、skipped 2、partial 1。<code>requests_used</code> 失控就代表護欄有漏洞。<span class="src">schema.sql:42 · 寫入 repo.py:262 start_run()</span></p>
+
+<h3>circuit_state — 熔斷器(固定 1 列)</h3>
+<p><code>CHECK (id = 1)</code> 保證全表只有一列。被 104 擋時改成 <code>open</code>,冷卻期內 pipeline 一個請求都不發。目前是 <code>closed</code>、連續失敗 0。<span class="src">schema.sql:90 · 寫入 repo.py:375 save_circuit()</span></p>
+
+<h3>清理(prune)</h3>
+<p>每次執行最後會刪掉 180 天沒再看到的職缺(評分跟著 CASCADE 刪)與 180 天前的 runs。<b>還被 scores 引用的舊 runs 會留著</b> —— 職缺若一直被抓到,它的評分不會被刪,指向的那次執行一刪就會撞外鍵、讓整次執行出錯。這是 2026-10-03 修掉的問題(原本最早約 2027-02-18 會觸發)。<span class="src">repo.py:393 prune()</span></p>
+
+<h2>decisions.db <span class="tag ui">Web UI</span></h2>
+<p>你在 UI 上做的每個決定。五張表共用同一套規則:<span class="src">src/jobfinder/webui/decisions.py</span></p>
+<ul>
+  <li><b>只追加、不覆蓋。</b>改判就是再新增一列,讀取時同一筆職缺取最後寫入的那列。所以「待確認 → 投」的軌跡都留著。</li>
+  <li><b>NULL 代表撤銷。</b>週次、送出、已關閉這三張表的日期欄是 NULL 的那一列,意思是「取消先前那筆」。</li>
+  <li><b>短交易。</b>每次操作自己開連線、寫完就關,不長期佔著檔案。</li>
+</ul>
+<div class="tbl-wrap"><table>
+<tr><th>表</th><th>記什麼</th><th>欄位重點</th><th class="num">筆數</th><th>來源</th></tr>
+<tr><td><code>decisions</code></td><td>投／不投／待確認</td><td><code>status</code>、<code>reason</code>、<code>note</code>。<b>不投 ⇔ 一定有原因</b>,由 DB 的 CHECK 強制(現有資料 0 筆違規)</td><td class="num">24<br><span class="src">投 18 · 待確認 4 · 不投 2</span></td><td class="src">:42 · append() :116</td></tr>
+<tr><td><code>desires</code></td><td>想去程度</td><td><code>desire</code> 1–5,CHECK 限制範圍。沒評就不存,不會被當成 3 分</td><td class="num">4</td><td class="src">:53 · rate() :126</td></tr>
+<tr><td><code>plans</code></td><td>排到哪一週投</td><td><code>week_start</code> 存該週週一</td><td class="num">19</td><td class="src">:60 · plan() :136</td></tr>
+<tr><td><code>submissions</code></td><td>實際送出日期</td><td><code>sent_on</code>;不能是未來日期</td><td class="num">0</td><td class="src">:66 · mark_sent() :146</td></tr>
+<tr><td><code>closures</code></td><td>職缺已關閉(沒投成)</td><td><code>closed_on</code>;刻意跟送出分開,不算投遞</td><td class="num">1</td><td class="src">:72 · mark_closed() :156</td></tr>
+</table></div>
+
+<div class="callout"><b>這個檔沒有備份。</b><code>local_data/</code> 在 .gitignore 裡(不會被推上 GitHub),每日 pipeline 也完全不碰它。好處是求職紀錄不外流,壞處是硬碟壞了或誤刪,標記就一起沒了。</div>
+
+<h2>hitrate.db <span class="tag hit">命中率排程</span></h2>
+<h3>hitrates — 必備命中率(323 筆)</h3>
+<p>LLM 把 JD 拆成條件清單、逐條判斷履歷符不符合,逐條結果存在 <code>requirements</code>(JSON);百分比由程式算。<span class="src">src/jobfinder/hitrate/store.py:18</span></p>
+<ul>
+  <li><b>主鍵是 (job_no, resume_hash)。</b>結果綁定履歷的版本:改了 <code>profile-de.md</code>,雜湊就不同,舊結果全部失效、下次排程重算。目前所有 323 筆都屬於同一個履歷版本。</li>
+  <li><b>寫法是 <code>INSERT OR REPLACE</code>。</b>跟 decisions.db 相反,同一份履歷重算會<b>覆蓋</b>舊結果,不保留歷史。<span class="src">store.py:82</span></li>
+  <li><code>model</code> 記誰判的:<code>claude-code</code> 287 筆(手動補算、沒花 API),<code>google/gemini-2.5-flash</code> 36 筆(排程自動算)。</li>
+</ul>
+
+<h2>shortlist.db <span class="tag short">投遞清單指令</span></h2>
+<p>手動整理的投遞清單,裡面有些職缺不是 pipeline 抓到的。<span class="src">src/jobfinder/shortlist/store.py</span></p>
+<div class="tbl-wrap"><table>
+<tr><th>表</th><th>記什麼</th><th class="num">筆數</th><th>來源</th></tr>
+<tr><td><code>entries</code></td><td>清單上的職缺。鍵是 <code>detail_id</code>(104 網址尾段),因為清單上沒有 <code>job_no</code></td><td class="num">17</td><td class="src">:21 · 寫入 :79</td></tr>
+<tr><td><code>fetches</code></td><td>補抓詳細頁的每一次結果。CHECK 保證「成功有 JSON、失敗有原因」二選一;<code>gone=1</code> 代表 104 回「職務不存在」,不再重抓(目前 0 筆)</td><td class="num">11</td><td class="src">:27 · 寫入 :103</td></tr>
+</table></div>
+
+<h2>跨檔怎麼對起來</h2>
+<p>四個檔之間沒有外鍵(SQLite 的外鍵也不能跨檔),全靠程式讀取時對應:</p>
+<ol>
+  <li><b>大部分用 <code>job_no</code>。</b>decisions.db、hitrate.db 的 <code>job_no</code> 對到 jobs.db 的 <code>jobs.job_no</code>。</li>
+  <li><b>投遞清單時期的標記用 <code>detail_id</code> 存。</b>目前 decisions 表 24 個職缺鍵裡,7 個是 <code>job_no</code>、17 個是 <code>detail_id</code>,沒有對不上的。讀取時程式先建一張「detail_id → job_no」對照表,把兩種鍵的紀錄合在一起、依寫入順序取最新 —— 不必搬資料。<span class="src">webui/candidates.py:91 detail_aliases() · decisions.py:162 latest(aliases)</span></li>
+</ol>
+<p>沒有外鍵的代價:jobs.db 清掉某筆職缺後,decisions.db 裡它的標記<b>不會</b>跟著刪,只是 UI 找不到對應的職缺、不會顯示。這是刻意的:你的決定紀錄比職缺本身活得久。</p>
+
+<h2>速查:我想改 X,該動哪裡</h2>
+<div class="tbl-wrap"><table>
+<tr><th>想做的事</th><th>動哪個檔</th><th>注意</th></tr>
+<tr><td>jobs.db 加欄位</td><td><code>storage/db.py</code> 的 <code>MIGRATIONS</code></td><td><code>CREATE TABLE IF NOT EXISTS</code> 對既有的表沒作用</td></tr>
+<tr><td>放寬 <code>jobs.status</code> 的值</td><td><code>_widen_jobs_status_check()</code></td><td>要整表重建;外鍵沒關掉會把 scores 連帶刪光</td></tr>
+<tr><td>decisions.db 加一種紀錄</td><td><code>webui/decisions.py</code> 的 <code>SCHEMA</code> 加一張新表</td><td>新表會在下次開啟時自動建立,舊資料不受影響</td></tr>
+<tr><td>Web UI 讀 jobs.db</td><td><code>snapshot.take_snapshot()</code></td><td>絕不直接開原檔</td></tr>
+</table></div>
+
+</main>
+</body>
+</html>

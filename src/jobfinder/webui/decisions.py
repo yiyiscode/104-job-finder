@@ -8,6 +8,8 @@
   之後拿來分析偏好 —— 例如「很想去卻不投」的落差。同樣只追加、取最新
 * 「排定週次」(``plans``)與「送出日期」(``submissions``):已標投遞頁的待辦用。
   同樣只追加、取最新;值為 NULL 的一列代表「取消」。回覆／面試不記在這裡(在 Notion)
+* 「職缺已關閉」(``closures``):標了投、還沒送出,104 上卻已經下架/額滿。記發現的日期,
+  NULL = 撤銷。跟送出分開記:關閉是「沒投成」,混進送出會讓投遞數失真
 
 **鍵**:pipeline 抓到的職缺用 ``job_no``;只在投遞清單裡的用 **detail_id**(詳細頁 API
 沒有 jobNo)。pipeline 日後抓到同一筆時,讀取端傳 ``aliases``(detail_id → job_no)
@@ -65,6 +67,12 @@ CREATE TABLE IF NOT EXISTS submissions (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     job_no      TEXT NOT NULL,
     sent_on     TEXT,           -- 實際送出的日期;NULL = 撤銷(勾錯了)
+    recorded_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS closures (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_no      TEXT NOT NULL,
+    closed_on   TEXT,           -- 發現職缺已關閉的日期;NULL = 撤銷(標錯了)
     recorded_at TEXT NOT NULL
 );
 """
@@ -139,6 +147,16 @@ class DecisionStore:
                 (job_no, _iso(sent_on), now.isoformat(timespec="seconds")),
             )
 
+    def mark_closed(self, job_no: str, closed_on: date | None, now: datetime) -> None:
+        """記下發現職缺已關閉的日期;``None`` = 撤銷。"""
+        if closed_on is not None and closed_on > now.date():
+            raise ValueError(f"關閉日期 {closed_on} 在未來")
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT INTO closures (job_no, closed_on, recorded_at) VALUES (?, ?, ?)",
+                (job_no, _iso(closed_on), now.isoformat(timespec="seconds")),
+            )
+
     # ── 讀取:全部依寫入順序折疊,最後一筆有效 ──
 
     def latest(self, aliases: Mapping[str, str] | None = None) -> dict[str, Decision]:
@@ -156,6 +174,10 @@ class DecisionStore:
     def latest_sent(self, aliases: Mapping[str, str] | None = None) -> dict[str, date]:
         rows = self._all("SELECT job_no, sent_on FROM submissions ORDER BY id")
         return _dates(_fold(((r["job_no"], r["sent_on"]) for r in rows), aliases))
+
+    def latest_closed(self, aliases: Mapping[str, str] | None = None) -> dict[str, date]:
+        rows = self._all("SELECT job_no, closed_on FROM closures ORDER BY id")
+        return _dates(_fold(((r["job_no"], r["closed_on"]) for r in rows), aliases))
 
     def history(self, job_no: str, *also: str) -> list[Decision]:
         """``also``:同一筆職缺的其他鍵(例如投遞清單時期用的 detail_id)。"""
