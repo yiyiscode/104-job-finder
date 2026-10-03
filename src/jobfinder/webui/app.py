@@ -503,7 +503,7 @@ def applied_page() -> None:
     def table(rs: list[JobRow], name: str, mode: str = "multi-row") -> list[JobRow]:
         return _applied_table(rs, name, mode, latest, desires, plans, sent, this_week)
 
-    tab_tailor, tab_progress = st.tabs(["✍️ 履歷修改建議", "📨 投遞進度"])
+    tab_progress, tab_tailor = st.tabs(["📨 投遞進度", "✍️ 履歷修改建議"])
 
     with tab_progress:
         st.caption(
@@ -629,11 +629,13 @@ def _bulk_actions(
         st.info("還沒勾選。")
     if to_send:
         st.markdown(f"#### 📨 已選 {len(to_send)} 筆:" + "、".join(j.company for j in to_send))
-        d1, d2, d3 = st.columns([1, 1, 1], vertical_alignment="bottom")
+        d1, d2 = st.columns([1, 2], vertical_alignment="bottom")
         day = d1.date_input("日期", value=today(), max_value=today(), key=f"sd_{gen}")
-        if d2.button(f"✅ 確認投遞 {len(to_send)} 筆", type="primary"):
+        # 兩顆按鈕緊靠:水平容器 + 小間距,不用 columns(columns 會平均撐開欄寬)
+        buttons = d2.container(horizontal=True, gap="xsmall", vertical_alignment="bottom")
+        if buttons.button(f"✅ 確認投遞 {len(to_send)} 筆", type="primary"):
             _confirm_sent(to_send, day)
-        if d3.button(
+        if buttons.button(
             f"🚫 職缺已關閉 {len(to_send)} 筆",
             help="104 上已下架或額滿、沒投成。移到「職缺已關閉」,不算投遞",
         ):
