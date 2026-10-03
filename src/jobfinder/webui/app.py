@@ -527,6 +527,7 @@ def applied_page() -> None:
             reopen_chosen = table(board.closed, "closed")
         st.divider()
         _bulk_actions(chosen, chosen + backup_chosen, undo_chosen, plans, this_week, reopen_chosen)
+        _rate_unrated([r for r in board.pool + board.backups if r.job_no not in desires])
 
         applied = board.pool
         a, b = st.columns(2)
@@ -686,6 +687,42 @@ def _confirm_sent(jobs: list[JobRow], day) -> None:
         _after_bulk_action()
     if b.button("取消", width="stretch"):
         st.rerun()
+
+
+def _rate_unrated(jobs: list[JobRow]) -> None:
+    """還沒評「想去」的職缺,在這裡直接填星數。
+
+    獨立的小表(``st.data_editor``)而不是讓上面的表格可編輯 —— data_editor 在
+    Streamlit 1.64 不支援勾選列,而確認投遞、排週次全靠勾選。
+    """
+    if not jobs:
+        return
+    with st.expander(f"⭐ 還沒評想去程度({len(jobs)})—— 直接在表格裡選星數,再按儲存"):
+        gen = st.session_state.applied_gen
+        edited = st.data_editor(
+            pd.DataFrame([{"company": j.company, "title": j.title, "desire": None} for j in jobs]),
+            hide_index=True,
+            width="stretch",
+            disabled=["company", "title"],
+            placeholder="未評",
+            key=f"rate_{gen}",
+            column_config={
+                "company": "公司",
+                "title": st.column_config.TextColumn("職稱", width="large"),
+                "desire": st.column_config.SelectboxColumn(
+                    "想去",
+                    options=list(DESIRE_LABELS),
+                    width="small",
+                    help="1 不太想 … 5 很想去;留空 = 先不評",
+                ),
+            },
+        )
+        picked = [(j, int(v)) for j, v in zip(jobs, edited["desire"], strict=True) if pd.notna(v)]
+        if st.button(f"⭐ 儲存 {len(picked)} 筆想去程度", disabled=not picked):
+            now = datetime.now(cand.TAIPEI)
+            for j, v in picked:
+                store().rate(j.job_no, v, now)
+            _after_bulk_action()
 
 
 @st.dialog("職缺已關閉")
