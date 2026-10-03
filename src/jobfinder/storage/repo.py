@@ -393,6 +393,13 @@ class JobRepo:
     def prune(self, now: datetime) -> int:
         cutoff = (now - timedelta(days=self.dedupe.retain_days)).isoformat()
         cur = self.conn.execute("DELETE FROM jobs WHERE last_seen_at < ?", (cutoff,))
-        self.conn.execute("DELETE FROM runs WHERE started_at < ?", (cutoff,))
+        # 還被 scores.run_id 引用的舊執行要留著:職缺若一直被抓到,它的評分不會被刪,
+        # 指向的那次執行一刪就撞外鍵(FOREIGN KEY constraint failed),整次執行以錯誤結束。
+        # 不改成 ON DELETE SET NULL —— 那要整表重建 scores,而 scores 是最怕被連帶刪光的表。
+        self.conn.execute(
+            "DELETE FROM runs WHERE started_at < ?"
+            " AND id NOT IN (SELECT run_id FROM scores WHERE run_id IS NOT NULL)",
+            (cutoff,),
+        )
         self.conn.commit()
         return cur.rowcount or 0
