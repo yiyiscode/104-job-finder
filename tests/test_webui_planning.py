@@ -123,3 +123,23 @@ def test_week_label():
     assert planning.week_label(None, THIS_WEEK) == "未排"
     assert planning.week_label(date(2026, 9, 21), THIS_WEEK) == "上週(09/21)"
     assert planning.week_label(THIS_WEEK, THIS_WEEK) == "本週(09/28)"
+
+
+def test_closed_jobs_leave_the_todo_and_tailor_pool():
+    """標了投、沒送出卻已關閉 → 移到「已關閉」,不再佔本週待投,也不進履歷修改母體。
+    送出優先:送了之後才下架,仍然算投過。"""
+    rows = [row(job_no=n) for n in "ABC"]
+    latest = {k: _decision(k) for k in "ABC"}
+    board = planning.build_board(
+        rows,
+        latest,
+        {"A": THIS_WEEK, "B": THIS_WEEK},
+        {"C": date(2026, 9, 29)},
+        {},
+        THIS_WEEK,
+        closed={"A": date(2026, 9, 30), "C": date(2026, 10, 1)},
+    )
+    assert [r.job_no for r in board.closed] == ["A"]
+    assert [r.job_no for r in board.due] == ["B"]
+    assert [r.job_no for r in board.done] == ["C"]
+    assert "A" not in {r.job_no for r in board.pool}

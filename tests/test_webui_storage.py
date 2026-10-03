@@ -96,6 +96,18 @@ def test_existing_decisions_db_gets_desires_table(tmp_path):
     assert DecisionStore(path).latest_desires() == {"J1": 4}
 
 
+def test_closed_is_append_only_and_can_be_undone(tmp_path):
+    from datetime import date
+
+    store = DecisionStore(tmp_path / "decisions.db")
+    store.mark_closed("J1", date(2026, 9, 22), NOW)
+    store.mark_closed("J2", date(2026, 9, 22), NOW)
+    store.mark_closed("J2", None, NOW)  # 撤銷
+    assert store.latest_closed() == {"J1": date(2026, 9, 22)}
+    with pytest.raises(ValueError):
+        store.mark_closed("J3", date(2026, 9, 23), NOW)  # 未來日期
+
+
 def test_store_does_not_hold_file_open(tmp_path):
     """短交易:每個操作後連線都關掉,檔案可以被搬走。"""
     path = tmp_path / "decisions.db"

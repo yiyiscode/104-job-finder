@@ -483,8 +483,9 @@ def applied_page() -> None:
     aliases, latest, desires = marks(rows)
     plans = store().latest_plans(aliases)
     sent = store().latest_sent(aliases)
+    closed = store().latest_closed(aliases)
     this_week = cand.week_start(today())
-    board = planning.build_board(rows, latest, plans, sent, desires, this_week)
+    board = planning.build_board(rows, latest, plans, sent, desires, this_week, closed)
     if "applied_gen" not in st.session_state:
         # 動作完成後換表格的 key 來清掉勾選 —— 列會換區,留著舊的勾選索引會指到別筆
         st.session_state.applied_gen = 0
@@ -495,7 +496,7 @@ def applied_page() -> None:
     c2.metric("之後幾週", len(board.later))
     c3.metric("未排週次", len(board.unplanned))
     c4.metric("已送出", len(board.done), help="只記送出日期;回覆／面試記在 Notion")
-    if not board.pool and not board.backups:
+    if not (board.pool or board.backups or board.closed):
         st.info("還沒有標「投」的職缺。到「候選清單」點一列、標記「✅ 投」後就會出現在這裡。")
         return
 
@@ -522,8 +523,10 @@ def applied_page() -> None:
             backup_chosen = table(board.backups, "backups")
         with st.expander(f"✅ 已送出({len(board.done)})"):
             undo_chosen = table(board.done, "done")
+        with st.expander(f"🚫 職缺已關閉({len(board.closed)})—— 標了投、還沒送,104 上已下架"):
+            reopen_chosen = table(board.closed, "closed")
         st.divider()
-        _bulk_actions(chosen, chosen + backup_chosen, undo_chosen, plans, this_week)
+        _bulk_actions(chosen, chosen + backup_chosen, undo_chosen, plans, this_week, reopen_chosen)
 
         applied = board.pool
         a, b = st.columns(2)
@@ -619,16 +622,22 @@ def _bulk_actions(
     to_undo: list[JobRow],
     plans: dict,
     this_week,
+    to_reopen: list[JobRow] = (),
 ) -> None:
     gen = st.session_state.applied_gen
-    if not (to_plan or to_undo):
+    if not (to_plan or to_undo or to_reopen):
         st.info("還沒勾選。")
     if to_send:
         st.markdown(f"#### 📨 已選 {len(to_send)} 筆:" + "、".join(j.company for j in to_send))
-        d1, d2 = st.columns([1, 2], vertical_alignment="bottom")
-        day = d1.date_input("送出日期", value=today(), max_value=today(), key=f"sd_{gen}")
+        d1, d2, d3 = st.columns([1, 1, 1], vertical_alignment="bottom")
+        day = d1.date_input("日期", value=today(), max_value=today(), key=f"sd_{gen}")
         if d2.button(f"✅ 確認投遞 {len(to_send)} 筆", type="primary"):
             _confirm_sent(to_send, day)
+        if d3.button(
+            f"🚫 職缺已關閉 {len(to_send)} 筆",
+            help="104 上已下架或額滿、沒投成。移到「職缺已關閉」,不算投遞",
+        ):
+            _confirm_closed(to_send, day)
     if to_plan:
         weeks = planning.plan_week_choices(this_week)
         w1, w2 = st.columns([1, 2], vertical_alignment="bottom")
@@ -652,6 +661,11 @@ def _bulk_actions(
         for j in to_undo:
             store().mark_sent(j.job_no, None, now)
         _after_bulk_action()
+    if to_reopen and st.button(f"↩️ 撤銷已關閉({len(to_reopen)} 筆,標錯了)"):
+        now = datetime.now(cand.TAIPEI)
+        for j in to_reopen:
+            store().mark_closed(j.job_no, None, now)
+        _after_bulk_action()
 
 
 @st.dialog("確認投遞")
@@ -667,6 +681,22 @@ def _confirm_sent(jobs: list[JobRow], day) -> None:
         now = datetime.now(cand.TAIPEI)
         for j in jobs:
             store().mark_sent(j.job_no, day, now)
+        _after_bulk_action()
+    if b.button("取消", width="stretch"):
+        st.rerun()
+
+
+@st.dialog("職缺已關閉")
+def _confirm_closed(jobs: list[JobRow], day) -> None:
+    st.markdown(f"以下 **{len(jobs)} 筆**要記為 **{day:%Y-%m-%d} 發現已關閉**(沒投成):")
+    for j in jobs:
+        st.markdown(f"- {j.company} — {j.title}")
+    st.caption("記完會移到「職缺已關閉」,不算投遞;標錯了可以在那一區勾選後撤銷。")
+    a, b = st.columns(2)
+    if a.button("🚫 確認", type="primary", width="stretch"):
+        now = datetime.now(cand.TAIPEI)
+        for j in jobs:
+            store().mark_closed(j.job_no, day, now)
         _after_bulk_action()
     if b.button("取消", width="stretch"):
         st.rerun()
