@@ -207,6 +207,17 @@ async def test_claude_failure_falls_back_and_sticks_for_the_rest_of_the_run():
     assert client.tracker.total == pytest.approx(0.002)
 
 
+async def test_missing_cli_is_a_call_time_error_so_fallback_can_catch_it(monkeypatch):
+    """排程的 PATH 可能沒有 claude —— 建構時就丟的話,日報直接死在評分前。"""
+    monkeypatch.setattr(claude_cli.shutil, "which", lambda _: None)
+    cli = ClaudeCliClient()  # 不丟
+    seen: list[str] = []
+    client = ClaudeWithFallback(cli, make_openrouter(seen), {"gemini-flash": "sonnet"})
+    await call(client, model="gemini-flash")
+    assert seen == ["gemini-flash"]
+    assert "找不到 claude CLI" in (client.fell_back or "")
+
+
 async def test_without_openrouter_key_claude_errors_propagate():
     client = ClaudeWithFallback(FakeClaude(fail_with=ClaudeCliError("boom")), None, {})
     with pytest.raises(ClaudeCliError):

@@ -98,10 +98,9 @@ class ClaudeCliClient:
         executable: str | None = None,
         max_concurrent: int = 2,
     ) -> None:
-        exe = executable or shutil.which("claude")
-        if not exe:
-            raise ClaudeCliError("找不到 claude CLI。先安裝 Claude Code 並登入訂閱帳號。")
-        self.executable = exe
+        # 找不到時不在這裡丟:排程環境的 PATH 可能跟互動終端機不同,
+        # 在建構時就炸會讓 ClaudeWithFallback 連退回 OpenRouter 的機會都沒有
+        self.executable = executable or shutil.which("claude")
         #: 預設上限給很大:訂閱下 cost 只是等價值,真正的上限是額度,由 ClaudeQuotaExhausted 把關
         self.tracker = tracker or CostTracker(1_000.0)
         self.timeout_seconds = timeout_seconds
@@ -158,6 +157,10 @@ class ClaudeCliClient:
     async def _run(
         self, model: str, system: str, user: str, schema: dict[str, Any]
     ) -> tuple[dict[str, Any], CallUsage]:
+        if not self.executable:
+            raise ClaudeCliError(
+                "找不到 claude CLI(PATH 裡沒有)。先安裝 Claude Code 並登入訂閱帳號。"
+            )
         started = time.monotonic()
         proc = await asyncio.create_subprocess_exec(
             *self._argv(model, system, schema),

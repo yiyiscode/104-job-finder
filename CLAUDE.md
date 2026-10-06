@@ -96,6 +96,12 @@ python -m jobfinder.cli shortlist import local_data/shortlist-2026-09-23.csv   #
 python -m jobfinder.cli shortlist list                        # 每筆的抓取狀態
 python -m jobfinder.cli shortlist fetch --limit 5 --dry-run   # 只列出會抓哪些
 
+# Claude 訂閱評分(llm.provider: claude_cli):只打 claude -p、不連 104
+python scripts/claude_probe.py --limit 10        # 量額度:跑前跑後各看一次 /usage
+python scripts/claude_rescore.py status          # 重評舊資料(只限有全文的)
+python scripts/claude_rescore.py run --limit 135 --concurrency 2   # 寫 JSONL,可中斷續跑
+python scripts/claude_rescore.py apply           # 幾秒匯入 jobs.db;別在 08:00 排程時跑
+
 # 會連線 104 —— 每條都是一次性的,不要反覆跑
 python scripts/probe_api.py                      # 錄 fixture,已有檔案會拒絕執行
 python -m jobfinder.cli run --limit 5
@@ -226,6 +232,13 @@ fixture 是 2026-08-21 錄下的真實回應。以下每一條都是踩過或驗
   現在可以直接讀 `period` 數字,比對中文跑正規表達式可靠得多
 - 使用者「專案豐富但年資 0–1 年」是 LLM 容易誤判的組合,它會把人當成資深工程師
 - model id **不要憑記憶寫**,跑 `scripts/check_models.py` 對 OpenRouter `/models` 驗證
+- **2026-10-06 起預設用 Claude 訂閱(`llm.provider: claude_cli`)**,失敗或額度用完 → 該次執行剩下的
+  全部黏著退回 OpenRouter(所以 `OPENROUTER_API_KEY` 不能拿掉)。`claude -p` 必須:清掉
+  `ANTHROPIC_API_KEY`(否則走 API 計費)、**不能用 `--bare`**(不讀 OAuth)、空目錄 +
+  `--tools ""` + `--strict-mcp-config` + `--setting-sources ""`(否則 CLAUDE.md/MCP 塞進每次評分)。
+  **不要開 `--effort low`**:structured output 會被反覆打回重交,實測一筆失敗、成本沒省。
+  Claude 回的 cost 是等價值,`ClaudeWithFallback` 回 0 —— `daily_cost_cap_usd` 只攔 OpenRouter 實付
+- ⚠️ **Claude 分數比 Gemini 整體低約 9 分**,`top_n_floor`/`threshold` 是 Gemini 口徑,重評完要重校
 
 **Telegram**:`parse_mode` 用 **HTML 不用 MarkdownV2**(後者要跳脫 18 個字元,職缺標題滿是 `(` `)` `-` `.`,漏一個整則 400)。400 時降級純文字重送。
 

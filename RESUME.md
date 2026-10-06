@@ -2,8 +2,30 @@
 
 > 說「讀 RESUME.md 繼續」即可接續。背景與更早的優化方向見 [docs/handoff-2026-09-23.md](docs/handoff-2026-09-23.md)。
 
-**最後更新:2026-09-30**　分支 `feat/ui-launcher`(從 master `be33505` 開出),592 個測試全過。
-(`feat/shortlist-tracking` 已經在 `eb96774` merge 進 master。)
+**最後更新:2026-10-06**　分支 `feat/claude-cli-scorer`(從 master `c7c023f` 開出),606 個測試全過。
+
+---
+
+## 2026-10-06:評分改用 Claude 訂閱(🔄 進行中)
+
+決策(memory `job-finder-claude-scoring-decision`):`llm.provider: claude_cli`,深評 sonnet、粗篩 haiku,
+Claude 失敗或額度用完 → 本次執行黏著退回 OpenRouter。舊資料只重評**有全文的 405 筆**,分 3 天。
+
+實測(10 筆,`scripts/claude_probe.py`):深評等價 $0.066/筆、約 53s;10 筆 ≈ 週額度 1%(4%→5%);
+Claude 自身雜訊平均 4.5 分(Gemini ±8);**比 Gemini 整體低約 9 分**。`--effort low` 不可行(重交、失敗)。
+
+- `scoring/claude_cli.py`:`ClaudeCliClient`(claude -p、清 ANTHROPIC_API_KEY、空目錄、無工具/MCP)+ `ClaudeWithFallback`
+- `llm_client.last_model_used`(ContextVar):scores.model 記真正用到的模型(`claude-cli:sonnet`)
+- `scripts/claude_rescore.py`:`run --limit N` 寫 `local_data/claude_rescore/results.jsonl`;`apply` 匯入 jobs.db
+  (新增 scores 列、舊 Gemini 分數保留;寫回前比對 mtime 防撞排程);`status` 看進度
+
+**重評進度**:第 1 天(10-06)目標 135 筆 → 跑完要執行 `apply`。第 2、3 天各 `run --limit 135 --concurrency 2` 再 `apply`。
+
+**下一步**:
+1. 405 筆重評完 → 用 Claude 分數分布重新校準 `scoring.top_n_floor`(60)與 `threshold`(80)
+2. 明天 08:00 排程是第一次用 Claude 跑 —— 看 daily.log 有沒有「改用 OpenRouter」警告
+3. 命中率(hitrate)仍走 OpenRouter,要不要也切 Claude 待決定
+4. merge 到 master(等使用者說)
 
 ---
 
