@@ -521,13 +521,14 @@ def applied_page() -> None:
             "要投請先到候選清單改標「投」"
         ):
             backup_chosen = table(board.backups, "backups")
+        # 評分區放在「已送出」之前:還沒送的才需要評,評完再決定要不要投
+        _rate_unrated([r for r in board.pool + board.backups if r.job_no not in desires])
         with st.expander(f"✅ 已送出({len(board.done)})"):
             undo_chosen = table(board.done, "done")
         with st.expander(f"🚫 職缺已關閉({len(board.closed)})—— 標了投、還沒送,104 上已下架"):
             reopen_chosen = table(board.closed, "closed")
         st.divider()
         _bulk_actions(chosen, chosen + backup_chosen, undo_chosen, plans, this_week, reopen_chosen)
-        _rate_unrated([r for r in board.pool + board.backups if r.job_no not in desires])
 
         applied = board.pool
         a, b = st.columns(2)
