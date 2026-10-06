@@ -226,9 +226,28 @@ class DeepCfg(BaseModel):
     temperature: float = 0.2
 
 
+class ClaudeCliCfg(BaseModel):
+    """``llm.provider: claude_cli`` 時用 Claude Code 訂閱額度評分(``claude -p``)。
+
+    ``--effort`` 刻意不開放設定:2026-10-06 實測 ``low`` 會讓 structured output
+    反覆被打回重交(2–5 輪)、一筆直接失敗,成本反而沒省。
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    screen_model: str = "haiku"
+    deep_model: str = "sonnet"
+    # 訂閱額度有速率限制,並行開太多只會更快撞牆
+    max_concurrent: int = Field(default=2, ge=1, le=4)
+    timeout_seconds: float = Field(default=300.0, ge=30)
+
+
 class LLMCfg(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    # openrouter:原本的 API 路徑。claude_cli:Claude 訂閱優先,失敗就退回 OpenRouter
+    provider: Literal["openrouter", "claude_cli"] = "openrouter"
+    claude: ClaudeCliCfg = Field(default_factory=ClaudeCliCfg)
     base_url: str = "https://openrouter.ai/api/v1"
     referer: str = ""
     title: str = "job-finder"

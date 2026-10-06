@@ -35,6 +35,8 @@ class ScreenOutcome:
     dropped: list[RejectedJob] = field(default_factory=list)
     cost_usd: float = 0.0
     warnings: list[str] = field(default_factory=list)
+    #: 實際用到的模型(空 = 沿用 config 的 llm.screen.model)
+    model: str = ""
 
 
 @runtime_checkable

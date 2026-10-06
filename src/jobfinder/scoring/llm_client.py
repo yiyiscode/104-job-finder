@@ -14,6 +14,7 @@ import json
 import logging
 import re
 from collections.abc import Iterator
+from contextvars import ContextVar
 from typing import Any, TypeVar
 
 import httpx
@@ -28,6 +29,11 @@ from .schemas import to_strict_schema
 log = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=BaseModel)
+
+#: 這個 asyncio task 上一次 ``structured()`` 實際用了哪個模型。
+#: 有退路(Claude → OpenRouter)時,呼叫端傳進去的 model 不一定是真的用到的那個;
+#: 用 ContextVar 而不是實例屬性,是因為粗篩會並行 —— 每個 task 各看各的。
+last_model_used: ContextVar[str | None] = ContextVar("last_model_used", default=None)
 
 
 class CostTracker:
@@ -112,6 +118,7 @@ class OpenRouterClient:
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ]
+        last_model_used.set(model)
         text, cost = await self._call(model, messages, schema_model, schema_name, temperature)
 
         try:

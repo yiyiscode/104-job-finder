@@ -33,7 +33,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from ..errors import JobFinderError, LLMParseError
-from .llm_client import CostTracker, parse_structured
+from .llm_client import CostTracker, OpenRouterClient, last_model_used, parse_structured
 from .schemas import to_strict_schema
 
 log = logging.getLogger(__name__)
@@ -96,6 +96,7 @@ class ClaudeCliClient:
         timeout_seconds: float = 300.0,
         effort: str | None = None,
         executable: str | None = None,
+        max_concurrent: int = 2,
     ) -> None:
         exe = executable or shutil.which("claude")
         if not exe:
@@ -106,11 +107,14 @@ class ClaudeCliClient:
         self.timeout_seconds = timeout_seconds
         self.effort = effort
         self.calls: list[CallUsage] = []
-        # 空目錄:不讓 CLI 自動吃到專案的 CLAUDE.md
-        self._workdir = Path(tempfile.mkdtemp(prefix="jobfinder-claude-"))
+        self._semaphore = asyncio.Semaphore(max_concurrent)
+        # 固定的空目錄:不讓 CLI 自動吃到專案的 CLAUDE.md。不每次 mkdtemp ——
+        # pipeline 不一定會呼叫 aclose(),那樣每天會留下一個殘骸
+        self._workdir = Path(tempfile.gettempdir()) / "jobfinder-claude-cwd"
+        self._workdir.mkdir(parents=True, exist_ok=True)
 
     async def aclose(self) -> None:
-        shutil.rmtree(self._workdir, ignore_errors=True)
+        """沒有要釋放的資源;留著是為了與 OpenRouterClient 介面一致。"""
 
     def _argv(self, model: str, system: str, schema: dict[str, Any]) -> list[str]:
         argv = [
@@ -139,7 +143,9 @@ class ClaudeCliClient:
         schema_name: str,
         temperature: float = 0.2,  # noqa: ARG002 —— CLI 不支援,只為了介面相容
     ) -> tuple[T, float]:
-        payload, usage = await self._run(model, system, user, to_strict_schema(schema_model))
+        async with self._semaphore:
+            payload, usage = await self._run(model, system, user, to_strict_schema(schema_model))
+        last_model_used.set(f"claude-cli:{model}")
         self.calls.append(usage)
         self.tracker.add(usage.cost_usd)
 
@@ -191,3 +197,72 @@ class ClaudeCliClient:
             raise ClaudeQuotaExhausted(text[:300])
         if returncode not in (0, None):
             raise ClaudeCliError(f"claude CLI 結束碼 {returncode}:{text[:300]}")
+
+
+class ClaudeWithFallback:
+    """Claude 訂閱優先,失敗就退回 OpenRouter。介面同 :class:`OpenRouterClient`。
+
+    - 呼叫端照舊傳 config 裡的 OpenRouter model id;這裡用 ``model_map`` 換成 Claude 的
+    - **一旦 Claude 失敗,這次執行剩下的呼叫全部走 OpenRouter**(黏著)。CLI 壞掉或額度
+      用完通常不是只壞一次,每筆都先撞一次 Claude 只會讓每日排程拖上好幾分鐘
+    - 回傳的 cost 是**實付金額**:Claude 路徑回 0(訂閱不另計費),等價成本記在
+      ``claude.calls``。``tracker`` 是 OpenRouter 的那個 —— ``daily_cost_cap_usd``
+      只該攔真的會花錢的呼叫,否則 Claude 的等價成本會讓上限每天都被吃光
+    """
+
+    def __init__(
+        self,
+        claude: ClaudeCliClient,
+        fallback: OpenRouterClient | None,
+        model_map: dict[str, str],
+    ) -> None:
+        self.claude = claude
+        self.fallback = fallback
+        self.model_map = model_map
+        self.tracker = fallback.tracker if fallback is not None else CostTracker(1_000.0)
+        #: 退回的原因(None = 還在用 Claude)。pipeline 可以把它放進日報的警告
+        self.fell_back: str | None = None
+
+    async def aclose(self) -> None:
+        await self.claude.aclose()
+        if self.fallback is not None:
+            await self.fallback.aclose()
+
+    async def structured[T: BaseModel](
+        self,
+        *,
+        model: str,
+        system: str,
+        user: str,
+        schema_model: type[T],
+        schema_name: str,
+        temperature: float = 0.2,
+    ) -> tuple[T, float]:
+        if self.fell_back is None:
+            try:
+                result, _ = await self.claude.structured(
+                    model=self.model_map.get(model, model),
+                    system=system,
+                    user=user,
+                    schema_model=schema_model,
+                    schema_name=schema_name,
+                )
+                return result, 0.0
+            except (ClaudeCliError, LLMParseError) as exc:
+                if self.fallback is None:
+                    raise
+                # 並行時可能好幾個 task 同時失敗 —— 只記第一個原因
+                if self.fell_back is None:
+                    self.fell_back = f"{type(exc).__name__}: {str(exc)[:200]}"
+                    log.warning("Claude 評分失敗,本次執行改走 OpenRouter:%s", self.fell_back)
+
+        if self.fallback is None:
+            raise ClaudeCliError(f"Claude 已失敗且沒有 OpenRouter 退路:{self.fell_back}")
+        return await self.fallback.structured(
+            model=model,
+            system=system,
+            user=user,
+            schema_model=schema_model,
+            schema_name=schema_name,
+            temperature=temperature,
+        )

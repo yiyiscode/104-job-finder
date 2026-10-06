@@ -57,6 +57,11 @@ class TwoStageScorer:
     def budget_exceeded(self) -> bool:
         return self.client.tracker.exceeded
 
+    @property
+    def fallback_reason(self) -> str | None:
+        """Claude 訂閱失敗、本次改走 OpenRouter 的原因。沒有退路機制的 client 永遠是 None。"""
+        return getattr(self.client, "fell_back", None)
+
 
 __all__ = [
     "CostTracker",

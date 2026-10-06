@@ -10,7 +10,7 @@ import logging
 
 from ..config import LLMCfg, ScoringCfg
 from ..models import JobDetail, JobSummary, ScoredJob
-from .llm_client import OpenRouterClient
+from .llm_client import OpenRouterClient, last_model_used
 from .prompts import SYSTEM_DEEP, build_deep_user
 from .resume import Resume
 from .rules import apply_guardrails
@@ -37,6 +37,8 @@ async def deep_score(
         temperature=llm.deep.temperature,
     )
 
+    model_used = last_model_used.get() or llm.deep.model
+
     breakdown, total, verdict, adjustments = apply_guardrails(raw, job, detail, scoring)
     if adjustments:
         log.info("%s 套用程式端校正:%s", job.job_no, "; ".join(adjustments))
@@ -51,7 +53,7 @@ async def deep_score(
         highlights=[h.strip() for h in raw.highlights if h.strip()],
         red_flags=[r.strip() for r in raw.red_flags if r.strip()],
         resume_tip=raw.resume_tip.strip(),
-        model_used=llm.deep.model,
+        model_used=model_used,
         adjustments=adjustments,
     )
     return scored, cost, raw.model_dump_json()
