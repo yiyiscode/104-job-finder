@@ -67,6 +67,18 @@ class CallUsage:
         return asdict(self)
 
 
+def _error_summary(payload: dict[str, Any]) -> str:
+    parts = [
+        f"{key}={payload[key]}"
+        for key in ("subtype", "api_error_status", "terminal_reason", "num_turns")
+        if payload.get(key) not in (None, "")
+    ]
+    if payload.get("errors"):
+        parts.append(f"errors={str(payload['errors'])[:200]}")
+    parts.append(f"result={str(payload.get('result') or '')[:200]}")
+    return " ".join(parts)
+
+
 def _scrubbed_env() -> dict[str, str]:
     env = dict(os.environ)
     env.pop("ANTHROPIC_API_KEY", None)
@@ -188,15 +200,23 @@ class ClaudeCliClient:
             raise LLMParseError(stdout[:500]) from None
 
         if payload.get("is_error") or payload.get("subtype") != "success":
-            self._raise_for_text(json.dumps(payload, ensure_ascii=False), proc.returncode)
-            raise ClaudeCliError(f"claude CLI 失敗:{str(payload.get('result'))[:300]}")
+            if self._looks_like_quota(json.dumps(payload, ensure_ascii=False)):
+                raise ClaudeQuotaExhausted(_error_summary(payload))
+            # 只印 JSON 開頭的話,關鍵的 subtype / api_error_status 會被截掉(2026-10-07 踩過)
+            raise ClaudeCliError(
+                f"claude CLI 失敗(結束碼 {proc.returncode}):{_error_summary(payload)}"
+            )
 
         return payload, _usage_from(payload, model, duration)
 
     @staticmethod
-    def _raise_for_text(text: str, returncode: int | None) -> None:
+    def _looks_like_quota(text: str) -> bool:
         lowered = text.lower()
-        if any(marker in lowered for marker in _QUOTA_MARKERS):
+        return any(marker in lowered for marker in _QUOTA_MARKERS)
+
+    @classmethod
+    def _raise_for_text(cls, text: str, returncode: int | None) -> None:
+        if cls._looks_like_quota(text):
             raise ClaudeQuotaExhausted(text[:300])
         if returncode not in (0, None):
             raise ClaudeCliError(f"claude CLI 結束碼 {returncode}:{text[:300]}")

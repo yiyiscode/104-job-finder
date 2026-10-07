@@ -46,12 +46,20 @@ RESULTS = OUT_DIR / "results.jsonl"
 #: 連續失敗幾筆就停 —— 多半是 CLI 本身壞了,不是個別職缺的問題
 MAX_CONSECUTIVE_FAILURES = 3
 
+#: 排除已經有 Claude 深評的 —— 切換後每日排程評的新職缺本來就是 Claude 口徑
 TARGET_SQL = """
 SELECT job_no, raw_summary, raw_detail, matched_keywords
-  FROM jobs
+  FROM jobs j
  WHERE raw_detail IS NOT NULL AND raw_summary IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1 FROM scores s
+        WHERE s.job_no = j.job_no AND s.stage = 'deep' AND s.model LIKE 'claude-cli:%'
+   )
  ORDER BY first_seen_at DESC
 """
+#: 暫時性錯誤(API 忙碌/逾時)等一下再試一次。2026-10-07 夜間 145 筆裡失敗 7 筆,
+#: 事後單獨重跑同一筆就成功
+RETRY_DELAY_SECONDS = 60
 
 log = logging.getLogger("claude_rescore")
 
@@ -115,14 +123,25 @@ async def cmd_run(args, cfg) -> int:
             detail = normalize_detail_response(json.loads(raw_detail), job_no)
             n_before = len(client.calls)
             try:
-                scored, _, raw = await deep_score(client, llm, cfg.scoring, resume, summary, detail)
+                try:
+                    scored, _, raw = await deep_score(
+                        client, llm, cfg.scoring, resume, summary, detail
+                    )
+                except ClaudeQuotaExhausted:
+                    raise
+                except Exception as first:  # noqa: BLE001
+                    print(f"  … {job_no} 失敗,{RETRY_DELAY_SECONDS}s 後重試:{str(first)[:200]}")
+                    await asyncio.sleep(RETRY_DELAY_SECONDS)
+                    scored, _, raw = await deep_score(
+                        client, llm, cfg.scoring, resume, summary, detail
+                    )
             except ClaudeQuotaExhausted as exc:
                 state["stop"] = f"額度用完:{exc}"
                 return
-            except Exception as exc:  # noqa: BLE001 —— 單筆失敗記下來繼續
+            except Exception as exc:  # noqa: BLE001 —— 重試後仍失敗:記下來繼續
                 state["failed"] += 1
                 state["consecutive"] += 1
-                print(f"  ✗ {job_no} 失敗:{str(exc)[:150]}")
+                print(f"  ✗ {job_no} 重試後仍失敗:{str(exc)[:300]}")
                 if state["consecutive"] >= MAX_CONSECUTIVE_FAILURES:
                     state["stop"] = f"連續 {MAX_CONSECUTIVE_FAILURES} 筆失敗"
                 continue
@@ -204,7 +223,11 @@ def cmd_status(args, cfg) -> int:
     finally:
         conn.close()
     cost = sum(u["cost_usd"] for rec in done.values() for u in rec.get("usage", []))
-    print(f"有全文 {len(targets)} 筆:已評 {len(done)}、待評 {pending}、已匯入 jobs.db {applied}")
+    print(
+        f"尚無 Claude 深評的有全文職缺 {len(targets)} 筆"
+        f"(其中 {len(targets) - pending} 筆已評、待 apply);"
+        f"JSONL 共 {len(done)} 筆;待評 {pending};已匯入 jobs.db {applied}"
+    )
     print(f"累計等價成本 ${cost:.2f}")
     return 0
 
