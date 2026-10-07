@@ -19,7 +19,10 @@ Claude 自身雜訊平均 4.5 分(Gemini ±8);**比 Gemini 整體低約 9 分**�
 - `scripts/claude_rescore.py`:`run --limit N` 寫 `local_data/claude_rescore/results.jsonl`;`apply` 匯入 jobs.db
   (新增 scores 列、舊 Gemini 分數保留;寫回前比對 mtime 防撞排程);`status` 看進度
 
-**重評進度**:第 1 天(10-06)目標 135 筆 → 跑完要執行 `apply`。第 2、3 天各 `run --limit 135 --concurrency 2` 再 `apply`。
+**重評進度**:10-06 評 115 筆(背景 2 小時上限被砍);10-07 晚起 `run --limit 145`(獨立程序,不受 session 限制),
+已 apply 174 筆。跑完再 `apply`;剩約 145 筆 10-08 跑完再 `apply`。每筆實際約 1 分鐘(並行 2)。
+**10-07 排程**:開機補跑那次在深評時整個 cmd 被外部終止(沒有錯誤訊息,原因不明;主控台環境重現 Claude 評分正常)。
+手動補跑 run 45:Claude 評分正常,但 Telegram ConnectError(一時的網路) → `--replay 45` 重送成功。
 
 **下一步**:
 1. 405 筆重評完 → 用 Claude 分數分布重新校準 `scoring.top_n_floor`(60)與 `threshold`(80)
