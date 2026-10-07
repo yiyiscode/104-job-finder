@@ -264,3 +264,9 @@ def test_row_carries_score_parts_and_company_link():
 def test_missing_score_parts_and_foreign_company_link_are_empty():
     r = build_row(record(summary_overrides={"link": {"cust": "https://evil.example/x"}}))
     assert r.score_parts == [] and r.company_url == ""
+
+
+def test_deep_only_hides_jobs_without_deep_score():
+    rows = [row(job_no="deep", score=80), row(job_no="none", score=None)]
+    assert [r.job_no for r in apply_filter(rows, _filter(deep_only=True), {})] == ["deep"]
+    assert len(apply_filter(rows, _filter(), {})) == 2, "預設(邏輯層)不篩,UI 才預設打開"

@@ -343,6 +343,8 @@ class CandidateFilter:
     title_query: str = ""
     gate: str = "通過第 1 道"
     no_english_only: bool = False
+    #: 只看進過深評的(有深評分數)。UI 預設開 —— 沒深評的多半是規則層/粗篩刷掉的
+    deep_only: bool = False
     pipeline_statuses: list[str] | None = None  # None = 不限
     hide_skipped: bool = True
     #: 對照 Telegram 日報用:只看推播過的,**其他條件全部不套用**(只留日期)。
@@ -379,6 +381,8 @@ def apply_filter(
         if f.gate == "卡在第 2 道" and r.gates.stuck_at != 2:
             continue
         if f.gate == "卡在第 3 道" and r.gates.stuck_at != 3:
+            continue
+        if f.deep_only and r.deep_score is None:
             continue
         if f.no_english_only and r.english:
             continue

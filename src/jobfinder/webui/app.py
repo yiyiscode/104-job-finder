@@ -195,6 +195,12 @@ def candidates_page() -> None:
             gate=st.radio(
                 "閘門", cand.GATE_FILTERS, index=1, help="規則見頁面上方的說明", disabled=off
             ),
+            deep_only=st.checkbox(
+                "只看有深評的",
+                value=True,
+                help="進過 LLM 深評、有深評分數的職缺。沒深評的多半在規則層或粗篩就被刷掉了",
+                disabled=off,
+            ),
             no_english_only=st.checkbox("只看不要求英文", disabled=off),
             pipeline_statuses=st.multiselect(
                 "pipeline 狀態",
