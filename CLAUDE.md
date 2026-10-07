@@ -82,6 +82,10 @@ python -m jobfinder.cli ui                       # http://127.0.0.1:8501
 # open_ui.cmd 刻意純 ASCII —— chcp 65001 下 cmd 會把中文註解行切碎當指令執行
 powershell -ExecutionPolicy Bypass -File scripts\install_ui_shortcut.ps1      # -Uninstall 移除
 
+# 自評 app(量 LLM 評分準不準):畫面跟 Web UI 分開、資料共用 decisions.db,只綁 127.0.0.1、不連 104
+python scripts/selfeval_ui.py                    # http://127.0.0.1:8502;一批 30 張卡片,評一張存一張
+powershell -ExecutionPolicy Bypass -File scripts\install_ui_shortcut.ps1 -App selfeval   # 桌面捷徑「Job Finder 自評」
+
 # 第 3 道閘門「必備命中率」:只打 OpenRouter、不連 104。每日排程在 pipeline 之後自動跑
 python -m jobfinder.cli hitrate --dry-run        # 只列出會算哪些,不花錢
 python -m jobfinder.cli hitrate --fake-llm       # 技能詞典粗估,離線開發用(數字不可信)

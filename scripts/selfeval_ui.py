@@ -24,6 +24,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--port", type=int, default=8502)
     parser.add_argument("--data-dir", default=str(ROOT / "local_data"))
     parser.add_argument("--resume", default=str(ROOT / "profile-de.md"), help="技能自評寫回的履歷")
+    parser.add_argument(
+        "--idle-minutes",
+        type=float,
+        default=0,
+        help="連續這麼多分鐘沒有分頁連著就自動結束(0 = 不自動結束;桌面捷徑帶 10)",
+    )
     args = parser.parse_args(argv)
 
     if importlib.util.find_spec("streamlit") is None:
@@ -38,7 +44,35 @@ def main(argv: list[str] | None = None) -> int:
         "--", "--data-dir", args.data_dir, "--resume", args.resume,
     ]  # fmt: skip
     print(f"自評 app:http://127.0.0.1:{args.port}(Ctrl+C 結束)")
-    return subprocess.call(cmd)
+    if args.idle_minutes <= 0:
+        return subprocess.call(cmd)
+    return _run_until_idle(cmd, args.port, args.idle_minutes)
+
+
+def _run_until_idle(cmd: list[str], port: int, idle_minutes: float) -> int:
+    """同 ``jobfinder ui --idle-minutes``:關分頁不會停 Streamlit,所以要自己看連線數。"""
+    from jobfinder.ui_idle import IdleWatcher, active_connections
+
+    print(f"關掉所有分頁 {idle_minutes:g} 分鐘後自動結束")
+    watcher = IdleWatcher(idle_minutes * 60)
+    proc = subprocess.Popen(cmd)
+    try:
+        while True:
+            try:
+                return proc.wait(timeout=15)
+            except subprocess.TimeoutExpired:
+                pass
+            if watcher.observe(active_connections(port)):
+                print(f"已經 {idle_minutes:g} 分鐘沒有分頁連著,自動結束自評 app")
+                return 0
+    finally:
+        # 閒置、Ctrl+C、任何例外都走這裡 —— 不能把 Streamlit 孤兒留在背景
+        if proc.poll() is None:
+            proc.terminate()
+            try:
+                proc.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                proc.kill()
 
 
 if __name__ == "__main__":
