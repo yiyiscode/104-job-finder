@@ -10,18 +10,33 @@
 
     不需要系統管理員權限。桌面路徑用 GetFolderPath 取得,相容 OneDrive 重導向的桌面。
 
+    -App selfeval 建立「Job Finder 自評」捷徑(scripts\open_selfeval.cmd,port 8502):
+    逐張卡片評想去程度、分數準不準與技能自評。畫面跟 Job Finder UI 分開,資料共用 decisions.db。
+
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File scripts\install_ui_shortcut.ps1
-    powershell -ExecutionPolicy Bypass -File scripts\install_ui_shortcut.ps1 -Uninstall
+    powershell -ExecutionPolicy Bypass -File scripts\install_ui_shortcut.ps1 -App selfeval
+    powershell -ExecutionPolicy Bypass -File scripts\install_ui_shortcut.ps1 -App selfeval -Uninstall
 #>
 param(
-    [string]$Name = "Job Finder UI",
+    [ValidateSet("jobfinder", "selfeval")]
+    [string]$App = "jobfinder",
+    [string]$Name = "",
     [switch]$Uninstall
 )
 
+$Apps = @{
+    jobfinder = @{ Name = "Job Finder UI"; Launcher = "open_ui.cmd"; Port = 8501;
+                   Desc = "開啟 Job Finder Web UI" }
+    selfeval  = @{ Name = "Job Finder 自評"; Launcher = "open_selfeval.cmd"; Port = 8502;
+                   Desc = "開啟 Job Finder 自評 app" }
+}
+$Spec = $Apps[$App]
+if (-not $Name) { $Name = $Spec.Name }
+
 $ErrorActionPreference = "Stop"
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
-$Launcher = Join-Path $ProjectRoot "scripts\open_ui.cmd"
+$Launcher = Join-Path $ProjectRoot ("scripts\" + $Spec.Launcher)
 $Shortcut = Join-Path ([Environment]::GetFolderPath("Desktop")) "$Name.lnk"
 
 if ($Uninstall) {
@@ -48,10 +63,10 @@ $shell = New-Object -ComObject WScript.Shell
 $lnk = $shell.CreateShortcut($Shortcut)
 $lnk.TargetPath = $Launcher
 $lnk.WorkingDirectory = $ProjectRoot
-$lnk.Description = "開啟 Job Finder Web UI(只綁 127.0.0.1,關閉黑色視窗即結束)"
+$lnk.Description = "$($Spec.Desc)(只綁 127.0.0.1,關閉黑色視窗即結束)"
 # 用 Python 的圖示,比 .cmd 的預設齒輪好認
 $lnk.IconLocation = "$Python,0"
 $lnk.Save()
 
 Write-Host "已建立捷徑:$Shortcut"
-Write-Host "雙擊即可開啟 http://127.0.0.1:8501;關掉黑色視窗就結束。"
+Write-Host "雙擊即可開啟 http://127.0.0.1:$($Spec.Port);關掉黑色視窗就結束。"

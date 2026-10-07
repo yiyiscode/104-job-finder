@@ -46,11 +46,13 @@ CANDIDATE_SQL = """
 SELECT j.job_no, j.job_name, j.cust_name, j.job_url, j.area_desc, j.edu_desc,
        j.first_seen_at, j.status, j.raw_summary, j.raw_detail,
        s.total_score, s.one_liner, s.resume_tip, s.highlights, s.red_flags,
-       s.tech_fit, s.exp_fit, s.domain_fit, s.growth_fit, s.practical_fit
+       s.tech_fit, s.exp_fit, s.domain_fit, s.growth_fit, s.practical_fit,
+       s.verdict, s.adjustments, s.model AS score_model
 FROM jobs j
 LEFT JOIN (
     SELECT job_no, total_score, one_liner, resume_tip, highlights, red_flags,
            tech_fit, exp_fit, domain_fit, growth_fit, practical_fit,
+           verdict, adjustments, model,
            ROW_NUMBER() OVER (PARTITION BY job_no ORDER BY id DESC) AS rn
     FROM scores WHERE stage = 'deep'
 ) s ON s.job_no = j.job_no AND s.rn = 1
@@ -244,6 +246,9 @@ def build_row(
         highlights=_loads(record.get("highlights")) or [],
         red_flags=_loads(record.get("red_flags")) or [],
         score_parts=_score_parts(record),
+        verdict=record.get("verdict") or "",
+        adjustments=_loads(record.get("adjustments")) or [],
+        score_model=record.get("score_model") or "",
         company_url=_company_url(summary),
         industry_code=str(summary.get("coIndustry") or ""),
         welfare=_welfare_text(detail),

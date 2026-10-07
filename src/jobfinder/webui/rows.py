@@ -49,6 +49,9 @@ class JobRow:
     #: 深評五個維度 (名稱, 得分, 滿分);沒深評為空
     score_parts: list[tuple[str, int, int]] = field(default_factory=list)
     company_url: str = ""  # 104 公司頁(「公司其他職缺」);列表沒給時為空
+    verdict: str = ""  # 深評的定性判斷 strong_apply / apply / maybe / skip
+    adjustments: list[str] = field(default_factory=list)  # 程式端校正紀錄(年資夾住、verdict 降級…)
+    score_model: str = ""  # 哪個模型評的(Claude 重評後口徑不同,自評要記)
     hit_rate: float | None = None  # 0–1;None 時看 hit_rate_status
     hit_rate_status: str = "未計算"  # 已計算 / 未計算 / 無全文 / 無明列必備
     hit_requirements: list = field(default_factory=list)  # hitrate.compute.Requirement
