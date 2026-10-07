@@ -145,6 +145,23 @@ def date_range(label: str, default, lo, hi, key: str):
     return default  # 使用者只點了起始日,範圍還沒選完
 
 
+TITLE_ALL = "全部"
+
+
+def _title_group_choice(disabled: bool) -> list[str]:
+    """職稱類別單選(2026-10-08 由多選改單選);「全部」= 不限。"""
+    options = [TITLE_ALL, *TITLE_GROUP_NAMES]
+    choice = st.selectbox(
+        "職稱類別",
+        options,
+        index=options.index(DEFAULT_TITLE_GROUPS[0]),
+        help="依職稱關鍵字歸類,由上往下第一個命中為準"
+        "(資料工程優先,所以「AI 數據開發工程師」算資料工程)",
+        disabled=disabled,
+    )
+    return list(TITLE_GROUP_NAMES) if choice == TITLE_ALL else [choice]
+
+
 # ── 頁 1:候選清單 ──────────────────────────────────────────────────
 def candidates_page() -> None:
     rows = load_rows()
@@ -166,17 +183,9 @@ def candidates_page() -> None:
             start=start,
             end=end,
             notified_only=notified_only,
-            industries=st.multiselect(
-                "產業", INDUSTRY_NAMES, default=DEFAULT_INDUSTRIES, disabled=off
-            ),
-            title_groups=st.multiselect(
-                "職稱類別",
-                TITLE_GROUP_NAMES,
-                default=DEFAULT_TITLE_GROUPS,
-                help="依職稱關鍵字歸類,由上往下第一個命中為準"
-                "(資料工程優先,所以「AI 數據開發工程師」算資料工程)",
-                disabled=off,
-            ),
+            # 候選清單的產業預設全選(2026-10-08);技能趨勢頁仍預設單一產業,方便聚焦
+            industries=st.multiselect("產業", INDUSTRY_NAMES, default=INDUSTRY_NAMES, disabled=off),
+            title_groups=_title_group_choice(off),
             title_query=st.text_input(
                 "職稱關鍵字",
                 placeholder="例:資料工程|ETL",
@@ -221,6 +230,7 @@ def candidates_page() -> None:
                 "gate2": gate2_label(r),
                 "gate3": gate3_label(r),
                 "score": r.deep_score,
+                "industry": r.industry_desc or r.industry,
                 "company": r.company,
                 "title": r.title,
                 "title_group": r.title_group,
@@ -267,6 +277,9 @@ def candidates_page() -> None:
                 "③命中率(LLM)",
                 width="medium",
                 help=GATE3_LEGEND + "。LLM 逐條判定、程式算分",
+            ),
+            "industry": st.column_config.TextColumn(
+                "產業", width="medium", help="104 的公司產業;側欄「產業」篩的是它歸成的大類"
             ),
             "company": "公司",
             "title": st.column_config.TextColumn("職稱", width="medium"),
