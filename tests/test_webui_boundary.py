@@ -18,6 +18,8 @@ MODULES = sorted(WEBUI.glob("*.py"))
 
 FORBIDDEN_EVERYWHERE = ("scrape", "http_source", "pipeline", "storage", "httpx", "patchright")
 UI_ONLY = ("streamlit", "pandas", "altair")
+#: 只有畫面入口可以 import streamlit/pandas:Job Finder UI 與自評 app
+UI_ENTRYPOINTS = ("app.py", "selfeval_app.py")
 
 
 def _imports(path: Path) -> set[str]:
@@ -43,7 +45,9 @@ def test_no_scraping_or_jobs_db_writer(path):
         assert not bad, f"{path.name} import 了 {name} —— UI 不得碰 104 或 jobs.db 的寫入端"
 
 
-@pytest.mark.parametrize("path", [p for p in MODULES if p.name != "app.py"], ids=lambda p: p.name)
+@pytest.mark.parametrize(
+    "path", [p for p in MODULES if p.name not in UI_ENTRYPOINTS], ids=lambda p: p.name
+)
 def test_logic_modules_do_not_need_ui_extras(path):
     for name in _imports(path):
         assert name.split(".")[0] not in UI_ONLY, f"{path.name} import 了 {name}"

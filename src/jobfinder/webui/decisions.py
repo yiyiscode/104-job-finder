@@ -10,6 +10,8 @@
   同樣只追加、取最新;值為 NULL 的一列代表「取消」。回覆／面試不記在這裡(在 Notion)
 * 「職缺已關閉」(``closures``):標了投、還沒送出,104 上卻已經下架/額滿。記發現的日期,
   NULL = 撤銷。跟送出分開記:關閉是「沒投成」,混進送出會讓投遞數失真
+* 自評 app 的兩張表(``score_feedback``、``skill_ratings``):量測 LLM 評分準不準。
+  分數準不準要**連當時的分數與模型一起記** —— 重評後分數會變,事後才對得上當時評的是哪個數字
 
 **鍵**:pipeline 抓到的職缺用 ``job_no``;只在投遞清單裡的用 **detail_id**(詳細頁 API
 沒有 jobNo)。pipeline 日後抓到同一筆時,讀取端傳 ``aliases``(detail_id → job_no)
@@ -69,6 +71,20 @@ CREATE TABLE IF NOT EXISTS submissions (
     sent_on     TEXT,           -- 實際送出的日期;NULL = 撤銷(勾錯了)
     recorded_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS score_feedback (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_no      TEXT NOT NULL,
+    verdict     TEXT NOT NULL CHECK (verdict IN ('high', 'ok', 'low')),  -- 分數偏高/準/偏低
+    deep_score  INTEGER,        -- 評的當下看到的深評分數
+    score_model TEXT NOT NULL DEFAULT '',
+    rated_at    TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS skill_ratings (
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    skill    TEXT NOT NULL,
+    level    INTEGER CHECK (level BETWEEN 1 AND 5),  -- NULL = 清除(沒碰過)
+    rated_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS closures (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     job_no      TEXT NOT NULL,
@@ -79,6 +95,7 @@ CREATE TABLE IF NOT EXISTS closures (
 
 #: 想去程度的刻度。「未評」不存 —— 沒拉就不算給了分數,不能被當成 3 分
 DESIRE_MIN, DESIRE_MAX = 1, 5
+FEEDBACK_VERDICTS = ("high", "ok", "low")
 DESIRE_LABELS = {1: "1 不太想", 2: "2", 3: "3 普通", 4: "4", 5: "5 很想去"}
 
 
@@ -157,6 +174,28 @@ class DecisionStore:
                 (job_no, _iso(closed_on), now.isoformat(timespec="seconds")),
             )
 
+    def give_feedback(
+        self, job_no: str, verdict: str, deep_score: int | None, model: str, now: datetime
+    ) -> None:
+        if verdict not in FEEDBACK_VERDICTS:
+            raise ValueError(f"分數準不準只能是 {FEEDBACK_VERDICTS}")
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT INTO score_feedback (job_no, verdict, deep_score, score_model, rated_at)"
+                " VALUES (?, ?, ?, ?, ?)",
+                (job_no, verdict, deep_score, model, now.isoformat(timespec="seconds")),
+            )
+
+    def rate_skill(self, skill: str, level: int | None, now: datetime) -> None:
+        """``None`` = 清除(沒碰過)。"""
+        if level is not None and not DESIRE_MIN <= level <= DESIRE_MAX:
+            raise ValueError(f"技能自評要在 {DESIRE_MIN}–{DESIRE_MAX} 之間")
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT INTO skill_ratings (skill, level, rated_at) VALUES (?, ?, ?)",
+                (skill, level, now.isoformat(timespec="seconds")),
+            )
+
     # ── 讀取:全部依寫入順序折疊,最後一筆有效 ──
 
     def latest(self, aliases: Mapping[str, str] | None = None) -> dict[str, Decision]:
@@ -178,6 +217,15 @@ class DecisionStore:
     def latest_closed(self, aliases: Mapping[str, str] | None = None) -> dict[str, date]:
         rows = self._all("SELECT job_no, closed_on FROM closures ORDER BY id")
         return _dates(_fold(((r["job_no"], r["closed_on"]) for r in rows), aliases))
+
+    def latest_feedback(self, aliases: Mapping[str, str] | None = None) -> dict[str, str]:
+        rows = self._all("SELECT job_no, verdict FROM score_feedback ORDER BY id")
+        return _fold(((r["job_no"], r["verdict"]) for r in rows), aliases)
+
+    def latest_skills(self) -> dict[str, int]:
+        rows = self._all("SELECT skill, level FROM skill_ratings ORDER BY id")
+        folded = _fold(((r["skill"], r["level"]) for r in rows), None)
+        return {k: v for k, v in folded.items() if v is not None}
 
     def history(self, job_no: str, *also: str) -> list[Decision]:
         """``also``:同一筆職缺的其他鍵(例如投遞清單時期用的 detail_id)。"""
