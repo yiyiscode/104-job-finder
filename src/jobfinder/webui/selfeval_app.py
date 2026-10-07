@@ -125,7 +125,7 @@ def _rating_panel(job: JobRow, n: int, desires: dict, feedback: dict) -> None:
             key=f"st_{job.job_no}",
             default=desires[job.job_no] - 1 if job.job_no in desires else None,
         )
-        st.caption("想去程度:" + " · ".join(f"{k} {v}" for k, v in DESIRE_LABELS.items()))
+        st.caption("想去程度:" + " · ".join(DESIRE_LABELS.values()))
         fb = st.segmented_control(
             f"以你的想去程度來看,{job.deep_score} 分…",
             list(se.FEEDBACK),
@@ -133,7 +133,7 @@ def _rating_panel(job: JobRow, n: int, desires: dict, feedback: dict) -> None:
             default=feedback.get(job.job_no),
             key=f"fb_{job.job_no}",
         )
-        a, b, c = st.columns(3)
+        a, b, c = st.columns([1, 1, 2])
         if a.button("⬅️ 上一張", width="stretch", disabled=st.session_state.pos == 0):
             st.session_state.pos -= 1
             st.rerun()
@@ -141,7 +141,10 @@ def _rating_panel(job: JobRow, n: int, desires: dict, feedback: dict) -> None:
             st.session_state.pos = min(st.session_state.pos + 1, n)
             st.rerun()
         if c.button(
-            "儲存 → 下一張", type="primary", width="stretch", disabled=stars is None and fb is None
+            "💾 儲存 → 下一張",
+            type="primary",
+            width="stretch",
+            disabled=stars is None and fb is None,
         ):
             t = now()
             if stars is not None and desires.get(job.job_no) != stars + 1:
