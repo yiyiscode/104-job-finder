@@ -92,7 +92,21 @@ def load_targets(cfg) -> list:
     return targets
 
 
+def _prevent_sleep() -> None:
+    """跑的期間阻止 Windows 閒置睡眠(螢幕仍會關)。程序結束即自動解除,不改電源設定。
+
+    睡著時程序只是暫停,但進行中的 claude -p 連線會斷,醒來容易連續失敗而整批停下;
+    而且睡著的時間完全沒在跑 —— 一批 200 筆要 3 個多小時,閒置 15 分鐘就睡的電腦跑不完。
+    """
+    if sys.platform == "win32":
+        import ctypes
+
+        es_continuous, es_system_required = 0x80000000, 0x00000001
+        ctypes.windll.kernel32.SetThreadExecutionState(es_continuous | es_system_required)
+
+
 async def cmd_run(args, cfg) -> int:
+    _prevent_sleep()
     done = load_done()
     pending = [t for t in load_targets(cfg) if t[0] not in done]
     batch = pending[: args.limit]
