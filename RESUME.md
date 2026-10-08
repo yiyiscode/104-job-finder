@@ -19,13 +19,15 @@ Claude 自身雜訊平均 4.5 分(Gemini ±8);**比 Gemini 整體低約 9 分**�
 - `scripts/claude_rescore.py`:`run --limit N` 寫 `local_data/claude_rescore/results.jsonl`;`apply` 匯入 jobs.db
   (新增 scores 列、舊 Gemini 分數保留;寫回前比對 mtime 防撞排程);`status` 看進度
 
-**重評進度**:10-06 評 115 筆(背景 2 小時上限被砍);10-07 晚起 `run --limit 145`(獨立程序,不受 session 限制),
-已 apply 174 筆。跑完再 `apply`;剩約 145 筆 10-08 跑完再 `apply`。每筆實際約 1 分鐘(並行 2)。
+**重評進度**:✅ 10-08 全部完成 —— 有全文的 408 筆都有 Claude 深評(含排程新評的),累計等價 $29.17。
+Claude 分數分布:平均 56.3、中位 57;≥60 有 180、≥70 有 91、≥80 只有 9、≥85 為 0。
+與 Gemini 配對 405 筆:**平均低 18.3 分**(10 筆試跑估的 -9 低估了)。
 **10-07 排程**:開機補跑那次在深評時整個 cmd 被外部終止(沒有錯誤訊息,原因不明;主控台環境重現 Claude 評分正常)。
 手動補跑 run 45:Claude 評分正常,但 Telegram ConnectError(一時的網路) → `--replay 45` 重送成功。
 
 **下一步**:
-1. 405 筆重評完 → 用 Claude 分數分布重新校準 `scoring.top_n_floor`(60)與 `threshold`(80)
+1. **下一步**:用 Claude 分數分布重新校準 `scoring.top_n_floor`(60)與 `threshold`(80)——
+   threshold 80 在 Claude 口徑下幾乎沒有綠燈(408 筆只有 9 筆)
 2. 明天 08:00 排程是第一次用 Claude 跑 —— 看 daily.log 有沒有「改用 OpenRouter」警告
 3. 命中率(hitrate)仍走 OpenRouter,要不要也切 Claude 待決定
 4. merge 到 master(等使用者說)
