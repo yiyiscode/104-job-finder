@@ -242,7 +242,8 @@ fixture 是 2026-08-21 錄下的真實回應。以下每一條都是踩過或驗
   `--tools ""` + `--strict-mcp-config` + `--setting-sources ""`(否則 CLAUDE.md/MCP 塞進每次評分)。
   **不要開 `--effort low`**:structured output 會被反覆打回重交,實測一筆失敗、成本沒省。
   Claude 回的 cost 是等價值,`ClaudeWithFallback` 回 0 —— `daily_cost_cap_usd` 只攔 OpenRouter 實付
-- ⚠️ **Claude 分數比 Gemini 整體低約 9 分**,`top_n_floor`/`threshold` 是 Gemini 口徑,重評完要重校
+- **Claude 分數比 Gemini 整體低 18.3 分**(405 筆配對)。2026-10-09 已依 Claude 口徑重校:
+  `threshold` 80 → 60、`top_n_floor` 60 → 50(理由見 config.yaml 註解)。**別再拿 Gemini 時代的分數區間推論**
 
 **Telegram**:`parse_mode` 用 **HTML 不用 MarkdownV2**(後者要跳脫 18 個字元,職缺標題滿是 `(` `)` `-` `.`,漏一個整則 400)。400 時降級純文字重送。
 
@@ -286,8 +287,8 @@ fixture 是 2026-08-21 錄下的真實回應。以下每一條都是踩過或驗
   約 **±8 分**:同一份資料、同一個 prompt 連跑兩次 replay,整批最好的那則一次 80、
   一次 88。`threshold: 80` 剛好卡在雜訊帶正中央,等於讓最好的職缺隨機出現或消失,
   而且**不會有任何跡象**(看起來就像「今天沒有好缺」)。相對排序讓雜訊只影響排序。
-  搭配 `top_n_floor: 60` 擋掉職缺荒日子的垃圾 —— 那個值刻意遠低於雜訊帶,只砍垃圾、
-  不參與邊緣判斷。`threshold: 80` 仍保留,因為卡片的分數燈號還在用它。
+  搭配 `top_n_floor`(Claude 口徑 50,原 Gemini 口徑 60)擋掉職缺荒日子的垃圾 —— 那個值刻意遠低於雜訊帶,只砍垃圾、
+  不參與邊緣判斷。`threshold` 仍保留(Claude 口徑 60),因為卡片的分數燈號還在用它。
 - ~~`scoring.threshold: 80`~~ —— 原本的校準理由(70 分頂到上限、70–79 與 80+ 有斷層)
   在產業/規模過濾上線後已失效:量體剩約 4.5 筆/天,`max_per_day: 10` 根本碰不到
 - `verdict` 用 **enum 約束**。沒有它,便宜模型會自己發明 `worth_a_shot` 這種值

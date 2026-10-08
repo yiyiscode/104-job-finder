@@ -2,7 +2,8 @@
 
 > 說「讀 RESUME.md 繼續」即可接續。背景與更早的優化方向見 [docs/handoff-2026-09-23.md](docs/handoff-2026-09-23.md)。
 
-**最後更新:2026-10-06**　分支 `feat/claude-cli-scorer`(從 master `c7c023f` 開出),606 個測試全過。
+**最後更新:2026-10-09**　`feat/claude-cli-scorer` 與 `feat/webui-filter-industry` 已 merge 進 master(`1970b55`);
+門檻重校在分支 `feat/recalibrate-thresholds`,629 個測試全過。
 
 ---
 
@@ -26,11 +27,11 @@ Claude 分數分布:平均 56.3、中位 57;≥60 有 180、≥70 有 91、≥80
 手動補跑 run 45:Claude 評分正常,但 Telegram ConnectError(一時的網路) → `--replay 45` 重送成功。
 
 **下一步**:
-1. **下一步**:用 Claude 分數分布重新校準 `scoring.top_n_floor`(60)與 `threshold`(80)——
-   threshold 80 在 Claude 口徑下幾乎沒有綠燈(408 筆只有 9 筆)
+1. ✅ 10-09 門檻重校:`threshold` 80→60、`top_n_floor` 60→50(依想去程度標記,memory `job-finder-claude-threshold-calibration`)。
+   ⚠️ 發現 Claude 分數分不出 3/4/5 星(平均 64.4/63.1/66.7)—— 下一個要處理的是評分鑑別力,不是門檻
 2. 明天 08:00 排程是第一次用 Claude 跑 —— 看 daily.log 有沒有「改用 OpenRouter」警告
 3. 命中率(hitrate)仍走 OpenRouter,要不要也切 Claude 待決定
-4. merge 到 master(等使用者說)
+4. `feat/recalibrate-thresholds` merge 到 master(等使用者說)
 
 ---
 

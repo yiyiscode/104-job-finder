@@ -150,7 +150,8 @@ llm:
   # 2026-10-06 改用 Claude 訂閱額度(claude -p)評分。失敗或額度用完會自動退回下面的
   # OpenRouter 模型 —— 所以 OPENROUTER_API_KEY 仍要留著,日報才不會開天窗。
   # 實測:深評等價 $0.066/筆、10 筆約吃週額度 1%;Claude 自身雜訊平均 4.5 分。
-  # ⚠️ Claude 分數整體比 Gemini 低約 9 分,scoring.top_n_floor / threshold 待重新校準。
+  # Claude 分數整體比 Gemini 低 18.3 分(405 筆配對),scoring 的 threshold / top_n_floor
+  # 已在 2026-10-09 依 Claude 口徑重新校準(見下方)。
   provider: "claude_cli"        # openrouter | claude_cli
   claude:
     screen_model: "haiku"
@@ -195,15 +196,21 @@ scoring:
   #   ② 產業/規模過濾上線後量體剩約 4.5 筆/天(replay run 27:94 → 深評 4),
   #      max_per_day: 10 已經完全不是篩子,絕對門檻是唯一在篩的東西。
   #   相對排序讓雜訊只影響「誰排前面」,不會讓整天變空。
-  # threshold 保留 80 —— top_n 模式不看它,但卡片的分數燈號還在用。
-  threshold: 80
+  # threshold 保留 —— top_n 模式不看它,但卡片的分數燈號還在用(綠 ≥ +15、黃 ≥ +5)。
+  # 2026-10-09 改用 Claude 評分後 80 → 60:Claude 比 Gemini 平均低 18.3 分(405 筆配對),
+  # 80 會讓綠燈要 ≥95、黃燈 ≥85,而 408 筆裡 ≥85 的是 0 —— 全部卡片都變橙燈。
+  # 60 → 綠 ≥75(約前 11%)、黃 ≥65;使用者標「要投」的 4 筆平均 70。
+  threshold: 60
   max_per_day: 10
   mode: "top_n"                 # threshold | top_n(相對排序)
   top_n: 5                      # mode=top_n 時生效
   # 品質下限。純粹「推前 N 名」在職缺荒的日子會把 30 分的垃圾也推出來。
-  # 60 刻意訂在遠低於雜訊帶(有興趣的職缺落在 78–88)的位置 ——
   # 它只砍真正的垃圾,不參與邊緣判斷。
-  top_n_floor: 60
+  # 2026-10-09 改用 Claude 評分後 60 → 50,依使用者的想去程度標記校準:
+  #   正樣本(想去 ≥4 星或要投)19 筆、負樣本(≤2 星或不投)4 筆
+  #   floor 50 留住 17/19、擋掉 4/4;60 只留 11/19(誤殺 42%)
+  #   回算 42 天:50 只有 1 天變 0 則。⚠️ 樣本小,累積更多標記後再看一次
+  top_n_floor: 50
   list_rejected_in_summary: true
   max_rejected_listed: 10
 
