@@ -14,7 +14,7 @@ import logging
 from ..config import LLMCfg, ScoringCfg
 from ..models import JobSummary, RejectedJob
 from ..ports import ScreenOutcome
-from .llm_client import OpenRouterClient
+from .llm_client import OpenRouterClient, last_model_used
 from .prompts import SYSTEM_SCREEN, build_screen_user
 from .resume import Resume
 from .schemas import ScreenItem, ScreenResult
@@ -38,9 +38,10 @@ async def screen(
 
     outcome = ScreenOutcome()
     items: dict[str, ScreenItem] = {}
+    models: set[str] = set()
     semaphore = asyncio.Semaphore(llm.screen.max_concurrent)
 
-    async def run_batch(batch: list[JobSummary]) -> tuple[list[ScreenItem], float]:
+    async def run_batch(batch: list[JobSummary]) -> tuple[list[ScreenItem], float, str]:
         async with semaphore:
             result, cost = await client.structured(
                 model=llm.screen.model,
@@ -50,7 +51,7 @@ async def screen(
                 schema_name="screen_result",
                 temperature=llm.screen.temperature,
             )
-            return result.results, cost
+            return result.results, cost, last_model_used.get() or llm.screen.model
 
     batches = _chunks(jobs, llm.screen.batch_size)
     for result in await asyncio.gather(*(run_batch(b) for b in batches), return_exceptions=True):
@@ -58,8 +59,9 @@ async def screen(
             log.warning("粗篩批次失敗:%s", result)
             outcome.warnings.append(f"粗篩批次失敗:{result}")
             continue
-        batch_items, cost = result
+        batch_items, cost, model = result
         outcome.cost_usd += cost
+        models.add(model)
         for item in batch_items:
             items[item.job_no] = item
 
@@ -73,8 +75,9 @@ async def screen(
         ):
             if isinstance(result, BaseException):
                 continue
-            batch_items, cost = result
+            batch_items, cost, model = result
             outcome.cost_usd += cost
+            models.add(model)
             for item in batch_items:
                 items[item.job_no] = item
 
@@ -100,5 +103,7 @@ async def screen(
                 )
             )
 
+    # 有退路時可能一批 Claude、一批 Gemini —— 全記下來,不假裝只有一個
+    outcome.model = ",".join(sorted(models))
     log.info("粗篩:%d 筆進 → 留 %d 筆", len(jobs), len(outcome.keep))
     return outcome

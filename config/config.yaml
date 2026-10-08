@@ -147,6 +147,17 @@ dedupe:
   retain_days: 180              # 超過此天數的紀錄清掉,控制 db 大小
 
 llm:
+  # 2026-10-06 改用 Claude 訂閱額度(claude -p)評分。失敗或額度用完會自動退回下面的
+  # OpenRouter 模型 —— 所以 OPENROUTER_API_KEY 仍要留著,日報才不會開天窗。
+  # 實測:深評等價 $0.066/筆、10 筆約吃週額度 1%;Claude 自身雜訊平均 4.5 分。
+  # ⚠️ Claude 分數整體比 Gemini 低約 9 分,scoring.top_n_floor / threshold 待重新校準。
+  provider: "claude_cli"        # openrouter | claude_cli
+  claude:
+    screen_model: "haiku"
+    deep_model: "sonnet"
+    max_concurrent: 2
+    timeout_seconds: 300
+
   base_url: "https://openrouter.ai/api/v1"
   referer: "https://github.com/yiyiscode"
   title: "job-finder"

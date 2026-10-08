@@ -218,7 +218,7 @@ async def _fetch_and_screen(cfg, deps, repo, report, now, limit, rescore_all=Fal
         repo.save_screen_drops(
             screen_outcome.dropped,
             run_id=report.run_id,
-            model=cfg.llm.screen.model,
+            model=screen_outcome.model or cfg.llm.screen.model,
             now=now,
         )
 
@@ -261,6 +261,9 @@ async def _deep_score_all(cfg, deps, repo, report, screen_outcome, details) -> l
         )
 
     report.jobs_deep_scored = len(scored)
+    # 粗篩與深評共用同一個 client,所以在這裡檢查一次就涵蓋兩個階段
+    if reason := getattr(deps.scorer, "fallback_reason", None):
+        report.warnings.append(f"Claude 評分失敗,本次改用 OpenRouter:{reason}")
     return scored
 
 

@@ -424,14 +424,32 @@ def _build_scorer(cfg: Config, args: argparse.Namespace):
     from .scoring import OpenRouterClient, TwoStageScorer, load_resume
 
     secrets = Secrets()
-    if not secrets.openrouter_api_key:
+    if cfg.llm.provider == "claude_cli":
+        from .scoring.claude_cli import ClaudeCliClient, ClaudeWithFallback
+
+        # 沒有 OpenRouter key 也能跑,只是 Claude 一失敗就沒有退路
+        fallback = (
+            OpenRouterClient(secrets.openrouter_api_key, cfg.llm)
+            if secrets.openrouter_api_key
+            else None
+        )
+        client = ClaudeWithFallback(
+            ClaudeCliClient(
+                timeout_seconds=cfg.llm.claude.timeout_seconds,
+                max_concurrent=cfg.llm.claude.max_concurrent,
+            ),
+            fallback,
+            # 深評優先:兩階段若設成同一個 OpenRouter model,以深評的 Claude 模型為準
+            model_map={
+                cfg.llm.screen.model: cfg.llm.claude.screen_model,
+                cfg.llm.deep.model: cfg.llm.claude.deep_model,
+            },
+        )
+    elif not secrets.openrouter_api_key:
         raise SystemExit("缺少 OPENROUTER_API_KEY。開發請加 --fake-llm。")
-    return TwoStageScorer(
-        OpenRouterClient(secrets.openrouter_api_key, cfg.llm),
-        cfg.llm,
-        cfg.scoring,
-        load_resume(cfg.paths.resume),
-    )
+    else:
+        client = OpenRouterClient(secrets.openrouter_api_key, cfg.llm)
+    return TwoStageScorer(client, cfg.llm, cfg.scoring, load_resume(cfg.paths.resume))
 
 
 def _build_source_factory(cfg: Config, args: argparse.Namespace):
