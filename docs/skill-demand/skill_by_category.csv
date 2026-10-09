@@ -1,0 +1,513 @@
+﻿job_category,category_job_count,skill,job_count,pct_within_category
+AI工程師,81,Python,69,85.2
+AI工程師,81,LLM,53,65.4
+AI工程師,81,AI Agent,31,38.3
+AI工程師,81,PyTorch,29,35.8
+AI工程師,81,Machine Learning,27,33.3
+AI工程師,81,Deep Learning,26,32.1
+AI工程師,81,Prompt Engineering,24,29.6
+AI工程師,81,RAG,24,29.6
+AI工程師,81,SQL,24,29.6
+AI工程師,81,OpenAI / GPT,19,23.5
+AI工程師,81,Git,19,23.5
+AI工程師,81,Computer Vision,18,22.2
+AI工程師,81,NLP,18,22.2
+AI工程師,81,Claude,17,21.0
+AI工程師,81,Docker,16,19.8
+AI工程師,81,TensorFlow,15,18.5
+AI工程師,81,Vector Database,15,18.5
+AI工程師,81,C++,14,17.3
+AI工程師,81,Linux,14,17.3
+AI工程師,81,REST API,13,16.0
+AI工程師,81,C#,12,14.8
+AI工程師,81,LangChain,11,13.6
+AI工程師,81,Edge AI / Embedded,11,13.6
+AI工程師,81,Model Deployment,11,13.6
+AI工程師,81,PostgreSQL,11,13.6
+AI工程師,81,JavaScript,11,13.6
+AI工程師,81,Gemini,10,12.3
+AI工程師,81,Multimodal,10,12.3
+AI工程師,81,Hugging Face,9,11.1
+AI工程師,81,Transformer,9,11.1
+AI工程師,81,Fine-tuning,8,9.9
+AI工程師,81,MySQL,8,9.9
+AI工程師,81,Java,8,9.9
+AI工程師,81,React,8,9.9
+AI工程師,81,Llama,7,8.6
+AI工程師,81,OpenCV,7,8.6
+AI工程師,81,GPU,7,8.6
+AI工程師,81,Azure,7,8.6
+AI工程師,81,Feature Engineering,6,7.4
+AI工程師,81,FastAPI,5,6.2
+AI工程師,81,vLLM,5,6.2
+AI工程師,81,LlamaIndex,5,6.2
+AI工程師,81,LoRA,5,6.2
+AI工程師,81,Data Visualization,5,6.2
+AI工程師,81,.NET,4,4.9
+AI工程師,81,Reinforcement Learning,4,4.9
+AI工程師,81,C,4,4.9
+AI工程師,81,CI/CD,4,4.9
+AI工程師,81,Node.js,4,4.9
+AI工程師,81,TensorRT,4,4.9
+AI工程師,81,NumPy,4,4.9
+AI工程師,81,MLOps,4,4.9
+AI工程師,81,YOLO,4,4.9
+AI工程師,81,ETL / Data Pipeline,4,4.9
+AI工程師,81,TypeScript,4,4.9
+AI工程師,81,Ollama,3,3.7
+AI工程師,81,Stable Diffusion,3,3.7
+AI工程師,81,Pandas,3,3.7
+AI工程師,81,GCP,3,3.7
+AI工程師,81,CUDA,3,3.7
+AI工程師,81,Microservices,3,3.7
+AI工程師,81,Kubernetes,3,3.7
+AI工程師,81,AWS,3,3.7
+AI工程師,81,OCR,3,3.7
+AI工程師,81,Flask,2,2.5
+AI工程師,81,Recommendation System,2,2.5
+AI工程師,81,Vue,2,2.5
+AI工程師,81,Statistics,2,2.5
+AI工程師,81,Diffusion Model,2,2.5
+AI工程師,81,Time Series,2,2.5
+AI工程師,81,Shell/Bash,1,1.2
+AI工程師,81,Angular,1,1.2
+AI工程師,81,Django,1,1.2
+AI工程師,81,Knowledge Graph,1,1.2
+AI工程師,81,PHP,1,1.2
+AI工程師,81,Data Mining,1,1.2
+AI工程師,81,BERT,1,1.2
+AI工程師,81,R,1,1.2
+AI工程師,81,Scala,1,1.2
+AI工程師,81,scikit-learn,1,1.2
+AI工程師,81,XGBoost,1,1.2
+AI工程師,81,Speech / ASR,1,1.2
+AI工程師,81,Keras,1,1.2
+AI工程師,81,Object Detection,1,1.2
+AI工程師,81,Spring / Spring Boot,1,1.2
+AI工程師,81,ONNX,1,1.2
+AI工程師,81,FPGA,1,1.2
+AI工程師,81,Segmentation,1,1.2
+軟體工程師,60,Python,52,86.7
+軟體工程師,60,LLM,32,53.3
+軟體工程師,60,Machine Learning,28,46.7
+軟體工程師,60,C++,26,43.3
+軟體工程師,60,Git,20,33.3
+軟體工程師,60,Docker,19,31.7
+軟體工程師,60,Computer Vision,18,30.0
+軟體工程師,60,RAG,17,28.3
+軟體工程師,60,AI Agent,17,28.3
+軟體工程師,60,Linux,17,28.3
+軟體工程師,60,Deep Learning,16,26.7
+軟體工程師,60,OpenAI / GPT,15,25.0
+軟體工程師,60,Claude,14,23.3
+軟體工程師,60,LangChain,14,23.3
+軟體工程師,60,SQL,13,21.7
+軟體工程師,60,PyTorch,13,21.7
+軟體工程師,60,Prompt Engineering,12,20.0
+軟體工程師,60,REST API,11,18.3
+軟體工程師,60,Azure,11,18.3
+軟體工程師,60,JavaScript,11,18.3
+軟體工程師,60,AWS,11,18.3
+軟體工程師,60,CI/CD,11,18.3
+軟體工程師,60,Vector Database,10,16.7
+軟體工程師,60,PostgreSQL,10,16.7
+軟體工程師,60,NLP,10,16.7
+軟體工程師,60,FastAPI,10,16.7
+軟體工程師,60,TensorFlow,10,16.7
+軟體工程師,60,Gemini,9,15.0
+軟體工程師,60,C#,9,15.0
+軟體工程師,60,GPU,8,13.3
+軟體工程師,60,Fine-tuning,8,13.3
+軟體工程師,60,CUDA,8,13.3
+軟體工程師,60,GCP,8,13.3
+軟體工程師,60,Model Deployment,8,13.3
+軟體工程師,60,Kubernetes,8,13.3
+軟體工程師,60,Node.js,7,11.7
+軟體工程師,60,React,6,10.0
+軟體工程師,60,Llama,6,10.0
+軟體工程師,60,Flask,6,10.0
+軟體工程師,60,MySQL,6,10.0
+軟體工程師,60,OpenCV,6,10.0
+軟體工程師,60,LlamaIndex,5,8.3
+軟體工程師,60,ETL / Data Pipeline,5,8.3
+軟體工程師,60,Django,5,8.3
+軟體工程師,60,scikit-learn,5,8.3
+軟體工程師,60,Reinforcement Learning,5,8.3
+軟體工程師,60,MLOps,5,8.3
+軟體工程師,60,C,4,6.7
+軟體工程師,60,vLLM,4,6.7
+軟體工程師,60,TensorRT,4,6.7
+軟體工程師,60,Edge AI / Embedded,4,6.7
+軟體工程師,60,Redis,4,6.7
+軟體工程師,60,Transformer,4,6.7
+軟體工程師,60,Hugging Face,4,6.7
+軟體工程師,60,Microservices,4,6.7
+軟體工程師,60,Grafana,4,6.7
+軟體工程師,60,Prometheus,4,6.7
+軟體工程師,60,TypeScript,3,5.0
+軟體工程師,60,.NET,3,5.0
+軟體工程師,60,Java,3,5.0
+軟體工程師,60,Ollama,3,5.0
+軟體工程師,60,Statistics,3,5.0
+軟體工程師,60,Spark,3,5.0
+軟體工程師,60,Multimodal,3,5.0
+軟體工程師,60,Elasticsearch,3,5.0
+軟體工程師,60,Vue,2,3.3
+軟體工程師,60,NumPy,2,3.3
+軟體工程師,60,Pandas,2,3.3
+軟體工程師,60,ONNX,2,3.3
+軟體工程師,60,MLflow,2,3.3
+軟體工程師,60,Speech / ASR,2,3.3
+軟體工程師,60,Knowledge Graph,2,3.3
+軟體工程師,60,Recommendation System,2,3.3
+軟體工程師,60,Airflow,2,3.3
+軟體工程師,60,Data Mining,2,3.3
+軟體工程師,60,MongoDB,2,3.3
+軟體工程師,60,Feature Engineering,2,3.3
+軟體工程師,60,Shell/Bash,2,3.3
+軟體工程師,60,LoRA,1,1.7
+軟體工程師,60,Stable Diffusion,1,1.7
+軟體工程師,60,Go,1,1.7
+軟體工程師,60,Hadoop,1,1.7
+軟體工程師,60,Object Detection,1,1.7
+軟體工程師,60,JAX,1,1.7
+軟體工程師,60,Data Visualization,1,1.7
+軟體工程師,60,Diffusion Model,1,1.7
+軟體工程師,60,Databricks,1,1.7
+軟體工程師,60,Scala,1,1.7
+軟體工程師,60,LightGBM,1,1.7
+軟體工程師,60,XGBoost,1,1.7
+軟體工程師,60,A/B Testing,1,1.7
+軟體工程師,60,Keras,1,1.7
+軟體工程師,60,Time Series,1,1.7
+軟體工程師,60,GraphQL,1,1.7
+軟體工程師,60,Jenkins,1,1.7
+軟體工程師,60,GitLab CI,1,1.7
+軟體工程師,60,Kafka,1,1.7
+軟體工程師,60,gRPC,1,1.7
+其他（長尾）,27,Python,20,74.1
+其他（長尾）,27,LLM,14,51.9
+其他（長尾）,27,AI Agent,10,37.0
+其他（長尾）,27,Linux,10,37.0
+其他（長尾）,27,Machine Learning,9,33.3
+其他（長尾）,27,RAG,9,33.3
+其他（長尾）,27,Git,8,29.6
+其他（長尾）,27,Deep Learning,7,25.9
+其他（長尾）,27,SQL,6,22.2
+其他（長尾）,27,OpenAI / GPT,6,22.2
+其他（長尾）,27,PyTorch,6,22.2
+其他（長尾）,27,C++,6,22.2
+其他（長尾）,27,Claude,5,18.5
+其他（長尾）,27,Docker,5,18.5
+其他（長尾）,27,JavaScript,4,14.8
+其他（長尾）,27,Gemini,4,14.8
+其他（長尾）,27,FastAPI,4,14.8
+其他（長尾）,27,GPU,4,14.8
+其他（長尾）,27,Kubernetes,4,14.8
+其他（長尾）,27,TensorFlow,4,14.8
+其他（長尾）,27,Shell/Bash,4,14.8
+其他（長尾）,27,Fine-tuning,4,14.8
+其他（長尾）,27,C#,3,11.1
+其他（長尾）,27,CI/CD,3,11.1
+其他（長尾）,27,C,3,11.1
+其他（長尾）,27,Data Visualization,3,11.1
+其他（長尾）,27,REST API,3,11.1
+其他（長尾）,27,LangChain,3,11.1
+其他（長尾）,27,NLP,3,11.1
+其他（長尾）,27,ETL / Data Pipeline,2,7.4
+其他（長尾）,27,React,2,7.4
+其他（長尾）,27,PostgreSQL,2,7.4
+其他（長尾）,27,MLOps,2,7.4
+其他（長尾）,27,Vector Database,2,7.4
+其他（長尾）,27,Java,2,7.4
+其他（長尾）,27,TensorRT,2,7.4
+其他（長尾）,27,CUDA,2,7.4
+其他（長尾）,27,Feature Engineering,2,7.4
+其他（長尾）,27,Prompt Engineering,2,7.4
+其他（長尾）,27,vLLM,2,7.4
+其他（長尾）,27,Llama,2,7.4
+其他（長尾）,27,Model Deployment,2,7.4
+其他（長尾）,27,FPGA,2,7.4
+其他（長尾）,27,OCR,1,3.7
+其他（長尾）,27,Transformer,1,3.7
+其他（長尾）,27,Diffusion Model,1,3.7
+其他（長尾）,27,Scala,1,3.7
+其他（長尾）,27,TypeScript,1,3.7
+其他（長尾）,27,gRPC,1,3.7
+其他（長尾）,27,Computer Vision,1,3.7
+其他（長尾）,27,Microservices,1,3.7
+其他（長尾）,27,OpenCV,1,3.7
+其他（長尾）,27,Jenkins,1,3.7
+其他（長尾）,27,Node.js,1,3.7
+其他（長尾）,27,NumPy,1,3.7
+其他（長尾）,27,Pandas,1,3.7
+其他（長尾）,27,LoRA,1,3.7
+其他（長尾）,27,Ollama,1,3.7
+其他（長尾）,27,Azure,1,3.7
+其他（長尾）,27,GCP,1,3.7
+其他（長尾）,27,AWS,1,3.7
+其他（長尾）,27,ONNX,1,3.7
+其他（長尾）,27,MATLAB,1,3.7
+其他（長尾）,27,Edge AI / Embedded,1,3.7
+其他（長尾）,27,scikit-learn,1,3.7
+其他（長尾）,27,Recommendation System,1,3.7
+其他（長尾）,27,Multimodal,1,3.7
+其他（長尾）,27,Flask,1,3.7
+演算法工程師,17,Python,16,94.1
+演算法工程師,17,Machine Learning,14,82.4
+演算法工程師,17,Deep Learning,12,70.6
+演算法工程師,17,TensorFlow,8,47.1
+演算法工程師,17,Computer Vision,8,47.1
+演算法工程師,17,Linux,7,41.2
+演算法工程師,17,PyTorch,7,41.2
+演算法工程師,17,C++,7,41.2
+演算法工程師,17,Git,6,35.3
+演算法工程師,17,Statistics,5,29.4
+演算法工程師,17,GCP,4,23.5
+演算法工程師,17,MLOps,4,23.5
+演算法工程師,17,ETL / Data Pipeline,4,23.5
+演算法工程師,17,MATLAB,3,17.6
+演算法工程師,17,MySQL,3,17.6
+演算法工程師,17,CI/CD,3,17.6
+演算法工程師,17,Edge AI / Embedded,3,17.6
+演算法工程師,17,Docker,3,17.6
+演算法工程師,17,Data Mining,3,17.6
+演算法工程師,17,LLM,2,11.8
+演算法工程師,17,RAG,2,11.8
+演算法工程師,17,AWS,2,11.8
+演算法工程師,17,C#,2,11.8
+演算法工程師,17,NumPy,2,11.8
+演算法工程師,17,Pandas,2,11.8
+演算法工程師,17,Shell/Bash,2,11.8
+演算法工程師,17,FastAPI,2,11.8
+演算法工程師,17,AI Agent,2,11.8
+演算法工程師,17,Data Warehouse,2,11.8
+演算法工程師,17,PostgreSQL,2,11.8
+演算法工程師,17,Airflow,2,11.8
+演算法工程師,17,MongoDB,2,11.8
+演算法工程師,17,SQL,2,11.8
+演算法工程師,17,Redis,2,11.8
+演算法工程師,17,LangChain,1,5.9
+演算法工程師,17,Claude,1,5.9
+演算法工程師,17,LlamaIndex,1,5.9
+演算法工程師,17,Kubernetes,1,5.9
+演算法工程師,17,JavaScript,1,5.9
+演算法工程師,17,Node.js,1,5.9
+演算法工程師,17,FPGA,1,5.9
+演算法工程師,17,Feature Engineering,1,5.9
+演算法工程師,17,TensorRT,1,5.9
+演算法工程師,17,ONNX,1,5.9
+演算法工程師,17,CUDA,1,5.9
+演算法工程師,17,Reinforcement Learning,1,5.9
+演算法工程師,17,OpenCV,1,5.9
+演算法工程師,17,Segmentation,1,5.9
+演算法工程師,17,Object Detection,1,5.9
+演算法工程師,17,Vector Database,1,5.9
+演算法工程師,17,Speech / ASR,1,5.9
+演算法工程師,17,NLP,1,5.9
+演算法工程師,17,TTS,1,5.9
+演算法工程師,17,Multimodal,1,5.9
+演算法工程師,17,LoRA,1,5.9
+演算法工程師,17,Fine-tuning,1,5.9
+演算法工程師,17,Diffusion Model,1,5.9
+演算法工程師,17,Time Series,1,5.9
+演算法工程師,17,Azure,1,5.9
+演算法工程師,17,Elasticsearch,1,5.9
+演算法工程師,17,Kafka,1,5.9
+演算法工程師,17,Hadoop,1,5.9
+演算法工程師,17,Recommendation System,1,5.9
+演算法工程師,17,Spark,1,5.9
+演算法工程師,17,Flask,1,5.9
+演算法工程師,17,Django,1,5.9
+演算法工程師,17,REST API,1,5.9
+演算法工程師,17,Keras,1,5.9
+資料科學家,7,Python,6,85.7
+資料科學家,7,Machine Learning,5,71.4
+資料科學家,7,LLM,4,57.1
+資料科學家,7,JavaScript,3,42.9
+資料科學家,7,SQL,3,42.9
+資料科學家,7,TensorFlow,3,42.9
+資料科學家,7,Deep Learning,3,42.9
+資料科學家,7,PyTorch,3,42.9
+資料科學家,7,Claude,3,42.9
+資料科學家,7,C#,2,28.6
+資料科學家,7,Docker,2,28.6
+資料科學家,7,Prompt Engineering,2,28.6
+資料科學家,7,OpenAI / GPT,2,28.6
+資料科學家,7,NLP,2,28.6
+資料科學家,7,Git,2,28.6
+資料科學家,7,Statistics,2,28.6
+資料科學家,7,C++,1,14.3
+資料科學家,7,.NET,1,14.3
+資料科學家,7,Java,1,14.3
+資料科學家,7,Hugging Face,1,14.3
+資料科學家,7,LangChain,1,14.3
+資料科學家,7,RAG,1,14.3
+資料科學家,7,MLflow,1,14.3
+資料科學家,7,Vector Database,1,14.3
+資料科學家,7,LlamaIndex,1,14.3
+資料科學家,7,REST API,1,14.3
+資料科學家,7,Gemini,1,14.3
+資料科學家,7,ETL / Data Pipeline,1,14.3
+資料科學家,7,LoRA,1,14.3
+資料科學家,7,AI Agent,1,14.3
+資料科學家,7,Fine-tuning,1,14.3
+資料科學家,7,CI/CD,1,14.3
+資料科學家,7,Data Visualization,1,14.3
+資料科學家,7,FastAPI,1,14.3
+資料科學家,7,Flask,1,14.3
+資料科學家,7,Node.js,1,14.3
+資料科學家,7,Django,1,14.3
+資料科學家,7,Data Mining,1,14.3
+資料科學家,7,PHP,1,14.3
+資料科學家,7,MySQL,1,14.3
+資料科學家,7,scikit-learn,1,14.3
+資料科學家,7,Transformer,1,14.3
+資料科學家,7,Hadoop,1,14.3
+資料科學家,7,Spark,1,14.3
+資料科學家,7,A/B Testing,1,14.3
+資料工程師,6,Python,6,100.0
+資料工程師,6,SQL,5,83.3
+資料工程師,6,LLM,4,66.7
+資料工程師,6,ETL / Data Pipeline,4,66.7
+資料工程師,6,AI Agent,4,66.7
+資料工程師,6,Vector Database,3,50.0
+資料工程師,6,PostgreSQL,3,50.0
+資料工程師,6,Machine Learning,3,50.0
+資料工程師,6,Git,3,50.0
+資料工程師,6,RAG,2,33.3
+資料工程師,6,REST API,2,33.3
+資料工程師,6,Data Visualization,2,33.3
+資料工程師,6,GCP,2,33.3
+資料工程師,6,Data Warehouse,2,33.3
+資料工程師,6,Linux,2,33.3
+資料工程師,6,Fine-tuning,2,33.3
+資料工程師,6,Prompt Engineering,2,33.3
+資料工程師,6,Pandas,2,33.3
+資料工程師,6,LangChain,1,16.7
+資料工程師,6,JavaScript,1,16.7
+資料工程師,6,LlamaIndex,1,16.7
+資料工程師,6,C#,1,16.7
+資料工程師,6,Kafka,1,16.7
+資料工程師,6,Node.js,1,16.7
+資料工程師,6,R,1,16.7
+資料工程師,6,Snowflake,1,16.7
+資料工程師,6,Airflow,1,16.7
+資料工程師,6,Docker,1,16.7
+資料工程師,6,Spark,1,16.7
+資料工程師,6,MySQL,1,16.7
+資料工程師,6,Databricks,1,16.7
+資料工程師,6,Edge AI / Embedded,1,16.7
+資料工程師,6,Model Deployment,1,16.7
+資料工程師,6,Feature Engineering,1,16.7
+資料工程師,6,Gemini,1,16.7
+資料工程師,6,NumPy,1,16.7
+資料工程師,6,Claude,1,16.7
+資料工程師,6,Statistics,1,16.7
+資料工程師,6,Deep Learning,1,16.7
+資料工程師,6,OpenAI / GPT,1,16.7
+資料工程師,6,scikit-learn,1,16.7
+資料工程師,6,Data Mining,1,16.7
+資料工程師,6,OCR,1,16.7
+資料工程師,6,Multimodal,1,16.7
+全端工程師,4,LLM,4,100.0
+全端工程師,4,Docker,3,75.0
+全端工程師,4,Git,3,75.0
+全端工程師,4,Computer Vision,3,75.0
+全端工程師,4,Python,3,75.0
+全端工程師,4,Scala,2,50.0
+全端工程師,4,Prompt Engineering,2,50.0
+全端工程師,4,RAG,2,50.0
+全端工程師,4,Microservices,2,50.0
+全端工程師,4,Claude,2,50.0
+全端工程師,4,Kubernetes,2,50.0
+全端工程師,4,CI/CD,2,50.0
+全端工程師,4,SQL,2,50.0
+全端工程師,4,OpenAI / GPT,2,50.0
+全端工程師,4,Node.js,2,50.0
+全端工程師,4,JavaScript,2,50.0
+全端工程師,4,PostgreSQL,2,50.0
+全端工程師,4,C#,2,50.0
+全端工程師,4,Vector Database,1,25.0
+全端工程師,4,AI Agent,1,25.0
+全端工程師,4,OCR,1,25.0
+全端工程師,4,REST API,1,25.0
+全端工程師,4,Vue,1,25.0
+全端工程師,4,Spring / Spring Boot,1,25.0
+全端工程師,4,Swift,1,25.0
+全端工程師,4,MongoDB,1,25.0
+全端工程師,4,Kotlin,1,25.0
+全端工程師,4,React,1,25.0
+全端工程師,4,MySQL,1,25.0
+全端工程師,4,Linux,1,25.0
+全端工程師,4,OpenCV,1,25.0
+全端工程師,4,TensorRT,1,25.0
+全端工程師,4,NLP,1,25.0
+全端工程師,4,C++,1,25.0
+全端工程師,4,Deep Learning,1,25.0
+全端工程師,4,Model Deployment,1,25.0
+全端工程師,4,Java,1,25.0
+全端工程師,4,Machine Learning,1,25.0
+後端工程師,4,REST API,4,100.0
+後端工程師,4,Docker,4,100.0
+後端工程師,4,Git,4,100.0
+後端工程師,4,LLM,3,75.0
+後端工程師,4,PostgreSQL,3,75.0
+後端工程師,4,TypeScript,3,75.0
+後端工程師,4,Linux,3,75.0
+後端工程師,4,JavaScript,3,75.0
+後端工程師,4,Python,3,75.0
+後端工程師,4,Claude,3,75.0
+後端工程師,4,OpenAI / GPT,3,75.0
+後端工程師,4,Vue,2,50.0
+後端工程師,4,CI/CD,2,50.0
+後端工程師,4,Azure,2,50.0
+後端工程師,4,GCP,2,50.0
+後端工程師,4,AWS,2,50.0
+後端工程師,4,SQL,2,50.0
+後端工程師,4,RAG,2,50.0
+後端工程師,4,Vector Database,2,50.0
+後端工程師,4,FastAPI,2,50.0
+後端工程師,4,Microservices,2,50.0
+後端工程師,4,GitLab CI,1,25.0
+後端工程師,4,Spring / Spring Boot,1,25.0
+後端工程師,4,Java,1,25.0
+後端工程師,4,Jenkins,1,25.0
+後端工程師,4,GitHub Actions,1,25.0
+後端工程師,4,.NET,1,25.0
+後端工程師,4,Computer Vision,1,25.0
+後端工程師,4,C#,1,25.0
+後端工程師,4,Flask,1,25.0
+後端工程師,4,OCR,1,25.0
+後端工程師,4,Django,1,25.0
+後端工程師,4,TensorFlow,1,25.0
+後端工程師,4,Multimodal,1,25.0
+後端工程師,4,Statistics,1,25.0
+後端工程師,4,Feature Engineering,1,25.0
+後端工程師,4,AI Agent,1,25.0
+後端工程師,4,Elasticsearch,1,25.0
+後端工程師,4,PyTorch,1,25.0
+後端工程師,4,Data Visualization,1,25.0
+後端工程師,4,Machine Learning,1,25.0
+後端工程師,4,Kubernetes,1,25.0
+後端工程師,4,Gemini,1,25.0
+後端工程師,4,Prompt Engineering,1,25.0
+後端工程師,4,MongoDB,1,25.0
+後端工程師,4,React,1,25.0
+後端工程師,4,MySQL,1,25.0
+後端工程師,4,Node.js,1,25.0
+後端工程師,4,Redis,1,25.0
+數據分析師／資料分析師,3,Python,3,100.0
+數據分析師／資料分析師,3,Machine Learning,3,100.0
+數據分析師／資料分析師,3,Linux,2,66.7
+數據分析師／資料分析師,3,Statistics,2,66.7
+數據分析師／資料分析師,3,Shell/Bash,1,33.3
+數據分析師／資料分析師,3,GCP,1,33.3
+數據分析師／資料分析師,3,AWS,1,33.3
+數據分析師／資料分析師,3,Perl,1,33.3
+數據分析師／資料分析師,3,Pandas,1,33.3
+數據分析師／資料分析師,3,Git,1,33.3
+數據分析師／資料分析師,3,LLM,1,33.3
+數據分析師／資料分析師,3,Feature Engineering,1,33.3
+數據分析師／資料分析師,3,AI Agent,1,33.3
+數據分析師／資料分析師,3,Data Visualization,1,33.3

@@ -1,0 +1,116 @@
+﻿skill,job_count,pct_of_population
+Python,178,85.2
+LLM,117,56.0
+Machine Learning,91,43.5
+AI Agent,68,32.5
+Deep Learning,66,31.6
+Git,66,31.6
+RAG,59,28.2
+PyTorch,59,28.2
+SQL,57,27.3
+Linux,56,26.8
+C++,55,26.3
+Docker,53,25.4
+Computer Vision,49,23.4
+OpenAI / GPT,48,23.0
+Claude,46,22.0
+Prompt Engineering,45,21.5
+TensorFlow,41,19.6
+REST API,36,17.2
+JavaScript,36,17.2
+Vector Database,35,16.7
+NLP,35,16.7
+PostgreSQL,33,15.8
+C#,32,15.3
+LangChain,31,14.8
+Gemini,26,12.4
+CI/CD,26,12.4
+Fine-tuning,24,11.5
+FastAPI,24,11.5
+Model Deployment,23,11.0
+Azure,22,10.5
+MySQL,21,10.0
+GCP,21,10.0
+Edge AI / Embedded,20,9.6
+AWS,20,9.6
+ETL / Data Pipeline,20,9.6
+Kubernetes,19,9.1
+GPU,19,9.1
+React,18,8.6
+Node.js,18,8.6
+Multimodal,17,8.1
+Java,16,7.7
+Statistics,16,7.7
+OpenCV,16,7.7
+Llama,15,7.2
+Transformer,15,7.2
+MLOps,15,7.2
+CUDA,14,6.7
+Hugging Face,14,6.7
+Data Visualization,14,6.7
+Feature Engineering,14,6.7
+LlamaIndex,13,6.2
+Flask,12,5.7
+Microservices,12,5.7
+TensorRT,12,5.7
+TypeScript,11,5.3
+C,11,5.3
+vLLM,11,5.3
+Pandas,11,5.3
+Reinforcement Learning,10,4.8
+Shell/Bash,10,4.8
+NumPy,10,4.8
+.NET,9,4.3
+LoRA,9,4.3
+Django,9,4.3
+scikit-learn,9,4.3
+Data Mining,8,3.8
+OCR,7,3.3
+Vue,7,3.3
+Ollama,7,3.3
+Redis,7,3.3
+Recommendation System,6,2.9
+Spark,6,2.9
+MongoDB,6,2.9
+Scala,5,2.4
+Diffusion Model,5,2.4
+Airflow,5,2.4
+ONNX,5,2.4
+Elasticsearch,5,2.4
+Stable Diffusion,4,1.9
+Data Warehouse,4,1.9
+MATLAB,4,1.9
+YOLO,4,1.9
+FPGA,4,1.9
+Time Series,4,1.9
+Speech / ASR,4,1.9
+Grafana,4,1.9
+Prometheus,4,1.9
+Spring / Spring Boot,3,1.4
+Jenkins,3,1.4
+Kafka,3,1.4
+Knowledge Graph,3,1.4
+MLflow,3,1.4
+Hadoop,3,1.4
+Object Detection,3,1.4
+Keras,3,1.4
+GitLab CI,2,1.0
+R,2,1.0
+Databricks,2,1.0
+PHP,2,1.0
+Segmentation,2,1.0
+XGBoost,2,1.0
+A/B Testing,2,1.0
+gRPC,2,1.0
+GitHub Actions,1,0.5
+Perl,1,0.5
+Go,1,0.5
+Angular,1,0.5
+Snowflake,1,0.5
+BERT,1,0.5
+TTS,1,0.5
+JAX,1,0.5
+LightGBM,1,0.5
+Swift,1,0.5
+Kotlin,1,0.5
+GraphQL,1,0.5

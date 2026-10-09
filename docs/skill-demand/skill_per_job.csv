@@ -1,0 +1,210 @@
+﻿job_no,job_name,job_category,matched_skills
+15061070,AI工程師,AI工程師,Claude; Deep Learning; FastAPI; Fine-tuning; Flask; LLM; LangChain; Llama; Machine Learning; OpenAI / GPT; Prompt Engineering; PyTorch; Python; RAG; TensorFlow; Vector Database
+14898473,AI工程師,AI工程師,C#; C++; Computer Vision; Deep Learning; Edge AI / Embedded; Machine Learning; Model Deployment; Python; TensorFlow
+11582950,AI工程師,AI工程師,.NET; C#; LLM; MySQL; NLP; Python
+14187783,Python AI 資料工程師,演算法工程師,AWS; Claude; GCP; Git; Kubernetes; LLM; LangChain; Linux; LlamaIndex; Python; RAG
+15352543,AI 應用研發工程師,軟體工程師,AI Agent; CUDA; Claude; Computer Vision; Docker; Fine-tuning; GPU; Gemini; Git; LLM; LoRA; OpenAI / GPT; Prompt Engineering; Python; RAG; REST API; Stable Diffusion; TypeScript; Vector Database
+15308731,AI 應用工程師,AI工程師,AI Agent; C#; Claude; Docker; Gemini; Git; Java; LLM; Linux; OpenAI / GPT; Prompt Engineering; Python; RAG; REST API; SQL; Vector Database
+8877456,AI 機器人軟體工程師(新竹),AI工程師,C++; Machine Learning; PyTorch; Python; Reinforcement Learning; TensorFlow
+15000539,【技術中心】TS30 AI 助理工程師,軟體工程師,.NET; C#; Linux
+14843743,RPA工程師,其他資訊專業人員,AI Agent; C#; CI/CD; JavaScript; LLM; OCR; OpenAI / GPT; Python; SQL
+15178647,AI 產品工程師 (AI Product Engineer),全端工程師,AI Agent; CI/CD; Claude; Docker; Git; Kubernetes; LLM; Microservices; OpenAI / GPT; Prompt Engineering; RAG; SQL; Scala; Vector Database
+15036206,AI 工程師,AI工程師,Machine Learning; NLP; Recommendation System
+15168811,AI工程師（週休三日）,資料科學家,.NET; C#; C++; Java; JavaScript; Python; SQL
+14988156,Python研發工程師,AI工程師,Deep Learning; Git; JavaScript; LLM; Linux; Machine Learning; Model Deployment; MySQL; NLP; PostgreSQL; Prompt Engineering; PyTorch; Python; Shell/Bash; TensorFlow
+12903767,【數位智能服務事業部】軟體應用系統開發工程師,後端工程師,AWS; Azure; CI/CD; Docker; GCP; Git; GitHub Actions; GitLab CI; Java; JavaScript; Jenkins; LLM; Linux; PostgreSQL; REST API; SQL; Spring / Spring Boot; TypeScript; Vue
+15311025,AI Scientist for Thermal Materials – Machine Learning & Property Validation _ CTO Office (Taipei),材料工程師,Diffusion Model; ETL / Data Pipeline; Linux; Machine Learning; PyTorch; Python; Scala; Transformer
+14989118,遠東新世紀/資訊安全處/AI 應用整合工程師,軟體工程師,AWS; Azure; Claude; GCP; Gemini; Git; Java; JavaScript; Node.js; OpenAI / GPT; Python; React; Vue
+15170940,AI應用開發工程師 (紅樹林),AI工程師,AI Agent; LLM; LangChain; PostgreSQL; Python; Vector Database
+14693909,軟體研發工程師,助理工程師,C++; Python
+15146158,生物資訊工程師 (Bioinformatics Engineer),數據分析師／資料分析師,AWS; GCP; Linux; Machine Learning; Perl; Python; Shell/Bash; Statistics
+11283974,機器學習與人工智慧研發工程師,軟體工程師,C; C++; Computer Vision; Deep Learning; Machine Learning; Python
+15071549,人工智慧工程師,資料科學家,Deep Learning; Hugging Face; Machine Learning; PyTorch; TensorFlow
+15142109,MES x RAG系統整合工程師 | MES x RAG Engineer,資料工程師,AI Agent; C#; ETL / Data Pipeline; JavaScript; Kafka; LLM; LangChain; LlamaIndex; Node.js; PostgreSQL; Python; RAG; REST API; SQL; Vector Database
+15142174,LLM 模型開發工程師 | LLM Engineer,AI工程師,AI Agent; C; C++; Deep Learning; Fine-tuning; Git; Hugging Face; LLM; Model Deployment; Prompt Engineering; PyTorch; Python; TensorFlow
+15322583,生成式 AI 應用工程師,軟體工程師,AI Agent; C++; CI/CD; Claude; Django; Docker; ETL / Data Pipeline; FastAPI; Flask; GPU; Git; JavaScript; LLM; LangChain; Linux; Llama; LlamaIndex; Model Deployment; MySQL; NLP; Node.js; Ollama; OpenAI / GPT; PostgreSQL; Prompt Engineering; Python; RAG; REST API; SQL; Vector Database; vLLM
+12363246,網頁後端工程師,軟體工程師,AWS; Azure; Computer Vision; Docker; Go; LLM; Linux; Machine Learning; MySQL; PostgreSQL; Python
+14524854,AI資安工程師(湖口本部-RD9),資安工程師,C; C++; LLM; Linux; Python
+15299272,智慧製造暨AI發展工程師,AI工程師,Computer Vision; LLM; OpenCV; PyTorch; Python; RAG
+15309468,AIBCRDD- 邊緣 LLM RAG 應用工程師,AI工程師,AI Agent; C++; Docker; Hugging Face; LLM; LangChain; Llama; LlamaIndex; Model Deployment; Ollama; Prompt Engineering; Python; RAG; Vector Database; vLLM
+14817869,T504.6-AI-assisted 全端工程師（Vibe Coding）,AI工程師,Angular; CI/CD; Claude; Django; Docker; Flask; Git; JavaScript; LLM; Machine Learning; Model Deployment; NLP; Node.js; OpenAI / GPT; PostgreSQL; Prompt Engineering; Python; React; SQL; Vue
+10488667,AI深度學習工程師,軟體工程師,C; C++; Computer Vision; Deep Learning
+15212268,全端工程師,前端工程師,FastAPI; Git; JavaScript; Machine Learning; PostgreSQL; Python; React; SQL; TypeScript
+15023048,華邦電子2026校園徵才-(竹北/中科)軟體類_資料工程師,資料工程師,Machine Learning; Python; R; SQL
+15316396,Data Engineer,資料工程師,AI Agent; Airflow; Data Visualization; Data Warehouse; Databricks; Docker; ETL / Data Pipeline; GCP; Git; LLM; Linux; Machine Learning; MySQL; PostgreSQL; Python; RAG; REST API; SQL; Snowflake; Spark; Vector Database
+14526992,生成式 AI 應用工程實習生,軟體工程師,AI Agent; C++; CI/CD; Claude; Django; Docker; Git; JavaScript; LLM; Linux; Llama; Model Deployment; MySQL; NLP; Node.js; Ollama; OpenAI / GPT; PostgreSQL; Prompt Engineering; Python; RAG; REST API; SQL; TypeScript; Vector Database; vLLM
+14937315,AI 科技治理專業人員_I00024894,其他資訊專業人員,
+13640401,AI工程師,演算法工程師,Deep Learning; Git; MATLAB; MLOps; MySQL; PyTorch; Python; TensorFlow
+14802196,AI工程師-軟體(台北),AI工程師,Knowledge Graph; LLM; Multimodal; RAG; Vector Database
+15173809,生成式AI工程師 / AI內容生成專員（本地部署 RTX 5090 32GB）,AI工程師,C++; Fine-tuning; GPU; Hugging Face; Linux; Llama; LoRA; Model Deployment; Multimodal; Ollama; Prompt Engineering; PyTorch; Python; Stable Diffusion; TensorRT
+15118186,AI工程師(工作地點:台北),AI工程師,Feature Engineering; Java; LLM; NLP; NumPy; Pandas; Python; RAG; React; Transformer; Vector Database
+13624327,〔銀行〕AI工程師(台北),AI工程師,LLM; MLOps; NLP
+15216684,AI工程師(新莊),資訊助理,AI Agent; CI/CD; Deep Learning; Feature Engineering; Fine-tuning; Gemini; Git; JavaScript; Jenkins; LLM; LangChain; Linux; Machine Learning; Node.js; OpenAI / GPT; PostgreSQL; Prompt Engineering; PyTorch; Python; RAG; REST API; React; SQL; Shell/Bash; TensorFlow; Vector Database
+15345973,【品質管理】智慧品管全端/AI工程師-龍潭廠-R66,AI工程師,AI Agent; C++; Java; JavaScript; MySQL; PHP; Python
+14300167,生成式AI工程師,資料科學家,AI Agent; Claude; Deep Learning; Docker; ETL / Data Pipeline; Fine-tuning; Gemini; LLM; LangChain; LlamaIndex; LoRA; MLflow; Machine Learning; OpenAI / GPT; Prompt Engineering; Python; RAG; REST API; Vector Database
+14767783,T504.5-AI工程師 (創新應用),AI工程師,AI Agent; Azure; C#; LLM; LangChain; LlamaIndex; Multimodal; NLP; Node.js; Prompt Engineering; Python; RAG; Vector Database
+8520280,軟體工程師-台北,軟體工程師,C#; Computer Vision; JavaScript; Node.js; Python; React
+14292768,【先進智能】AI自動化應用工程師 (擴廠新增，年薪高獎金多，新人留任獎金2萬5千元),AI工程師,C#; C++; Claude; Computer Vision; Edge AI / Embedded; Gemini; OpenCV; Python; YOLO
+15346169,AI 產品工程師-雲資部,AI工程師,Computer Vision; Docker; Edge AI / Embedded; Linux; OpenCV; PyTorch; Python; REST API; SQL; TensorFlow; YOLO
+15117233,AI應用工程師/資深工程師,AI工程師,Claude; Docker; FastAPI; OpenAI / GPT; Python; REST API; SQL
+14935211,AI解決方案工程師,AI工程師,Azure; Data Visualization; ETL / Data Pipeline; GCP; LLM; Machine Learning; OpenAI / GPT; Prompt Engineering; Python; SQL
+14988350,國網中心_生成式 AI 系統開發工程師-新竹(計畫115_02),AI工程師,Claude; Gemini; LLM; Llama; OpenAI / GPT
+15289349,國網中心_AI 系統整合與資料分析工程師-新竹(計畫115_01_4),AI工程師,AI Agent; Deep Learning; ETL / Data Pipeline
+14753144,AI應用/技術工程師,AI工程師,C#; C++; Prompt Engineering; Python
+15323179,【台北公司】AI技術開發工程師(機器人/自動化),演算法工程師,C#; C++; CI/CD; Computer Vision; JavaScript; Machine Learning; Node.js; Python
+15212831,AI助理工程師（AI Assistant Engineer）,助理工程師,AI Agent; Claude; Gemini; JavaScript; OpenAI / GPT; Python; RAG
+15077908,【1104】AI應用工程師(環境優美/福利多元)PZ,軟體工程師,AI Agent
+15154501,Python 工程師 / LLM、AI Agent 應用工程師,軟體工程師,.NET; AI Agent; C#; FastAPI; Git; LLM; LangChain; Linux; Python; RAG; SQL; Vector Database
+15113933,自動化開發工程師(新竹),AI工程師,CUDA; Computer Vision; Machine Learning; PyTorch; Python; TensorFlow
+11470795,自駕感測演算法工程師,演算法工程師,C++; Deep Learning; Git; Machine Learning; Python
+14809942,Algorithm Engineer (演算法工程師),演算法工程師,C++; Edge AI / Embedded; FPGA; Git; MATLAB; Machine Learning; Python
+15292511,AI創新開發工程師,AI工程師,AI Agent; Azure; Data Mining; Git; JavaScript; LLM; LangChain; OpenAI / GPT; Prompt Engineering; Python; SQL; Vector Database
+15050417,AI工程師,Internet程式設計師,AI Agent; Fine-tuning; LLM; LangChain; OpenAI / GPT; Python
+15357616,AI 工程師,AI工程師,Deep Learning; Machine Learning; Python
+15058482,AI 工程師,軟體工程師,Computer Vision; Deep Learning; Fine-tuning; Hadoop; LLM; Machine Learning; NLP; NumPy; Pandas; PyTorch; Python; RAG; SQL; Spark; Statistics; TensorFlow; Vector Database; scikit-learn
+15242886,AI工程師,軟體工程師,C++; Claude; OpenAI / GPT
+15358562,計算生物學演算法工程師,生物學研究員,Claude; Deep Learning; Docker; FastAPI; GPU; Git; Kubernetes; NumPy; Pandas; PyTorch; Python
+14900615,人形機器人 AI 工程師 (Robotics AI Engineer),軟體工程師,C++; CUDA; Computer Vision; Deep Learning; Edge AI / Embedded; Multimodal; OpenCV; PyTorch; Python; Reinforcement Learning; TensorRT
+15050790,【健康台灣深耕計畫】醫療AI工程師（範疇三-數位醫療中心）,AI工程師,BERT; Deep Learning; FastAPI; Feature Engineering; GPU; Hugging Face; LLM; Linux; Llama; LoRA; Machine Learning; NLP; NumPy; OpenAI / GPT; OpenCV; Prompt Engineering; PyTorch; Python; R; Statistics; Transformer; YOLO
+14935154,【2027年研發替代役】AI應用工程師,AI工程師,Edge AI / Embedded
+15358852,研發類--數位設計自動化人工智慧工程師 (Infra & System AI Focus) (竹北),CAD／CAM工程師,AI Agent; Data Visualization; Fine-tuning; LLM; Linux; Llama; LoRA; Model Deployment; Ollama; Python; RAG; Shell/Bash; TensorRT; vLLM
+15175398,AI 應用工程師 / AI 系統架構工程師,AI工程師,.NET; AI Agent; C#; Claude; Deep Learning; Gemini; Git; JavaScript; LLM; Linux; Machine Learning; NLP; Node.js; PostgreSQL; Python; RAG; SQL; Vector Database
+10250371,AI應用工程師(台北、新竹、台中、嘉義、台南、高雄),演算法工程師,CI/CD; Deep Learning; ETL / Data Pipeline; Feature Engineering; Linux; MLOps; NumPy; Pandas; PyTorch; Python; Statistics; TensorFlow
+13975779,機器人電腦視覺及 AI 演算法工程師,演算法工程師,C++; CI/CD; CUDA; Computer Vision; Deep Learning; Docker; Edge AI / Embedded; Git; Linux; MLOps; Machine Learning; ONNX; PyTorch; Python; Shell/Bash; TensorFlow; TensorRT
+14887453,AI 工程師,演算法工程師,C++; Data Mining; Deep Learning; Machine Learning; Python; Reinforcement Learning; Statistics
+14860384,[研發部] AI Agent 開發工程師,軟體工程師,AI Agent; AWS; Azure; Claude; Docker; GCP; Gemini; Git; LLM; LangChain; LlamaIndex; Machine Learning; OpenAI / GPT; Python; RAG; REST API; React
+14597349,AI影像處理工程師,演算法工程師,C#; C++; Computer Vision; Deep Learning; Edge AI / Embedded; MATLAB; Machine Learning; Object Detection; OpenCV; Python; Segmentation; TensorFlow
+15179349,企業 AI 生產力工具開發（高級工程師）,AI工程師,.NET; C#; ETL / Data Pipeline; GPU; LLM; Linux; Python; RAG; REST API; SQL
+15007181,工研院院部_AI工程師,AI工程師,AI Agent; C++; Diffusion Model; Hugging Face; LLM; LangChain; LlamaIndex; Machine Learning; Multimodal; PyTorch; Python; Reinforcement Learning; Time Series; Transformer; vLLM
+15357166,【Elite100】研發替代役_AI Architect(內湖)_JR202608047,AI工程師,AI Agent; CUDA; Deep Learning; GPU; Hugging Face; LLM; OpenAI / GPT; Python; SQL
+15110247,【IR】AI 與工作流程自動化工程師,AI工程師,C; C++; LLM; Python; React
+15114861,AI 具身智能與系統整合工程師(台北總公司),資料工程師,AI Agent; ETL / Data Pipeline; Edge AI / Embedded; Fine-tuning; LLM; Linux; Model Deployment; Prompt Engineering; Python; Vector Database
+15291338,人形機器人 AI 部署工程師 (Robotics AI Deployment Engineer),軟體工程師,C++; CUDA; Deep Learning; Edge AI / Embedded; Linux; Model Deployment; ONNX; OpenCV; PyTorch; Python; TensorRT
+14455155,AI技術/應用工程師_I00020401,AI工程師,Computer Vision; LLM; Machine Learning; NLP; Prompt Engineering; Python
+15347579,【正職代招】資訊服務與系統整合公司/AI Agent 開發工程師_105KF,軟體工程師,AI Agent; Azure; C#; Claude; Gemini; JavaScript; LLM; LangChain; OpenAI / GPT; Python; REST API
+15357851,技術特助 AI Workflow Technology Consultant,AI工程師,Deep Learning; LLM; NLP; OpenAI / GPT; Prompt Engineering; PyTorch
+14168851,AI工程師,AI工程師,AI Agent; CI/CD; Docker; Git; JavaScript; LLM; PostgreSQL; Prompt Engineering; Python; RAG; REST API; React; TypeScript; Vector Database
+14464346,AI工程師,AI工程師,Computer Vision; Deep Learning; Diffusion Model; Java; LLM; LangChain; Machine Learning; NLP; OpenAI / GPT; PyTorch; Python; Stable Diffusion; TensorFlow
+14074473,AI工程師,AI工程師,Deep Learning; Java; Machine Learning; PyTorch; Python; TensorFlow
+15360268,工研院資通所_AI工程師(T0),軟體工程師,Python; Reinforcement Learning
+15073593,工研院服科中心_智慧機器人大腦 AI 工程師(A000新竹/台南),AI工程師,AI Agent; Deep Learning; LLM; Linux; Multimodal; Python; Reinforcement Learning; Transformer
+15357515,AI代理工程師(資料與知識分析),AI工程師,AI Agent; Claude; MySQL; Python
+15031219,60036X0_AI 工程師（決策導向／平台型系統）,AI工程師,JavaScript; Python; Scala
+15360585,工研院資通所_AI應用與資料分析研發工程師(W302),AI工程師,AI Agent; LLM; Machine Learning; Microservices; PyTorch; Python; RAG; REST API; Time Series; XGBoost; scikit-learn
+15347158,AI流程自動化工程師,全端工程師,Claude; Computer Vision; Git; JavaScript; LLM; Node.js; OCR; OpenAI / GPT; PostgreSQL; Prompt Engineering; Python; RAG; REST API; SQL
+15360561,工研院資通所_生成式AI模型訓練工程師(W101),AI工程師,Deep Learning; LLM; LoRA; MLOps; Multimodal; NLP; Ollama; PyTorch; Python; vLLM
+15360582,工研院資通所_代理式AI生成與控制技術研發工程師(W301),AI工程師,AI Agent; Deep Learning; Kubernetes; LLM; Machine Learning; Microservices; PyTorch; Python; TensorRT; Transformer; vLLM
+13608717,雲端Ai工程師 Cloud Ai Engineer,雲端工程師,AWS; Azure; Claude; GCP; Gemini; OpenAI / GPT
+14990543,【資安所】AI安全工程師(產業),軟體專案主管,AI Agent
+15185746,工研院服科中心_AI演算法工程師(U300),AI工程師,AI Agent; C; C#; C++; Computer Vision; Data Visualization; Edge AI / Embedded; Feature Engineering; LLM; Model Deployment; Multimodal; NLP; PyTorch; Python; REST API; SQL; TensorFlow
+15218877,AI系統創新導入_工程師/技術副理,AI工程師,AI Agent; Claude; Gemini; LLM; MySQL; PostgreSQL; Prompt Engineering
+11886662,AI數據工程師.,市場調查／市場分析,Deep Learning; Machine Learning; Python; SQL
+14745636,工研院服科中心_AI晶片與Middleware工程師(A000),韌體工程師,C; C++; GPU; LLM; Linux; Llama; Model Deployment; ONNX; Python; vLLM
+14763096,工研院服科中心_AI 機器人與多模態感知整合技術工程師(U300新竹/六甲),AI工程師,Edge AI / Embedded; LLM; Multimodal; Speech / ASR
+15079290,演算法開發資深工程師,演算法工程師,Computer Vision; Data Mining; Deep Learning; Machine Learning; Statistics
+15360509,工研院資通所_多媒體應用軟體工程師(V501),電信／通訊系統工程師,C; C++; Deep Learning; FPGA; MATLAB; Machine Learning; Python
+15237620,AI 應用與軟體產品工程師,資料科學家,CI/CD; Claude; Data Visualization; Deep Learning; Django; Docker; FastAPI; Flask; Git; JavaScript; LLM; Machine Learning; NLP; Node.js; OpenAI / GPT; Prompt Engineering; PyTorch; Python; TensorFlow
+13256045,【原住民徵才專區】工研院電光系統所_軟體/AI演算法/機器學習工程師,軟體工程師,Machine Learning
+14697009,AI應用工程師,AI工程師,AI Agent; Computer Vision; Deep Learning; FastAPI; Gemini; LLM; Machine Learning; OpenAI / GPT; OpenCV; Pandas; Prompt Engineering; PyTorch; Python; TensorFlow
+13428177,工研院服科中心_AI電腦視覺與演算法工程師 ( S200),軟體工程師,C++; CUDA; Computer Vision; Deep Learning; Machine Learning; Object Detection; Python
+15359775,(B13)AI Agent 開發工程師,AI工程師,AI Agent; Claude; Data Visualization; PostgreSQL; Python
+15362181,AI-LLM工程師,演算法工程師,AI Agent; Computer Vision; Deep Learning; Diffusion Model; Docker; ETL / Data Pipeline; FastAPI; Fine-tuning; GCP; LLM; LoRA; MLOps; Machine Learning; Multimodal; NLP; PyTorch; Python; RAG; Speech / ASR; TTS; TensorFlow; Time Series; Vector Database
+14333649,AI 輔助軟體開發工程師,AI工程師,Gemini; NLP; OpenAI / GPT; Prompt Engineering; RAG
+14606884,1. AI平台工程師(AI應用團隊),軟體工程師,AI Agent; AWS; Azure; CI/CD; Claude; Computer Vision; Django; Docker; FastAPI; Fine-tuning; Flask; GCP; Gemini; Git; JavaScript; Knowledge Graph; LLM; LangChain; Llama; LlamaIndex; MLOps; MLflow; MySQL; NLP; OpenAI / GPT; PostgreSQL; Prompt Engineering; Python; RAG; Redis; SQL; Speech / ASR
+15133102,機器人軟體工程師,軟體工程師,C++; Deep Learning; ETL / Data Pipeline; JAX; Model Deployment; PyTorch; Python
+15258626,AI 物理模擬工程師,AI工程師,Deep Learning; PyTorch; Python; TensorFlow
+13251265,人工智慧工程師(台北),演算法工程師,Computer Vision; Deep Learning; Machine Learning; Python
+14201887,機器學習工程師 Machine Learning Engineer,演算法工程師,Computer Vision; Deep Learning; Linux; Machine Learning; PyTorch; Python; Statistics; TensorFlow
+15252597,AI應用工程師-智慧交通領域(IAD20),AI工程師,AWS; Azure; Computer Vision; Docker; Feature Engineering; GCP; Git; LLM; Model Deployment; Prompt Engineering; Vector Database
+15332595,Computer Vision / ML 工程師,AI工程師,C++; Computer Vision; Deep Learning; Edge AI / Embedded; Git; Keras; Machine Learning; Multimodal; Object Detection; OpenCV; PyTorch; Python; TensorFlow; TensorRT; Transformer; YOLO
+15031636,工研院資通所_四足機器人運動控制與強化學習工程師(U101),軟體工程師,C++; CUDA; Machine Learning; Model Deployment; PyTorch; Python; Reinforcement Learning; TensorRT
+15346947,雲端暨資料應用開發工程師,軟體工程師,AWS; Azure; CI/CD; Data Visualization; Docker; GCP; Machine Learning; PyTorch; Python; TensorFlow; scikit-learn
+8131067,資料探勘工程師 / Data Mining Engineer,演算法工程師,AWS; Airflow; Azure; Data Mining; Data Warehouse; ETL / Data Pipeline; GCP; Linux; Machine Learning; MongoDB; MySQL; NumPy; Pandas; PostgreSQL; Python; SQL
+9610845,人工智慧開發工程師 / AI Development Engineer,軟體工程師,AWS; Computer Vision; Machine Learning; NLP; Python; Recommendation System; SQL
+14801996,LLM 應用工程師 / LLM Application Engineer,軟體工程師,LLM; Python
+12353942,資料工程師 (竹科),資料科學家,C#; Claude; Data Mining; JavaScript; Machine Learning; MySQL; PHP; Python; SQL; Statistics
+14975496,LLM 語言模型開發工程師,軟體工程師,AI Agent; C++; CUDA; Docker; FastAPI; Flask; GPU; Git; JavaScript; LLM; LangChain; Linux; Llama; LlamaIndex; NLP; Node.js; OpenAI / GPT; PyTorch; Python; RAG; Vector Database
+15297930,語言模型應用研發工程師,軟體工程師,C++; Git; LLM; LangChain; Linux; Prompt Engineering; Python
+15363303,AI_研究員(IT)大直,數據分析師／資料分析師,Git; Linux; Machine Learning; Pandas; Python
+13787405,數位金融處-數據商業分析師 Data Business Analyst,數據分析師／資料分析師,AI Agent; Data Visualization; Feature Engineering; LLM; Machine Learning; Python; Statistics
+15362240,AI- Computer Vision 工程師,軟體工程師,C++; CUDA; Computer Vision; Deep Learning; Diffusion Model; Docker; Edge AI / Embedded; FastAPI; Fine-tuning; GCP; GPU; MLOps; Machine Learning; Model Deployment; NLP; ONNX; OpenCV; PyTorch; Python; TensorFlow
+14684097,【資訊】AI應用工程師(Agentic AI 應用開發),AI工程師,AI Agent; AWS; Azure; CI/CD; Docker; Git; Kubernetes; LLM; Linux; MLOps; Microservices; Python; RAG; REST API; SQL
+14342555,AI 應用整合工程師,AI工程師,AI Agent; LLM; Linux; Prompt Engineering; Python; RAG; REST API
+15364196,【2027預聘暨研發替代役】營運系統數位轉型與AI應用工程師-R08,AI工程師,.NET; C#; Data Visualization; Java; Python; React; SQL; Spring / Spring Boot
+15365220,IT Infrastructure & AI Deployment Enginee【總處資訊部】,AI工程師,AI Agent; Docker; Edge AI / Embedded; Git; LLM; Linux; OCR; Python; SQL
+15365247,AI Application & Agent Engineer｜Branch Operations【總處資訊部】,AI工程師,AI Agent; Claude; Gemini; JavaScript; LLM; OCR; OpenAI / GPT; Python; RAG; REST API; SQL; TypeScript
+12161305,GIS工程師,AI工程師,MySQL; PostgreSQL; Python; SQL
+15297358,K026KB6_C++/AI 應用工程師,軟體工程師,C++; Claude; SQL
+15339121,60296BD_AI 工程師,AI工程師,Claude; Docker; ETL / Data Pipeline; FastAPI; Git; LLM; OpenAI / GPT; Prompt Engineering; PyTorch; Python; RAG; Vector Database
+15364597,Python 後端工程師,後端工程師,.NET; C#; Claude; Computer Vision; Django; Docker; FastAPI; Flask; Git; JavaScript; LLM; Linux; OCR; OpenAI / GPT; PostgreSQL; Python; RAG; REST API; SQL; TypeScript; Vector Database; Vue
+15364225,【2027預聘暨研發替代役】全端工程師 (Backend-heavy / AI & Data Integration)-R08,軟體工程師,C#; Databricks; LLM; Python; React; Spark; Vue
+15185710,工研院服科中心_AI晶片中介軟體與硬體加速演算法工程師(U300),AI工程師,C; C#; C++; Computer Vision; Data Visualization; Edge AI / Embedded; FPGA; GPU; Llama; Model Deployment; ONNX; PyTorch; Python; Statistics; TensorRT; vLLM
+14913425,R0008940: AI Engineer (TrendIQ Core Team),軟體工程師,AI Agent; AWS; Airflow; Azure; CI/CD; Data Mining; Deep Learning; Docker; Fine-tuning; Knowledge Graph; Kubernetes; LLM; MLOps; Machine Learning; Multimodal; Prompt Engineering; PyTorch; Python; Reinforcement Learning; Scala; Spark; Statistics; TensorFlow
+15227874,【整合性策略價值管理研究中心】AI工程師,軟體工程師,ETL / Data Pipeline; LLM; LightGBM; Machine Learning; Model Deployment; NumPy; Pandas; Prompt Engineering; Python; XGBoost; scikit-learn
+15233708,【茂林光電 】AI應用工程師,AI工程師,AI Agent; Claude; Computer Vision; Deep Learning; Gemini; LLM; LangChain; OCR; OpenAI / GPT; Python; RAG; SQL
+15365432,AI 營運工程師｜AI Operations Engineer【總處資訊部】,AI工程師,AI Agent; Docker; Fine-tuning; Git; Hugging Face; JavaScript; LLM; PostgreSQL; PyTorch; Python; RAG; REST API; Reinforcement Learning; SQL; Transformer; TypeScript
+15365646,【AI院】智慧城市與安全中心-AI應用工程師,AI工程師,Computer Vision; JavaScript; LLM; Linux; Node.js; PostgreSQL; Python; RAG; REST API; React; SQL; Vector Database
+15347899,AI工程師（含 LLM / CV職能）,AI工程師,AI Agent; Azure; CI/CD; Claude; Computer Vision; Docker; Edge AI / Embedded; Git; LLM; LangChain; Python; RAG; SQL
+15185019,系統開發工程師,系統工程師,
+15343436,Software Engineer 軟體工程師,軟體工程師,C; C++; Edge AI / Embedded; Machine Learning; Python
+14666888,AI/LLM工程師,AI工程師,AI Agent; Deep Learning; Docker; Git; Kubernetes; LLM; LangChain; Llama; LlamaIndex; Machine Learning; Model Deployment; NLP; Prompt Engineering; Python; RAG; REST API; SQL; TypeScript
+15346862,D-AI工程師,AI工程師,AI Agent; Feature Engineering; LLM; Machine Learning; Prompt Engineering; Python; RAG; Recommendation System; SQL
+15148195,軟體工程師,軟體工程師,C++; Computer Vision; LLM; Linux; OpenAI / GPT; OpenCV; Python
+15148101,AI 開發工程師(AI Research Engineer),軟體工程師,AI Agent; JavaScript; LLM; Linux; Node.js; Python; RAG
+13374416,【技術】數據工程師（Data Engineer）,演算法工程師,AI Agent; Airflow; Data Warehouse; Django; ETL / Data Pipeline; Elasticsearch; FastAPI; Flask; GCP; Hadoop; Kafka; Linux; Machine Learning; MongoDB; MySQL; PostgreSQL; Python; Recommendation System; Redis; SQL; Spark
+15365668,AI事業 軟體工程師,軟體工程師,A/B Testing; FastAPI; Git; Hugging Face; LLM; LangChain; Llama; Microservices; MongoDB; MySQL; OpenAI / GPT; PostgreSQL; Prompt Engineering; Python; RAG; REST API; Transformer; Vector Database
+15288692,IoT 整合工程師,通訊軟體工程師,AI Agent; C#; Edge AI / Embedded; Java; LLM; Linux; Python
+14501766,《研發》AI 軟體工程師,軟體工程師,C++; Hugging Face; LLM; Linux; Llama; Python; Transformer; vLLM
+14996306,開發工程師 (AI / 知識庫方向)－軟體公司誠聘,軟體工程師,C; C++; LLM; Python; RAG
+14393530,MIS 工程師 / MIS Engineer,MIS程式設計師,LLM
+14784926,數據分析師,資料工程師,AI Agent; Claude; Data Mining; Data Visualization; Deep Learning; Feature Engineering; GCP; Gemini; Git; LLM; Machine Learning; NumPy; OpenAI / GPT; Pandas; PostgreSQL; Prompt Engineering; Python; SQL; Statistics; scikit-learn
+15367401,AI工程師,AI工程師,Deep Learning; Docker; Feature Engineering; Git; LLM; Machine Learning; NLP; PyTorch; Python
+9952770,【ML】Machine Learning Engineer / 機器學習工程師 (OB03),軟體工程師,Data Mining; Deep Learning; Feature Engineering; Keras; Machine Learning; Python; Reinforcement Learning; SQL; Statistics; TensorFlow; Time Series; scikit-learn
+14433365,【RD】AI 軟體工程師,軟體工程師,AWS; Claude; Gemini; Hugging Face; LLM; LangChain; Linux; NLP; OpenAI / GPT; Prompt Engineering; PyTorch; Python; RAG; TensorFlow
+14644083,AOI/AI工程師,軟體工程師,C#; Computer Vision; Git; Machine Learning; OpenCV; Python
+14604759,AI生成式影像／影片演算法(高級)工程師（ComfyUI / LoRA)_內湖區,AI工程師,CUDA; Computer Vision; Deep Learning; Docker; Fine-tuning; GPU; Git; Hugging Face; Linux; LoRA; Model Deployment; Prompt Engineering; PyTorch; Python; Stable Diffusion; Transformer
+14694306,AI工程師-技術部(TDD50),軟體工程師,Docker; Kubernetes
+15291172,AI提示詞工程師(Prompt Engineer),AI工程師,AI Agent; Claude; Fine-tuning; Gemini; LLM; LangChain; LlamaIndex; OpenAI / GPT; React
+14262234,AI演算法研發工程師(IGNT0100),軟體工程師,Deep Learning; LLM; Machine Learning; Multimodal; PyTorch; Speech / ASR; TensorFlow
+15069479,AI研發工程師,軟體工程師,C++; Deep Learning; Fine-tuning; LLM; LangChain; Machine Learning; PyTorch; Python; RAG; TensorFlow
+15031226,AI演算法工程師（PINN/物理模擬）,AI工程師,Linux; NumPy; PyTorch; Python; TensorFlow
+14014103,Junior ML Engineer / 機器學習工程師,演算法工程師,C++; Deep Learning; Docker; Git; Linux; Machine Learning; PyTorch; Python; REST API; Redis; Shell/Bash; Statistics; TensorFlow
+12288357,【研究發展處】SWE / Software Engineer / 軟體工程師,軟體工程師,AI Agent; C++; CI/CD; Deep Learning; ETL / Data Pipeline; Git; Java; LLM; Linux; Machine Learning; NLP; Python; RAG
+15181802,【湖口】AI 應用開發工程師_P05,AI工程師,Claude; LLM; OpenAI / GPT; Python; RAG; React; SQL; Vector Database; Vue
+13481563,深度學習演算法工程師(新竹)-IGEC0140,軟體工程師,Deep Learning; Machine Learning; NLP; Python
+15370133,1. AI 平台與前沿技術/系統架構與服務串接/前端感知與電腦視覺,前端工程師,AI Agent; C#; C++; CI/CD; CUDA; Computer Vision; Data Visualization; Deep Learning; Docker; ETL / Data Pipeline; GPU; Git; Java; Kubernetes; LLM; Linux; MLOps; Machine Learning; Microservices; OpenCV; PyTorch; Python; RAG; REST API; SQL; TensorFlow; TensorRT; Vector Database; gRPC
+15368146,D4000 AI Agent Engineer / AI代理人開發工程師,AI工程師,AI Agent; Docker; LLM; Machine Learning; MySQL; NLP; Python; SQL
+12502444,全端開發工程師,全端工程師,C#; CI/CD; Computer Vision; Docker; Git; JavaScript; Kotlin; LLM; Linux; Microservices; MongoDB; MySQL; Node.js; OpenCV; PostgreSQL; Python; React; Scala; Spring / Spring Boot; Swift; Vue
+15210290,AI應用工程師,韌體工程師,AI Agent; Docker; FastAPI; Git; LLM; Linux; Machine Learning; Python; RAG; Shell/Bash
+14664378,AI 平台工程師 (AI Platform Engineer),系統工程師,CUDA; Claude; Docker; GPU; Kubernetes; LLM; Linux; Shell/Bash
+14879727,AI 平台開發工程師（LLM／Agentic AI）,軟體工程師,AI Agent; AWS; Azure; Docker; GCP; Git; Grafana; GraphQL; Kubernetes; LLM; LangChain; Linux; MySQL; PostgreSQL; Prometheus; Python; RAG; REST API; SQL; TypeScript; Vector Database
+13840807,【大數據發展事業處】資料科學家 Data Scientist,統計學研究員,Data Visualization; Deep Learning; Feature Engineering; Git; Machine Learning; NLP; PyTorch; Python; Recommendation System; SQL; TensorFlow; scikit-learn
+12642979,[台北/高雄] 後端工程師 Software Engineer (Python/Django),軟體工程師,AWS; Airflow; Azure; CI/CD; Computer Vision; Django; Docker; GCP; Git; Grafana; JavaScript; Jenkins; Kubernetes; Linux; MLOps; Machine Learning; PostgreSQL; Prometheus; Python; REST API; Vector Database
+15115912,元大銀行-資訊系統開發三部-AI與資料應用解決方案工程師,軟體工程師,AI Agent; CI/CD; Docker; ETL / Data Pipeline; Feature Engineering; Fine-tuning; Git; Kubernetes; LLM; LangChain; MLOps; Machine Learning; Microservices; Model Deployment; Prompt Engineering; PyTorch; Python; SQL; TensorFlow; scikit-learn
+15372045,【優渥年薪】AI應用工程師/AI工程師/AI Engineer，1年以上經驗,AI工程師,LLM; MySQL; PostgreSQL; Python; RAG; SQL; Vector Database
+15368306,工研院資通所_AI工程師(T02),軟體工程師,AI Agent; Claude; Django; Docker; Elasticsearch; FastAPI; Flask; GPU; Git; Hugging Face; Kubernetes; LLM; Linux; MLflow; Ollama; OpenAI / GPT; PostgreSQL; Python; RAG; REST API; Recommendation System; Redis; SQL; Shell/Bash; Transformer; vLLM
+14412156,【航向AI】AI演算法工程師 (新竹),AI工程師,Computer Vision; Deep Learning; Fine-tuning; Machine Learning; NumPy; OpenCV; PyTorch; Python; Segmentation; TensorFlow
+15372149,(新竹)116年研發替代役-AI軟體工程師,軟體工程師,AI Agent; CI/CD; Claude; Docker; FastAPI; Fine-tuning; Flask; GPU; Gemini; Git; LLM; LangChain; Microservices; OpenAI / GPT; Prompt Engineering; Python; React
+15179788,【AI院】AI 應用研發工程師,後端工程師,AI Agent; Claude; Data Visualization; Docker; Elasticsearch; FastAPI; Feature Engineering; Git; Linux; Machine Learning; Microservices; Multimodal; OpenAI / GPT; PyTorch; Python; REST API; Statistics; TensorFlow
+15173946,【汐止總公司】軟體工程師 (AI開發),軟體工程師,AI Agent; Azure; Claude; Gemini; JavaScript; LLM; LangChain; LlamaIndex; Node.js; OpenAI / GPT; Prompt Engineering; Python; RAG; Vector Database
+14483072,AI 創新部【3D演算法工程師】AI Algorithm Engineer – Focus on 3D Vision,軟體工程師,AWS; Azure; C#; C++; CUDA; Computer Vision; Deep Learning; GCP; GPU; Java; Machine Learning; Python; TensorRT
+14312245,AI工程師,AI工程師,Deep Learning; LLM; Machine Learning; PyTorch; Python
+15305769,FU-AI 工程師,資料科學家,Git; LLM; Python
+15082418,AI演算法工程師,AI工程師,AWS; Azure; C++; Computer Vision; Deep Learning; Edge AI / Embedded; GCP; Java; MLOps; Machine Learning; Python
+14851739,116年研發替代役 - AI系統設計及應用工程師(ME200),數位IC設計工程師,C++; FPGA; Python; RAG
+15306885,[MDL-RE-TRN] 模型訓練研究工程師 Research Engineer (Model Training),AI工程師,Deep Learning; Fine-tuning; GPU; Git; Hugging Face; LLM; LoRA; Machine Learning; Multimodal; Pandas; PyTorch; Python; Transformer
+15374587,AI 專案工程師,AI工程師,C#; Claude; Git; Java; JavaScript; OpenAI / GPT; Python
+15306945,[MDL-RE-ALN] 模型對齊研究工程師 Research Engineer(Model Alignment),機器學習工程師,Git; LLM; Machine Learning; Python; RAG
+3790131,AOI影像演算法工程師,軟體工程師,.NET; C#; C++; Computer Vision; Machine Learning; OpenCV; Python; TensorFlow
+15373035,115年第28次專案人力進用-1.研發類,全端工程師,C#; C++; Computer Vision; Deep Learning; Docker; Java; Kubernetes; LLM; Machine Learning; Model Deployment; NLP; Python; TensorRT
+14341883,AI影像演算法應用工程師,演算法工程師,Computer Vision; Deep Learning; Keras; Machine Learning; PyTorch; Python; TensorFlow
+14428784,工研院電光系統所_AI系統工程師(E500),軟體工程師,C++; Computer Vision; Machine Learning; Python
+14228317,工研院電光系統所_智慧影像系統工程師(J300),軟體工程師,C#; C++; Computer Vision; Deep Learning; Machine Learning; Python
+15374293,後端軟體工程師_台達研究院(台北/台南),軟體工程師,CI/CD; Claude; Docker; Elasticsearch; FastAPI; Flask; GPU; Gemini; Git; GitLab CI; Grafana; JavaScript; Kafka; Kubernetes; LLM; Machine Learning; Microservices; MongoDB; PostgreSQL; Prometheus; Python; REST API; Redis; SQL; gRPC
+15306829,[MDL-DE] 資料工程師 Data Engineer（Model Team）,資料工程師,Data Warehouse; ETL / Data Pipeline; Fine-tuning; Git; Multimodal; OCR; Pandas; Python; SQL
+15284624,【台北】 系統研發人員｜後端 / 全端工程師,後端工程師,AWS; Azure; CI/CD; Claude; Docker; GCP; Gemini; Git; JavaScript; Kubernetes; LLM; Microservices; MongoDB; MySQL; Node.js; OpenAI / GPT; PostgreSQL; Prompt Engineering; Python; RAG; REST API; React; Redis; TypeScript; Vector Database
+14788451,RF AI 軟體開發工程師 (新竹),軟體工程師,C++; Docker; Git; LLM; Machine Learning; Python; Transformer
+14987106,[Server]軟體工程師(桃園),軟體工程師,C++; CI/CD; Docker; Elasticsearch; FastAPI; Git; Grafana; Kubernetes; LLM; Linux; Machine Learning; PostgreSQL; Prometheus; Python; REST API; React; Redis; SQL; Shell/Bash
+14887035,行政-健康台灣深耕計畫-AI 模型開發工程師 (AI Model Engineer),研究助理,Deep Learning; Docker; FastAPI; Fine-tuning; Flask; Git; Kubernetes; LLM; LangChain; Linux; Multimodal; NLP; PyTorch; Python; RAG; REST API; TensorFlow
+15372933,【日商樂天】Data Scientist,資料科學家,A/B Testing; Hadoop; LLM; Machine Learning; NLP; PyTorch; Python; SQL; Spark; Statistics; TensorFlow; Transformer; scikit-learn
+15129403,Garena - AI Associate,專案經理,AI Agent; Claude; Gemini; LLM; MLOps; NLP; OpenAI / GPT; Prompt Engineering; RAG
