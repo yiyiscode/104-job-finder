@@ -100,6 +100,11 @@ python -m jobfinder.cli shortlist import local_data/shortlist-2026-09-23.csv   #
 python -m jobfinder.cli shortlist list                        # 每筆的抓取狀態
 python -m jobfinder.cli shortlist fetch --limit 5 --dry-run   # 只列出會抓哪些
 
+# 補深評佇列:被舊粗篩誤刷、仍在架上的職缺。排入/列出不連 104;
+# 實際補抓由每日排程用「當天沒用完的詳細頁額度」做,不多發任何請求,補評的不進日報
+python -m jobfinder.cli backfill enqueue local_data/claude_probe/rescreen.json
+python -m jobfinder.cli backfill list
+
 # Claude 訂閱評分(llm.provider: claude_cli):只打 claude -p、不連 104
 python scripts/claude_probe.py --limit 10        # 量額度:跑前跑後各看一次 /usage
 python scripts/claude_rescore.py status          # 重評舊資料(只限有全文的)
@@ -135,6 +140,7 @@ Windows 工作排程器 (08:00 每日,錯過開機後補跑)
   └─ normalize → SQLite 去重(只留今天新出現的)
   └─ targeting.py 規則層:產業(半導體/金融代碼前綴)+ 公司規模(≥500人)
   └─ Stage 1 粗篩(批次 15 筆) → Stage 2 深評(逐筆)→ 程式端校正
+  └─ 補深評佇列:剩餘詳細頁額度補抓 backfill_queue → 深評(不進日報)
   └─ Telegram 日報只發一則(notify.style: digest;cards = 摘要 + 每職缺一則卡片)
 ```
 

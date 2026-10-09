@@ -183,6 +183,8 @@ class RunReport(BaseModel):
     jobs_new: int = 0
     jobs_screened_in: int = 0
     jobs_deep_scored: int = 0
+    #: 補深評佇列裡、這次用剩餘詳細頁額度補評的舊職缺數(不進日報、不存 runs 表)
+    backfilled: int = 0
 
     notified: list[ScoredJob] = Field(default_factory=list)
     rejected: list[RejectedJob] = Field(default_factory=list)
