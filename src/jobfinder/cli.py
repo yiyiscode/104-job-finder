@@ -11,7 +11,9 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from .config import HARD_MAX_LIVE_LIMIT, Config, Secrets, load_config
@@ -83,6 +85,17 @@ def build_parser() -> argparse.ArgumentParser:
         help=f"本次最多抓幾筆,必填,硬上限 {HARD_MAX_LIVE_LIMIT}",
     )
     sl_fetch.add_argument("--dry-run", action="store_true", help="只列出會抓哪些,不連線")
+
+    bf = sub.add_parser(
+        "backfill", help="補深評佇列:排入/列出(不連 104;實際補抓由每日排程用剩餘額度做)"
+    )
+    bf_sub = bf.add_subparsers(dest="backfill_command", required=True)
+    bf_enq = bf_sub.add_parser("enqueue", help="把重篩結果裡 keep 的職缺排進佇列")
+    bf_enq.add_argument("json", help="{job_no: {keep, rough, reason}} 格式(重篩腳本的輸出)")
+    bf_enq.add_argument(
+        "--min-rough", type=int, default=None, help="預設沿用 llm.screen.rough_threshold"
+    )
+    bf_sub.add_parser("list", help="列出佇列與每筆結果")
 
     ui = sub.add_parser("ui", help="開啟本機 Web UI(候選清單 / 技能趨勢),只讀 jobs.db、不連 104")
     ui.add_argument("--port", type=int, default=8501)
@@ -502,7 +515,7 @@ async def _run(cfg: Config, args: argparse.Namespace) -> int:
 
     print(
         f"\n狀態={report.status} 抓取={report.jobs_fetched} 新={report.jobs_new}"
-        f" 深評={report.jobs_deep_scored} 推播={len(report.notified)}"
+        f" 深評={report.jobs_deep_scored} 補評={report.backfilled} 推播={len(report.notified)}"
         f" 請求={report.requests_used} 成本=${report.llm_cost_usd:.4f}"
     )
     for warning in report.warnings:
@@ -518,6 +531,31 @@ def _reset_circuit(cfg: Config, args: argparse.Namespace) -> int:
         before = repo.get_circuit()
         repo.save_circuit(CircuitState.closed())
     print(f"熔斷器已解除(先前:{before.state},連續失敗 {before.consecutive_failures} 次)")
+    return 0
+
+
+def _backfill(cfg: Config, args: argparse.Namespace) -> int:
+    """只動佇列,不連 104。實際補抓在每日排程裡,用當天沒用完的詳細頁額度。"""
+    with Database(args.data_dir, cfg.paths.db_filename) as db:
+        repo = JobRepo(db.conn, cfg.dedupe)
+        if args.backfill_command == "enqueue":
+            data = json.loads(Path(args.json).read_text(encoding="utf-8"))
+            floor = cfg.llm.screen.rough_threshold if args.min_rough is None else args.min_rough
+            items = {
+                job_no: int(v["rough"])
+                for job_no, v in data.items()
+                if v.get("keep") and int(v.get("rough", 0)) >= floor
+            }
+            added = repo.enqueue_backfill(items, datetime.now())
+            print(f"符合條件 {len(items)} 筆,新排入 {added} 筆(已深評或已在佇列的略過)")
+            return 0
+        rows = repo.backfill_status()
+    pending = [r for r in rows if r["done_at"] is None]
+    print(f"佇列 {len(rows)} 筆:待補 {len(pending)}")
+    for r in rows:
+        state = r["outcome"] or f"待補(失敗 {r['attempts']} 次)"
+        company, title = (r["cust_name"] or "")[:10], (r["job_name"] or "")[:30]
+        print(f"  {r['priority']:>3}  {state:<14}{company}  {title}")
     return 0
 
 
@@ -566,6 +604,8 @@ def main(argv: list[str] | None = None) -> int:
             return asyncio.run(_hitrate(cfg, args))
         if args.command == "shortlist":
             return asyncio.run(_shortlist(cfg, args))
+        if args.command == "backfill":
+            return _backfill(cfg, args)
 
         _validate_live_flags(cfg, args)
         return asyncio.run(_run(cfg, args))

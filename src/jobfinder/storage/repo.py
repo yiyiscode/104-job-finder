@@ -246,6 +246,75 @@ class JobRepo:
     def mark_notified(self, job_nos: list[str]) -> None:
         self.mark_status(job_nos, "notified")
 
+    # ── 補深評佇列 ──────────────────────────────────────────────────
+
+    #: 詳細頁暫時失敗幾次就放棄 —— 免得一筆壞掉的職缺每天吃掉一個名額
+    BACKFILL_MAX_ATTEMPTS = 3
+
+    def enqueue_backfill(self, items: dict[str, int], now: datetime) -> int:
+        """把 {job_no: 優先度} 排進佇列。已有深評或不在 jobs 表的跳過;已排過的不重複排。"""
+        added = 0
+        for job_no, priority in items.items():
+            cur = self.conn.execute(
+                """
+                INSERT OR IGNORE INTO backfill_queue (job_no, priority, queued_at)
+                SELECT ?, ?, ? WHERE EXISTS (SELECT 1 FROM jobs WHERE job_no = ?)
+                  AND NOT EXISTS (SELECT 1 FROM scores WHERE job_no = ? AND stage = 'deep')
+                """,
+                (job_no, priority, now.isoformat(), job_no, job_no),
+            )
+            added += cur.rowcount
+        self.conn.commit()
+        return added
+
+    def pending_backfill(self) -> list[JobSummary]:
+        """待補的職缺,優先度高的在前。"""
+        rows = self.conn.execute(
+            """
+            SELECT j.raw_summary, j.matched_keywords
+              FROM backfill_queue b JOIN jobs j USING (job_no)
+             WHERE b.done_at IS NULL AND j.raw_summary IS NOT NULL
+             ORDER BY b.priority DESC, b.queued_at
+            """
+        ).fetchall()
+        out = []
+        for row in rows:
+            summary = self._summary_from_raw(
+                _loads(row["raw_summary"], {}), _loads(row["matched_keywords"], [])
+            )
+            if summary is not None:
+                out.append(summary)
+        return out
+
+    def finish_backfill(self, job_no: str, outcome: str, now: datetime) -> None:
+        self.conn.execute(
+            "UPDATE backfill_queue SET done_at = ?, outcome = ? WHERE job_no = ?",
+            (now.isoformat(), outcome, job_no),
+        )
+        self.conn.commit()
+
+    def backfill_failed(self, job_no: str, now: datetime) -> None:
+        """詳細頁或深評暫時失敗:記一次,滿上限就放棄。"""
+        self.conn.execute(
+            "UPDATE backfill_queue SET attempts = attempts + 1 WHERE job_no = ?", (job_no,)
+        )
+        self.conn.execute(
+            "UPDATE backfill_queue SET done_at = ?, outcome = 'gave_up'"
+            " WHERE job_no = ? AND attempts >= ?",
+            (now.isoformat(), job_no, self.BACKFILL_MAX_ATTEMPTS),
+        )
+        self.conn.commit()
+
+    def backfill_status(self) -> list[sqlite3.Row]:
+        return self.conn.execute(
+            """
+            SELECT b.job_no, b.priority, b.attempts, b.done_at, b.outcome,
+                   j.job_name, j.cust_name
+              FROM backfill_queue b LEFT JOIN jobs j USING (job_no)
+             ORDER BY b.done_at IS NOT NULL, b.priority DESC
+            """
+        ).fetchall()
+
     def mark_scored(self, job_nos: list[str]) -> None:
         """深評過但沒推播。**不覆蓋 notified** —— `--replay` 重評時,曾經推過的職缺
         這次沒被選上,也不該抹掉「使用者收過這張卡片」的事實。"""

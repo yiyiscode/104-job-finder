@@ -112,7 +112,7 @@ async def run_daily(
 
         # ── 抓取 ──────────────────────────────────────────────────
         try:
-            details, screen_outcome = await _fetch_and_screen(
+            details, screen_outcome, backfill = await _fetch_and_screen(
                 cfg, deps, repo, report, now, limit, rescore_all
             )
         except SourceMisconfigured as exc:
@@ -128,6 +128,8 @@ async def run_daily(
 
         # ── 深評 ──────────────────────────────────────────────────
         scored = await _deep_score_all(cfg, deps, repo, report, screen_outcome, details)
+        # 補深評的不進今天的日報 —— 日報只推「今天新出現的」。分數照存,UI 看得到。
+        report.backfilled = await _deep_score_backfill(deps, repo, report, backfill, now)
 
         from .scoring.rules import select_for_notification
 
@@ -229,13 +231,79 @@ async def _fetch_and_screen(cfg, deps, repo, report, now, limit, rescore_all=Fal
                 log.info("詳細頁預算用盡:%s", exc)
                 report.warnings.append("詳細頁預算用盡,部分職缺只用列表資訊評分")
 
+        # 當天的詳細頁抓完了,剩下的額度拿來補抓佇列裡的舊職缺
+        backfill = await _fetch_backfill(source, repo, now, limit, rescore_all)
         report.requests_used = source.requests_used
 
     for job_no, detail in details.details.items():
         repo.save_detail(job_no, detail.raw)
     report.schema_drift_count += len(details.drift)
 
-    return details, screen_outcome
+    return details, screen_outcome, backfill
+
+
+async def _fetch_backfill(source, repo, now, limit, rescore_all) -> list[tuple]:
+    """用當天沒用完的詳細頁額度,補抓被舊粗篩規則誤刷、仍在架上的職缺。
+
+    - **不多發任何請求**:只用 ``RequestBudget`` 剩下的名額,硬上限不變
+    - 只在真的連線時做:離線來源(重播 / fixture)沒有 ``budget``;``--limit`` 是
+      手動試跑,也不該順便吃佇列
+    - 封鎖訊號照常往上丟,由呼叫端熔斷 —— 補抓不是例外
+    """
+    budget = getattr(source, "budget", None)
+    if budget is None or limit or rescore_all:
+        return []
+    room = min(budget.details_remaining, budget.navigations_remaining)
+    jobs = repo.pending_backfill()[:room]
+    if not jobs:
+        return []
+
+    try:
+        batch = await source.fetch_details(jobs)
+    except BudgetExhausted:
+        return []
+
+    out = []
+    for job in jobs:
+        detail = batch.details.get(job.job_no)
+        if detail is None:
+            # 被額度截斷的不算失敗,明天再排;其餘是暫時性錯誤,記一次
+            if not batch.truncated_by_budget:
+                repo.backfill_failed(job.job_no, now)
+            continue
+        if isinstance(detail.raw, dict) and detail.raw.get("error"):
+            repo.finish_backfill(job.job_no, "closed", now)  # 職缺已下架
+            continue
+        repo.save_detail(job.job_no, detail.raw)
+        out.append((job, detail))
+    log.info("補抓詳細頁:%d 筆排入、%d 筆可深評", len(jobs), len(out))
+    return out
+
+
+async def _deep_score_backfill(deps, repo, report, pairs, now) -> int:
+    done = 0
+    for job, detail in pairs:
+        if getattr(deps.scorer, "budget_exceeded", False):
+            break
+        try:
+            result, cost = await deps.scorer.deep(job, detail)
+        except Exception as exc:
+            log.warning("補深評 %s 失敗:%s", job.job_no, exc)
+            repo.backfill_failed(job.job_no, now)
+            continue
+        report.llm_cost_usd += cost
+        repo.save_score(
+            result,
+            run_id=report.run_id,
+            raw_response=getattr(deps.scorer, "raw_responses", {}).get(job.job_no, ""),
+            now=report.started_at,
+        )
+        repo.mark_scored([job.job_no])
+        repo.finish_backfill(job.job_no, "scored", now)
+        done += 1
+    if done:
+        log.info("補深評 %d 筆舊職缺(不進今天的日報)", done)
+    return done
 
 
 async def _deep_score_all(cfg, deps, repo, report, screen_outcome, details) -> list[ScoredJob]:

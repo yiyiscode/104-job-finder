@@ -97,3 +97,15 @@ CREATE TABLE IF NOT EXISTS circuit_state (
 
 INSERT OR IGNORE INTO circuit_state (id, state, reason, consecutive_failures)
 VALUES (1, 'closed', '', 0);
+
+-- 補深評佇列(2026-10-10)。被舊粗篩規則誤刷、仍在架上的職缺排在這裡,
+-- 每日排程用「當天沒用完的詳細頁額度」補抓詳細頁並深評 —— 不多發任何額外的 104 請求。
+-- 不設外鍵:jobs 會被 prune,佇列只是待辦清單。
+CREATE TABLE IF NOT EXISTS backfill_queue (
+    job_no     TEXT PRIMARY KEY,
+    priority   INTEGER NOT NULL DEFAULT 0,      -- 粗篩分數,高的先補
+    queued_at  TEXT NOT NULL,
+    attempts   INTEGER NOT NULL DEFAULT 0,      -- 詳細頁暫時失敗的次數,滿 3 次放棄
+    done_at    TEXT,
+    outcome    TEXT CHECK (outcome IN ('scored', 'closed', 'gave_up'))
+);
