@@ -25,3 +25,7 @@ build/
 .idea/
 Thumbs.db
 desktop.ini
+
+# Claude Code 設定:含本機路徑與個人權限規則,不進版控
+.claude/settings.json
+.claude/settings.local.json
