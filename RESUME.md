@@ -31,7 +31,8 @@ Claude 分數分布:平均 56.3、中位 57;≥60 有 180、≥70 有 91、≥80
    ⚠️ 發現 Claude 分數分不出 3/4/5 星(平均 64.4/63.1/66.7)—— 下一個要處理的是評分鑑別力,不是門檻
 2. 明天 08:00 排程是第一次用 Claude 跑 —— 看 daily.log 有沒有「改用 OpenRouter」警告
 3. 命中率(hitrate)仍走 OpenRouter,要不要也切 Claude 待決定
-4. `feat/recalibrate-thresholds` merge 到 master(等使用者說)
+4. ✅ 10-09 粗篩 prompt 修正(`feat/screen-prompt-rules`):Haiku 與 Gemini 誤殺率相同,問題在共用規則。
+   改後同 407 筆:想去被刷 6/19 → 0/19、深評≥70 被刷 9 → 3;代價留下 75% → 87%。memory `job-finder-screen-prompt-decision`
 
 ---
 
