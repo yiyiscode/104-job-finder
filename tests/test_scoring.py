@@ -494,6 +494,21 @@ def test_prompts_score_through_a_data_engineering_lens():
     assert "不要歸零" in SYSTEM_DEEP
 
 
+def test_screen_prompt_does_not_drop_the_jobs_he_wants():
+    """2026-10-09 離線實驗:舊規則讓 Haiku 與 Gemini 都刷掉約 1/3 使用者標 ≥4 星的職缺。
+    三個原因各有一句錨點 —— 拿掉任一句,那類好缺就會在粗篩無聲消失。"""
+    head, keep_section = SYSTEM_SCREEN.split("**不是**刷掉的理由")
+    rules = head.split("一律 keep=false")[1]  # 開頭的「資深技術招募顧問」不算
+    # ① 「資深」是台灣大公司的職等,不是年資(台達電兩則 4 星職缺因此被刷)
+    assert "資深" not in rules
+    assert "資深" in keep_section
+    # ② 只刷「明確 5 年以上」;模型會自己把門檻收緊成 1–3 年
+    assert "1–4 年" in keep_section
+    # ③ 半導體/製造業的資料職缺正是目標產業,不能被「製程」規則誤殺
+    assert "製程數據" in keep_section
+    assert "APC" in keep_section
+
+
 def test_deep_prompt_names_the_two_target_industries():
     """半導體與金融是 targeting 層硬篩出來的產業,domain_fit 要有對應的依據,
     否則模型只會看產業名稱猜。金融是真實實習;半導體**只有專案、沒有產業經歷** ——
