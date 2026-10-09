@@ -61,6 +61,73 @@ az045317@gmail.com ｜ [github.com/yiyiscode](https://github.com/yiyiscode) ｜ 
 
 ---
 
+<!-- skill-self-rating:start(由自評 app 產生,手改會被覆蓋)-->
+## 技能自評
+
+刻度:1 聽過/碰過、2 照教學做得出來、3 專案裡實際用過、4 能獨立負責一塊、5 能帶別人/當主力
+
+| 技能 | 自評 |
+|---|---|
+| Data Visualization | 5 能帶別人/當主力 |
+| Python | 5 能帶別人/當主力 |
+| Streamlit | 5 能帶別人/當主力 |
+| XGBoost | 5 能帶別人/當主力 |
+| Computer Vision | 4 能獨立負責一塊 |
+| Deep Learning | 4 能獨立負責一塊 |
+| Excel / VBA | 4 能獨立負責一塊 |
+| Machine Learning | 4 能獨立負責一塊 |
+| MySQL | 4 能獨立負責一塊 |
+| NumPy | 4 能獨立負責一塊 |
+| Pandas | 4 能獨立負責一塊 |
+| Power BI | 4 能獨立負責一塊 |
+| PyTorch | 4 能獨立負責一塊 |
+| SQL | 4 能獨立負責一塊 |
+| Statistics | 4 能獨立負責一塊 |
+| scikit-learn | 4 能獨立負責一塊 |
+| AWS | 3 專案裡實際用過 |
+| BERT | 3 專案裡實際用過 |
+| Claude | 3 專案裡實際用過 |
+| Data Mining | 3 專案裡實際用過 |
+| Data Modeling | 3 專案裡實際用過 |
+| Docker | 3 專案裡實際用過 |
+| ETL / Data Pipeline | 3 專案裡實際用過 |
+| Feature Engineering | 3 專案裡實際用過 |
+| Git | 3 專案裡實際用過 |
+| JavaScript | 3 專案裡實際用過 |
+| LLM | 3 專案裡實際用過 |
+| Linux | 3 專案裡實際用過 |
+| NLP | 3 專案裡實際用過 |
+| Ollama | 3 專案裡實際用過 |
+| Prompt Engineering | 3 專案裡實際用過 |
+| RAG | 3 專案裡實際用過 |
+| SAS | 3 專案裡實際用過 |
+| TensorFlow | 3 專案裡實際用過 |
+| Transformer | 3 專案裡實際用過 |
+| Vector Database | 3 專案裡實際用過 |
+| YOLO | 3 專案裡實際用過 |
+| AI Agent | 2 照教學做得出來 |
+| C++ | 2 照教學做得出來 |
+| FastAPI | 2 照教學做得出來 |
+| Fine-tuning | 2 照教學做得出來 |
+| GCP | 2 照教學做得出來 |
+| Gemini | 2 照教學做得出來 |
+| LangChain | 2 照教學做得出來 |
+| Model Deployment | 2 照教學做得出來 |
+| Node.js | 2 照教學做得出來 |
+| OpenAI / GPT | 2 照教學做得出來 |
+| OpenCV | 2 照教學做得出來 |
+| REST API | 2 照教學做得出來 |
+| Tableau | 2 照教學做得出來 |
+| Azure | 1 聽過/碰過 |
+| C# | 1 聽過/碰過 |
+| Edge AI / Embedded | 1 聽過/碰過 |
+| Java | 1 聽過/碰過 |
+| Kubernetes | 1 聽過/碰過 |
+| MLOps | 1 聽過/碰過 |
+| Oracle | 1 聽過/碰過 |
+| Reinforcement Learning | 1 聽過/碰過 |
+<!-- skill-self-rating:end -->
+
 ## 學歷
 
 - **國立臺灣科技大學** 資訊管理研究所 M.S.　2023–2025（研究生優秀入學獎學金）
