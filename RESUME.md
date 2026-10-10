@@ -7,6 +7,15 @@
 
 ---
 
+## 2026-10-10:員工數 0 視為未知(✅ 分支 `fix/targeting-unknown-employee-count`,未 merge)
+
+104 對「暫不提供」回 `employeeCount: 0`,規則層把鴻海/華碩/高通/花旗/元大人壽當小公司刷掉。
+改成 0/缺值 = 未知、產業對就放行(memory `job-finder-unknown-employee-count`),641 測試全過。
+目標產業內誤擋的 26 筆已 `backfill enqueue`(新排 18 筆,元大「數據ETL架構師」優先度 99)。
+**下一步**:merge 進 master;10-11 起看 `backfill list` 元大那筆有沒有補評到。
+
+---
+
 ## 2026-10-06:評分改用 Claude 訂閱(🔄 進行中)
 
 決策(memory `job-finder-claude-scoring-decision`):`llm.provider: claude_cli`,深評 sonnet、粗篩 haiku,
