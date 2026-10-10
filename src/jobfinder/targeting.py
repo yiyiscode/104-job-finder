@@ -6,7 +6,8 @@
 附帶好處:零額外請求、零封鎖風險、可以完全離線測試。
 
 **判斷依據全部來自搜尋列表,不需要詳細頁。** ``coIndustry`` / ``employeeCount``
-在列表回應裡就有(1,637 筆真實資料中缺失率 0),所以這一層跑在粗篩之前 ——
+在列表回應裡就有(1,637 筆真實資料中缺失率 0;但大公司常填「暫不提供」→ ``0``,
+視為未知、放行),所以這一層跑在粗篩之前 ——
 被過濾掉的職缺連 LLM 都不會看到。
 
 **產業比對用代碼前綴不用中文名。** 104 的產業代碼是階層式的(``1001006`` =
@@ -62,6 +63,11 @@ def _industry_matches(code: str | None, prefixes: list[str]) -> bool:
     return bool(code) and any(code.startswith(p) for p in prefixes)  # type: ignore[union-attr]
 
 
+def _size_unknown(job: JobSummary) -> bool:
+    """104 對「暫不提供」的公司回 ``employeeCount: 0`` —— 那是未知,不是 0 人。"""
+    return not job.employee_count
+
+
 def apply_targeting(jobs: list[JobSummary], cfg: TargetingCfg) -> TargetingOutcome:
     """把不在目標產業／規模的職缺濾掉。
 
@@ -90,7 +96,7 @@ def apply_targeting(jobs: list[JobSummary], cfg: TargetingCfg) -> TargetingOutco
 
     check_size = cfg.min_employee_count > 0
     if check_size:
-        missing = sum(1 for j in jobs if j.employee_count is None)
+        missing = sum(1 for j in jobs if _size_unknown(j))
         if missing / total > MISSING_RATIO_LIMIT:
             check_size = False
             outcome.warnings.append(
@@ -111,9 +117,11 @@ def apply_targeting(jobs: list[JobSummary], cfg: TargetingCfg) -> TargetingOutco
             outcome.dropped.append(job)
             outcome.dropped_by_industry += 1
             continue
-        # 員工數缺值視為不符。整批都缺時上面已經 fail-open 停用這條,
-        # 走到這裡代表只有零星幾筆缺 —— 那是個別公司沒填,不是訊號消失。
-        if check_size and (job.employee_count or 0) < cfg.min_employee_count:
+        # 員工數未知(0 或缺值)放行,交給粗篩判斷。鴻海／華碩／高通／花旗／元大人壽
+        # 都填「暫不提供」,當成小公司刷掉會連粗篩都進不去(2026-10-10 實測)。
+        if (
+            check_size and not _size_unknown(job) and job.employee_count < cfg.min_employee_count  # type: ignore[operator]
+        ):
             outcome.dropped.append(job)
             outcome.dropped_by_size += 1
             continue

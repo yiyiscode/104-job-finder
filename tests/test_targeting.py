@@ -85,13 +85,30 @@ def test_industry_checked_before_size():
     assert out.dropped_by_industry + out.dropped_by_size == out.dropped_count == 1
 
 
-def test_single_missing_employee_count_is_dropped():
-    """整批只有零星幾筆缺值 = 那家公司沒填,不是訊號消失,照樣濾掉。"""
-    jobs = [job(str(i)) for i in range(9)] + [job("nofill", employees=None)]
+@pytest.mark.parametrize("employees", [None, 0])
+def test_unknown_employee_count_is_kept(employees):
+    """員工數「暫不提供」(104 回 0 或缺值)= 未知,不是小公司,產業對就放行。
+
+    2026-10-10 實測:鴻海／華碩／高通／花旗／元大人壽都填 0,
+    舊規則把它們當成 <500 人刷掉(元大人壽「數據ETL架構師」因此連粗篩都沒進)。
+    """
+    jobs = [job(str(i)) for i in range(9)] + [job("nofill", employees=employees)]
     out = apply_targeting(jobs, CFG)
-    assert "nofill" not in [j.job_no for j in out.keep]
-    assert out.dropped_by_size == 1
+    assert "nofill" in [j.job_no for j in out.keep]
+    assert out.dropped_by_size == 0
     assert not out.warnings
+
+
+def test_unknown_employee_count_still_needs_industry():
+    out = apply_targeting([job("nofill", code="1001001002", employees=0)], CFG)
+    assert out.keep == []
+    assert out.dropped_by_industry == 1
+
+
+def test_fail_open_counts_zero_as_missing():
+    """整批都回 0 跟整批都缺值是同一件事:訊號消失,要告警。"""
+    out = apply_targeting([job(str(i), employees=0) for i in range(10)], CFG)
+    assert any("employeeCount" in w for w in out.warnings)
 
 
 def test_disabled_keeps_everything():
