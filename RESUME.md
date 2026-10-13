@@ -7,6 +7,16 @@
 
 ---
 
+## 2026-10-13:連不上 104 的處理 + 排程等 DNS(分支 `fix/network-preflight`,未 merge)
+
+run 50(10-13 11:33 開機補跑)DNS 還沒好 → `ConnectError` 沒被接住 → runs 留 `success` 假紀錄、
+當天被「每日一次」擋住、補深評佇列沒消化。修法:`NetworkUnavailable`(不熔斷、記 failed、
+0 請求不佔當天額度)+ `run_daily.cmd` 先等 DNS 最多 5 分鐘。645 測試全過。
+當天用 `run --force` 手動重跑一次。舊的假紀錄 run 48(10-09)、run 50 沒改。
+**下一步**:merge 進 master;確認台亞 `14924722`、元大 `12967924` 補評到了沒(`backfill list`)。
+
+---
+
 ## 2026-10-10:員工數 0 視為未知(✅ 分支 `fix/targeting-unknown-employee-count`,未 merge)
 
 104 對「暫不提供」回 `employeeCount: 0`,規則層把鴻海/華碩/高通/花旗/元大人壽當小公司刷掉。
