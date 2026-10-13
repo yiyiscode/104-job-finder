@@ -99,6 +99,7 @@ python scripts/check_secrets.py --history        # pre-push 自動跑:整個 com
 python -m jobfinder.cli shortlist import local_data/shortlist-2026-09-23.csv   # 只播種,不覆蓋 UI 改過的
 python -m jobfinder.cli shortlist list                        # 每筆的抓取狀態
 python -m jobfinder.cli shortlist fetch --limit 5 --dry-run   # 只列出會抓哪些
+python -m jobfinder.cli shortlist score 8hyjk                # 深評已抓到全文的清單職缺:只打 LLM、不連 104,存 shortlist.db
 
 # 補深評佇列:被舊粗篩誤刷、仍在架上的職缺。排入/列出不連 104;
 # 實際補抓由每日排程用「當天沒用完的詳細頁額度」做,不多發任何請求,補評的不進日報

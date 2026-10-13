@@ -2,8 +2,18 @@
 
 > 說「讀 RESUME.md 繼續」即可接續。背景與更早的優化方向見 [docs/handoff-2026-09-23.md](docs/handoff-2026-09-23.md)。
 
-**最後更新:2026-10-09**　`feat/claude-cli-scorer` 與 `feat/webui-filter-industry` 已 merge 進 master(`1970b55`);
+**最後更新:2026-10-13**　`feat/claude-cli-scorer` 與 `feat/webui-filter-industry` 已 merge 進 master(`1970b55`);
 門檻重校在分支 `feat/recalibrate-thresholds`,629 個測試全過。
+
+---
+
+## 2026-10-13:投遞清單職缺可深評(✅ 分支 `feat/shortlist-deep-score`,未 merge)
+
+手動加的職缺(玉山 `8hyjk` 洗錢防制 AI/數據分析師)在 UI 沒有分數。新增 `jobfinder shortlist score [detail_id…]`:
+用 shortlist.db 已抓的全文、跟 pipeline 同一個評分器深評,存 shortlist.db 的 `scores`(欄位同 jobs.db),UI 組清單列時帶上。
+**不寫 jobs.db**:詳細頁沒有 jobNo,寫進去日後會跟 pipeline 抓到的同一筆重複(memory `job-finder-shortlist-score-decision`)。
+已評:`8hyjk` 76、`8wocf` 82。650 測試全過。
+**下一步**:merge 進 master;清單還有 10 筆沒評(`shortlist score --dry-run` 看清單)。
 
 ---
 

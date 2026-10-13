@@ -21,10 +21,12 @@ from jobfinder.config import load_config
 from jobfinder.errors import ChallengeBlocked
 from jobfinder.http_source import HttpJobSource
 from jobfinder.normalize import detail_as_summary, work_exp_to_period
+from jobfinder.scoring.fake import FakeScorer
 from jobfinder.scrape import blocking
 from jobfinder.scrape.budget import RequestBudget
 from jobfinder.shortlist.fetch import fetch_entries
 from jobfinder.shortlist.importer import import_csv
+from jobfinder.shortlist.score import job_from_detail, score_entries
 from jobfinder.shortlist.store import Entry, Fetch, ShortlistStore
 from jobfinder.storage import Database, JobRepo
 from jobfinder.webui.candidates import (
@@ -385,3 +387,92 @@ def test_fetch_block_trips_the_circuit_in_jobs_db(tmp_path, monkeypatch):
     assert circuit.state == "open" and "shortlist fetch" in circuit.reason
     assert runs == 0  # 不寫 runs:否則 has_run_today 會擋掉當天 08:00 的日報
     assert ShortlistStore(tmp_path / "shortlist.db").latest_fetches()["94234"].raw_detail
+
+
+# ═══ 深評:不連 104,跟 pipeline 同一個評分器 ══════════════════════
+async def _score_with_fake(store: ShortlistStore, *, known: set[str] | None = None):
+    return await score_entries(store.to_score(known or set()), store, FakeScorer(), lambda: NOW)
+
+
+async def test_score_saves_deep_score_only_for_fetched_entries(tmp_path):
+    store = _store_with(tmp_path, "94234", "7j5sn")
+    store.record_fetch("94234", NOW, raw_detail=json.dumps(DETAIL, ensure_ascii=False))
+    assert [e.detail_id for e in store.to_score(set())] == ["94234"]  # 7j5sn 沒全文
+
+    report = await _score_with_fake(store)
+
+    assert [d for d, _ in report.scored] == ["94234"] and not report.failed
+    saved = store.latest_scores()["94234"]
+    assert saved["total_score"] == report.scored[0][1]
+    assert json.loads(saved["highlights"]) is not None  # JSON 陣列,跟 jobs.db 同格式
+    assert store.to_score(set()) == []  # 評過就不再評
+    assert [e.detail_id for e in store.to_score(set(), rescore=True)] == ["94234"]
+
+
+async def test_score_skips_jobs_already_in_jobs_db(tmp_path):
+    """jobs.db 有的由 pipeline 評,這裡不重複花 LLM。"""
+    store = _store_with(tmp_path, "94234")
+    store.record_fetch("94234", NOW, raw_detail=json.dumps(DETAIL, ensure_ascii=False))
+    assert store.to_score({"94234"}) == []
+
+
+def test_job_from_detail_keys_by_detail_id():
+    summary, detail = job_from_detail("94234", json.dumps(DETAIL, ensure_ascii=False))
+    assert summary.job_no == "94234" == summary.detail_id == detail.job_no
+    assert summary.job_url == "https://www.104.com.tw/job/94234"
+    assert detail.job_description
+
+
+def test_shortlist_row_shows_its_deep_score():
+    score = {
+        "total_score": 76, "tech_fit": 28, "exp_fit": 22, "domain_fit": 9,
+        "growth_fit": 11, "practical_fit": 6, "verdict": "apply", "one_liner": "一句話",
+        "highlights": '["亮點"]', "red_flags": "[]", "resume_tip": "建議",
+        "adjustments": "[]", "score_model": "claude-cli:sonnet",
+    }  # fmt: skip
+    r = shortlist_row(_entry(), _fetched(), score=score)
+    assert r.deep_score == 76 and r.verdict == "apply" and r.highlights == ["亮點"]
+    assert r.score_model == "claude-cli:sonnet"
+    assert shortlist_row(_entry(), _fetched()).deep_score is None
+
+
+def test_merge_keeps_jobs_db_score_over_shortlist_score():
+    pipeline_row = row(job_no="15305872")
+    pipeline_row.url = "https://www.104.com.tw/job/94234"
+    before = pipeline_row.deep_score
+    merged = merge_shortlist(
+        [pipeline_row], [_entry("94234"), _entry("7j5sn")], {"7j5sn": _fetched("7j5sn")}, {},
+        None, {"94234": {"total_score": 1}, "7j5sn": {"total_score": 66}},
+    )  # fmt: skip
+    assert merged[0].deep_score == before  # jobs.db 那筆不被清單的分數蓋掉
+    assert merged[1].deep_score == 66
+
+
+def test_score_cli_dry_run_never_calls_llm(tmp_path, no_network, monkeypatch, capsys):
+    store = _store_with(tmp_path, "94234")
+    store.record_fetch("94234", NOW, raw_detail=json.dumps(DETAIL, ensure_ascii=False))
+
+    def boom(*_a, **_k):
+        raise AssertionError("dry-run 不該建評分器")
+
+    monkeypatch.setattr(cli, "_build_scorer", boom)
+    assert _run_cli(tmp_path, "score", "--dry-run") == 0
+    assert "待評 1 筆,本次 1 筆" in capsys.readouterr().out
+
+
+def test_score_cli_with_fake_llm_does_not_touch_104(tmp_path, no_network):
+    store = _store_with(tmp_path, "94234")
+    store.record_fetch("94234", NOW, raw_detail=json.dumps(DETAIL, ensure_ascii=False))
+    assert _run_cli(tmp_path, "score", "--fake-llm") == 0
+    assert "94234" in ShortlistStore(tmp_path / "shortlist.db").latest_scores()
+    assert not (tmp_path / "jobs.db").exists()  # 不寫 jobs.db
+
+
+def test_score_cli_can_target_specific_detail_ids(tmp_path, no_network, capsys):
+    store = _store_with(tmp_path, "94234", "7j5sn")
+    for d in ("94234", "7j5sn"):
+        store.record_fetch(d, NOW, raw_detail=json.dumps(DETAIL, ensure_ascii=False))
+    assert _run_cli(tmp_path, "score", "7j5sn", "nope1", "--dry-run") == 0
+    out = capsys.readouterr()
+    assert "待評 1 筆,本次 1 筆" in out.out and "7j5sn" in out.out and "94234" not in out.out
+    assert "nope1" in out.err
