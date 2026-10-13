@@ -369,11 +369,14 @@ class JobRepo:
     def has_run_today(self, now: datetime) -> bool:
         """SPEC.md 規則 3:每日僅執行一次。
 
-        只有「真的碰到 104」的執行才算數 —— 被熔斷擋下(skipped)不該用掉今天的額度。
+        只有「真的碰到 104」的執行才算數 —— 被熔斷擋下(skipped)、或一個請求都沒
+        送到 104 就斷網(NetworkUnavailable 且 requests_used = 0)都不該用掉今天的額度。
         """
         row = self.conn.execute(
             "SELECT COUNT(*) AS n FROM runs"
-            " WHERE date(started_at) = date(?) AND status != 'skipped'",
+            " WHERE date(started_at) = date(?) AND status != 'skipped'"
+            " AND NOT (COALESCE(error_kind, '') = 'NetworkUnavailable'"
+            " AND COALESCE(requests_used, 0) = 0)",
             (now.isoformat(),),
         ).fetchone()
         return bool(row and row["n"] > 0)

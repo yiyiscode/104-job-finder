@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from jobfinder.config import load_config
-from jobfinder.errors import ChallengeBlocked, LoggedInDetected
+from jobfinder.errors import ChallengeBlocked, LoggedInDetected, NetworkUnavailable
 from jobfinder.models import JobDetail, JobSummary, ScoreBreakdown, ScoredJob
 from jobfinder.pipeline import Deps, run_daily
 from jobfinder.ports import DetailBatch, ScreenOutcome, SummaryBatch
@@ -491,6 +491,56 @@ async def test_blocked_run_is_recorded_for_audit(cfg, setup):
         ).fetchone()
     assert row["status"] == "blocked"
     assert row["error_kind"] == "ChallengeBlocked"
+
+
+# ═══ 連不上 104(DNS／連線失敗)══════════════════════════════════════
+
+
+async def test_network_failure_is_recorded_as_failed_without_tripping_circuit(cfg, setup):
+    """2026-10-13 實測:開機補跑時 DNS 還沒好,ConnectError 沒被接住,
+    runs 留下一筆 status=success、沒有結束時間的紀錄。"""
+    source = FakeSource(
+        raise_on_fetch=NetworkUnavailable("getaddrinfo failed", requests_completed=0)
+    )
+    deps, factory, _, data_dir = setup(source)
+
+    report = await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
+
+    assert report.status == "failed"
+    assert report.error_kind == "NetworkUnavailable"
+    assert factory.opened == 1
+    assert read_circuit(data_dir, cfg).state == "closed", "網路問題不是被 104 擋,不熔斷"
+    with Database(data_dir, cfg.paths.db_filename) as db:
+        row = db.conn.execute(
+            "SELECT status, error_kind, finished_at FROM runs ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+    assert row["status"] == "failed"
+    assert row["finished_at"] is not None
+
+
+async def test_network_failure_before_any_request_does_not_use_up_today(cfg, setup):
+    source = FakeSource(
+        raise_on_fetch=NetworkUnavailable("getaddrinfo failed", requests_completed=0)
+    )
+    deps, _, _, data_dir = setup(source)
+    await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
+
+    deps2, factory2, _, _ = setup()
+    report = await run_daily(cfg, deps2, data_dir=data_dir, now=NOW.replace(hour=20))
+    assert report.status == "success"
+    assert factory2.opened == 1
+
+
+async def test_network_failure_after_reaching_104_still_uses_up_today(cfg, setup):
+    """已經有請求打到 104 了,當天再跑一次就是第二次碰 104。"""
+    source = FakeSource(raise_on_fetch=NetworkUnavailable("connection reset", requests_completed=3))
+    deps, _, _, data_dir = setup(source)
+    await run_daily(cfg, deps, data_dir=data_dir, now=NOW)
+
+    deps2, factory2, _, _ = setup()
+    report = await run_daily(cfg, deps2, data_dir=data_dir, now=NOW.replace(hour=20))
+    assert report.status == "skipped"
+    assert factory2.opened == 0
 
 
 # ═══ 韌性 ═══════════════════════════════════════════════════════════

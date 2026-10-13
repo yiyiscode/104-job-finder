@@ -55,6 +55,19 @@ class BudgetExhausted(JobFinderError):
     """
 
 
+class NetworkUnavailable(JobFinderError):
+    """連線層就失敗了(DNS 查不到、連不上),請求根本沒送到 104。
+
+    **不是封鎖訊號,不熔斷**:冷卻 24 小時對「開機時網路還沒好」毫無幫助。
+    ``requests_completed`` 是在這之前已經成功打到 104 的請求數 —— 為 0 時
+    這次執行沒碰過 104,不該用掉今天的「每日一次」(2026-10-13 實測)。
+    """
+
+    def __init__(self, message: str, *, requests_completed: int = 0):
+        super().__init__(message)
+        self.requests_completed = requests_completed
+
+
 class CircuitOpen(JobFinderError):
     """熔斷器仍在冷卻期。pipeline 應短路,連瀏覽器都不要開。"""
 

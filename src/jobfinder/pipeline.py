@@ -25,6 +25,7 @@ from .errors import (
     ChallengeBlocked,
     FatalScrapeError,
     LoggedInDetected,
+    NetworkUnavailable,
     SourceMisconfigured,
 )
 from .models import RejectedJob, RunReport, ScoredJob
@@ -115,6 +116,10 @@ async def run_daily(
             details, screen_outcome, backfill = await _fetch_and_screen(
                 cfg, deps, repo, report, now, limit, rescore_all
             )
+        except NetworkUnavailable as exc:
+            await _handle_network(deps, repo, report, exc, now)
+            db.checkpoint()
+            return report
         except SourceMisconfigured as exc:
             # 我方請求少了東西(通常是 Referer),不是被 104 封鎖。
             # 熔斷對設定錯誤毫無幫助 —— 冷卻 24 小時之後設定還是錯的。
@@ -368,6 +373,34 @@ async def _skip(report, repo, deps, title, lines) -> RunReport:
     except Exception:
         log.exception("跳過通知也送不出去")
     return report
+
+
+async def _handle_network(deps, repo, report, exc, now) -> None:
+    """DNS／連線失敗 = 請求沒送到 104,**不熔斷**。
+
+    沒接住的話例外會直接穿出去,runs 留下一筆 status=success、沒有結束時間的紀錄,
+    「每日一次」就把當天算成已經跑過(2026-10-13 開機補跑實測)。
+    """
+    log.error("連不上 104:%s", exc)
+    report.status = "failed"
+    report.error_kind = "NetworkUnavailable"
+    report.error_detail = str(exc)
+    report.requests_used = exc.requests_completed
+    report.finished_at = now
+    repo.finish_run(report)
+
+    try:
+        await deps.notifier.send_alert(
+            "連不上 104(網路問題,不是被封鎖)",
+            [str(exc), "", "熔斷器**沒有**啟動。"]
+            + (
+                ["這次一個請求都沒打到 104,今天可以再跑一次。"]
+                if exc.requests_completed == 0
+                else [f"之前已打到 104 {exc.requests_completed} 次,今天不再自動重跑。"]
+            ),
+        )
+    except Exception:
+        log.exception("告警送不出去(網路可能還沒好)")
 
 
 async def _handle_misconfigured(deps, repo, report, exc, now) -> None:

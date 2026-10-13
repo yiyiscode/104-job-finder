@@ -19,7 +19,12 @@ from typing import Any
 import httpx
 
 from .config import Config
-from .errors import ChallengeBlocked, SourceMisconfigured, TransientScrapeError
+from .errors import (
+    ChallengeBlocked,
+    NetworkUnavailable,
+    SourceMisconfigured,
+    TransientScrapeError,
+)
 from .models import JobSummary
 from .normalize import normalize_detail_response, normalize_search_response
 from .ports import DetailBatch, SummaryBatch
@@ -70,7 +75,13 @@ class HttpJobSource:
 
     async def _get_json(self, url: str, referer: str) -> dict[str, Any]:
         """發一個請求並把三種 403 分流。呼叫端保證已經過 budget。"""
-        response = await self._get_client().get(url, headers={"Referer": referer})
+        try:
+            response = await self._get_client().get(url, headers={"Referer": referer})
+        except httpx.ConnectError as exc:
+            # 只接連線層失敗:請求沒送出去。讀取逾時之類的可能已經打到 104,照舊往上丟
+            raise NetworkUnavailable(
+                f"連不上 104:{exc}", requests_completed=max(self.requests_used - 1, 0)
+            ) from exc
         body = response.text
 
         if response.status_code == 403 and classify_403(body) == "misconfigured":
