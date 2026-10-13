@@ -85,6 +85,16 @@ def build_parser() -> argparse.ArgumentParser:
         help=f"本次最多抓幾筆,必填,硬上限 {HARD_MAX_LIVE_LIMIT}",
     )
     sl_fetch.add_argument("--dry-run", action="store_true", help="只列出會抓哪些,不連線")
+    sl_score = sl_sub.add_parser(
+        "score", help="深評已抓到全文、jobs.db 沒有的清單職缺(不連 104,會呼叫 LLM)"
+    )
+    sl_score.add_argument(
+        "detail_ids", nargs="*", help="只評這幾筆(連結尾段,例如 8hyjk);不給 = 依清單順序"
+    )
+    sl_score.add_argument("--limit", type=int, default=5, help="本次最多評幾筆(預設 5)")
+    sl_score.add_argument("--rescore", action="store_true", help="已評過的也重評(追加新的一筆)")
+    sl_score.add_argument("--dry-run", action="store_true", help="只列出會評哪些,不呼叫 LLM")
+    sl_score.add_argument("--fake-llm", action="store_true", help="用假評分器,不花錢(分數不可信)")
 
     bf = sub.add_parser(
         "backfill", help="補深評佇列:排入/列出(不連 104;實際補抓由每日排程用剩餘額度做)"
@@ -289,7 +299,43 @@ async def _shortlist(cfg: Config, args: argparse.Namespace) -> int:
             print(f"{e.detail_id:<8} {state:<16} {e.company} — {e.title}")
         return 0
 
+    if args.action == "score":
+        return await _shortlist_score(cfg, args, store, set(aliases), tz)
+
     return await _shortlist_fetch(cfg, args, store, set(aliases), circuit, tz)
+
+
+async def _shortlist_score(cfg, args, store, known: set[str], tz) -> int:
+    """不連 104:只讀 shortlist.db 已有的詳細頁,用跟 pipeline 同一個評分器深評。"""
+    from datetime import datetime
+
+    if args.limit < 1:
+        raise SystemExit("--limit 至少 1")
+    pending = store.to_score(known, rescore=args.rescore)
+    if args.detail_ids:
+        wanted = set(args.detail_ids)
+        pending = [e for e in pending if e.detail_id in wanted]
+        if missing := wanted - {e.detail_id for e in pending}:
+            print(
+                f"不在待評裡(不在清單/還沒抓全文/jobs.db 已有/已評過要加 --rescore):"
+                f"{'、'.join(sorted(missing))}",
+                file=sys.stderr,
+            )
+    batch = pending[: args.limit]
+    print(f"待評 {len(pending)} 筆,本次 {len(batch)} 筆:")
+    for e in batch:
+        print(f"  {e.detail_id:<8} {e.company} — {e.title}")
+    if args.dry_run or not batch:
+        return 0
+
+    from .shortlist.score import score_entries
+
+    report = await score_entries(batch, store, _build_scorer(cfg, args), lambda: datetime.now(tz))
+    for detail_id, total in report.scored:
+        print(f"  ✅ {detail_id} → {total} 分")
+    for detail_id, reason in report.failed:
+        print(f"  ⚠️ {detail_id}:{reason}", file=sys.stderr)
+    return 1 if report.failed else 0
 
 
 def _read_jobs_db(cfg: Config, data_dir: Path):

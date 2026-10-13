@@ -76,7 +76,12 @@ def load_rows(
     if shortlist is None:
         return rows
     return merge_shortlist(
-        rows, shortlist.entries(), shortlist.latest_fetches(), hit_rates, have_skills
+        rows,
+        shortlist.entries(),
+        shortlist.latest_fetches(),
+        hit_rates,
+        have_skills,
+        shortlist.latest_scores(),
     )
 
 
@@ -101,8 +106,11 @@ def merge_shortlist(
     fetches: Mapping[str, Fetch],
     hit_rates: Mapping[str, StoredHitRate],
     have_skills: frozenset[str] | None,
+    scores: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> list[JobRow]:
-    """清單裡已在 jobs.db 的只打上標記(那邊資料比較完整);其餘用詳細頁組出新列。"""
+    """清單裡已在 jobs.db 的只打上標記(那邊資料比較完整,深評也以那邊為準);
+    其餘用詳細頁組出新列,``scores``(``shortlist score`` 的深評)有就帶上。"""
+    scores = scores or {}
     by_detail = {detail_id_of(r.url): r for r in rows}
     out = list(rows)
     for entry in entries:
@@ -110,7 +118,15 @@ def merge_shortlist(
             existing.in_shortlist = True
             continue
         fetch = fetches.get(entry.detail_id)
-        out.append(shortlist_row(entry, fetch, hit_rates.get(entry.detail_id), have_skills))
+        out.append(
+            shortlist_row(
+                entry,
+                fetch,
+                hit_rates.get(entry.detail_id),
+                have_skills,
+                scores.get(entry.detail_id),
+            )
+        )
     return out
 
 
@@ -119,6 +135,7 @@ def shortlist_row(
     fetch: Fetch | None,
     hit: StoredHitRate | None = None,
     have_skills: frozenset[str] | None = None,
+    score: Mapping[str, Any] | None = None,
 ) -> JobRow:
     """只有詳細頁(或什麼都還沒抓)的職缺 → 跟 jobs.db 同形狀的 record → ``build_row``。
 
@@ -139,6 +156,7 @@ def shortlist_row(
         "status": SHORTLIST_STATUS,
         "raw_summary": json.dumps(summary, ensure_ascii=False),
         "raw_detail": fetch.raw_detail if payload else None,
+        **(score or {}),  # 欄位名跟 CANDIDATE_SQL 的深評欄位一致
     }
     row = build_row(record, hit, have_skills)
     row.in_shortlist = True

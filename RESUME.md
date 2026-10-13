@@ -2,22 +2,32 @@
 
 > 說「讀 RESUME.md 繼續」即可接續。背景與更早的優化方向見 [docs/handoff-2026-09-23.md](docs/handoff-2026-09-23.md)。
 
-**最後更新:2026-10-09**　`feat/claude-cli-scorer` 與 `feat/webui-filter-industry` 已 merge 進 master(`1970b55`);
+**最後更新:2026-10-13**　`feat/claude-cli-scorer` 與 `feat/webui-filter-industry` 已 merge 進 master(`1970b55`);
 門檻重校在分支 `feat/recalibrate-thresholds`,629 個測試全過。
 
 ---
 
-## 2026-10-13:連不上 104 的處理 + 排程等 DNS(分支 `fix/network-preflight`,未 merge)
+## 2026-10-13:投遞清單職缺可深評(✅ 已 merge 進 master)
+
+手動加的職缺(玉山 `8hyjk` 洗錢防制 AI/數據分析師)在 UI 沒有分數。新增 `jobfinder shortlist score [detail_id…]`:
+用 shortlist.db 已抓的全文、跟 pipeline 同一個評分器深評,存 shortlist.db 的 `scores`(欄位同 jobs.db),UI 組清單列時帶上。
+**不寫 jobs.db**:詳細頁沒有 jobNo,寫進去日後會跟 pipeline 抓到的同一筆重複(memory `job-finder-shortlist-score-decision`)。
+已評:`8hyjk` 76、`8wocf` 82。650 測試全過。
+**下一步**:10-13 已排其餘 10 筆一起評(結果見下方「清單分數」)。
+
+---
+
+## 2026-10-13:連不上 104 的處理 + 排程等 DNS(✅ 已 merge 進 master)
 
 run 50(10-13 11:33 開機補跑)DNS 還沒好 → `ConnectError` 沒被接住 → runs 留 `success` 假紀錄、
 當天被「每日一次」擋住、補深評佇列沒消化。修法:`NetworkUnavailable`(不熔斷、記 failed、
 0 請求不佔當天額度)+ `run_daily.cmd` 先等 DNS 最多 5 分鐘。645 測試全過。
 當天用 `run --force` 手動重跑一次。舊的假紀錄 run 48(10-09)、run 50 沒改。
-**下一步**:merge 進 master;確認台亞 `14924722`、元大 `12967924` 補評到了沒(`backfill list`)。
+**下一步**:確認台亞 `14924722`、元大 `12967924` 補評到了沒(`backfill list`)。
 
 ---
 
-## 2026-10-10:員工數 0 視為未知(✅ 分支 `fix/targeting-unknown-employee-count`,未 merge)
+## 2026-10-10:員工數 0 視為未知(✅ 已 merge 進 master)
 
 104 對「暫不提供」回 `employeeCount: 0`,規則層把鴻海/華碩/高通/花旗/元大人壽當小公司刷掉。
 改成 0/缺值 = 未知、產業對就放行(memory `job-finder-unknown-employee-count`),641 測試全過。
