@@ -20,6 +20,7 @@ from jobfinder.errors import (
     BudgetExhausted,
     ChallengeBlocked,
     ForbiddenPath,
+    NetworkUnavailable,
     SourceMisconfigured,
 )
 from jobfinder.http_source import HttpJobSource
@@ -125,6 +126,21 @@ async def test_empty_403_is_a_config_problem_not_a_block():
     with pytest.raises(SourceMisconfigured) as exc:
         await source.fetch_summaries()
     assert "Referer" in str(exc.value)
+
+
+async def test_dns_failure_is_network_unavailable_not_a_block():
+    """連線層失敗 = 請求根本沒送到 104。不是封鎖訊號,也不能讓它變成未處理例外。"""
+
+    def handler(request):
+        raise httpx.ConnectError("[Errno 11001] getaddrinfo failed", request=request)
+
+    from jobfinder.errors import FatalScrapeError
+
+    source, _, _ = make_source(handler)
+    with pytest.raises(NetworkUnavailable) as exc:
+        await source.fetch_summaries()
+    assert exc.value.requests_completed == 0
+    assert not issubclass(NetworkUnavailable, FatalScrapeError)
 
 
 async def test_challenge_403_is_a_real_block():

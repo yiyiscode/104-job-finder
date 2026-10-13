@@ -38,6 +38,16 @@ echo. >> "local_data\daily.log"
 echo ================================================== >> "local_data\daily.log"
 echo [%DATE% %TIME%] 排程觸發 >> "local_data\daily.log"
 
+REM 開機補跑時網路介面可能「已連線」但 DNS 還沒好(2026-10-13 實測 getaddrinfo failed)。
+REM 先等 www.104.com.tw 解析得到,最多 5 分鐘。只查 DNS,不對 104 發任何請求。
+REM 等不到也照跑:pipeline 會記成 NetworkUnavailable、不熔斷、不佔掉今天的額度。
+powershell -NoProfile -Command "for($i=0;$i -lt 30;$i++){try{[void][Net.Dns]::GetHostAddresses('www.104.com.tw');exit 0}catch{Start-Sleep 10}};exit 1"
+if errorlevel 1 (
+  echo [%DATE% %TIME%] DNS 5 分鐘內都解析不到 www.104.com.tw >> "local_data\daily.log"
+) else (
+  echo [%DATE% %TIME%] DNS 就緒 >> "local_data\daily.log"
+)
+
 ".venv\Scripts\python.exe" -m jobfinder.cli run >> "local_data\daily.log" 2>&1
 set RC=%ERRORLEVEL%
 
