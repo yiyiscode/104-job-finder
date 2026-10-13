@@ -12,8 +12,8 @@
 手動加的職缺(玉山 `8hyjk` 洗錢防制 AI/數據分析師)在 UI 沒有分數。新增 `jobfinder shortlist score [detail_id…]`:
 用 shortlist.db 已抓的全文、跟 pipeline 同一個評分器深評,存 shortlist.db 的 `scores`(欄位同 jobs.db),UI 組清單列時帶上。
 **不寫 jobs.db**:詳細頁沒有 jobNo,寫進去日後會跟 pipeline 抓到的同一筆重複(memory `job-finder-shortlist-score-decision`)。
-已評:`8hyjk` 76、`8wocf` 82。650 測試全過。
-**下一步**:10-13 已排其餘 10 筆一起評(結果見下方「清單分數」)。
+清單中 jobs.db 沒有的 11 筆 10-13 全部評完(654 測試全過):元大 `8wocf` 82、華邦 `95wjp` 77、玉山 `8hyjk` 76、台中商銀 `8y1m0` 72、蝦皮 `93ofp` 71、玉山 `7xbth` 67、雷亞 `8cxrn` 59、日月光 `4oosb` 54、台積電 `7j5sn` 52、力積電 `6oz7y` 48、美光 `90ik3` 45。其餘 7 筆在 jobs.db,分數由 pipeline 給。
+**下一步**:之後手動加職缺 → `shortlist import` → `fetch --limit` → `score <detail_id>`。
 
 ---
 
