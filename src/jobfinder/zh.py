@@ -17,7 +17,7 @@ from typing import Annotated
 from pydantic import AfterValidator
 
 #: 簡繁兩邊都是正常用字。OpenCC 會把它們轉掉,但出現在繁體文章裡不代表是簡體
-_SHARED = set("台里后云干么准冲范丑征占几斗伙余涂咸朴杰")
+_SHARED = set("台里后云干么准冲范丑征占几斗伙余涂咸朴杰采雇")
 
 #: s2tw 轉完要換回的台灣慣用寫法
 _TW_FIXUPS = (("臺", "台"), ("瞭解", "了解"))

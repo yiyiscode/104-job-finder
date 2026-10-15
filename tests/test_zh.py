@@ -26,6 +26,7 @@ def test_simplified_is_converted(raw, expected):
     [
         "台積電的資料工程師,需要了解 SQL 與 ETL",
         "里程碑式的專案,皇后區",  # 「里」「后」兩邊都是正常用字
+        "富采光電的實際雇用關係",  # 公司名「富采」、「雇用」不能被改成「富採」「僱用」
         "Python / Airflow / dbt",
         "",
     ],
