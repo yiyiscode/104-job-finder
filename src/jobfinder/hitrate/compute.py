@@ -8,6 +8,8 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+from ..zh import ZhText
+
 MATCH_WEIGHTS = {"yes": 1.0, "partial": 0.5, "no": 0.0}
 #: 條件拆太細會讓分母膨脹、命中率失真 —— prompt 要求合併同類,程式端再截斷一次
 MAX_REQUIREMENTS = 12
@@ -16,10 +18,10 @@ MAX_CORE = 2
 
 
 class Requirement(BaseModel):
-    item: str
+    item: ZhText
     kind: Literal["required", "preferred"]
     match: Literal["yes", "partial", "no"]
-    evidence: str
+    evidence: ZhText
     #: 這份工作的主要平台/工具 —— 不會它就做不了。只在 required 上有意義
     core: bool = False
 
