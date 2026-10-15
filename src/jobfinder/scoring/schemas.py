@@ -13,6 +13,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from ..zh import ZhText
+
 VERDICTS = ("strong_apply", "apply", "maybe", "skip")
 
 
@@ -20,7 +22,7 @@ class ScreenItem(BaseModel):
     job_no: str
     keep: bool
     rough: int = Field(ge=0, le=100)
-    reason: str
+    reason: ZhText
 
 
 class ScreenResult(BaseModel):
@@ -43,10 +45,11 @@ class DeepScore(BaseModel):
     # (原本擔心某些 provider 的 strict mode 不吃 enum 而用 str;但 `require_parameters`
     #  本來就只會路由到支援 structured output 的 provider,而且解析還有三層保險。)
     verdict: Literal["strong_apply", "apply", "maybe", "skip"]
-    one_liner: str
-    highlights: list[str]
-    red_flags: list[str]
-    resume_tip: str
+    # 文字欄位走 ZhText:模型偶爾吐簡體,解析時統一轉成台灣繁體(見 zh.py)
+    one_liner: ZhText
+    highlights: list[ZhText]
+    red_flags: list[ZhText]
+    resume_tip: ZhText
 
 
 def _inline_refs(node: Any, defs: dict[str, Any]) -> Any:

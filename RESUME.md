@@ -7,6 +7,13 @@
 
 ---
 
+## 2026-10-15:LLM 簡體字轉繁體(分支 `fix/traditional-chinese`,未 merge)
+
+新增 `zh.py`(opencc s2tw):深評／粗篩理由／命中率文字在 schema 驗證時轉,只在含簡體專用字時才轉(避免台→臺、了解→瞭解、富采→富採、雇用→僱用)。舊資料 `scripts/zh_convert_db.py --apply` 已轉 jobs.db 42 個欄位,備份在 `local_data/backup-zh-20261015-203027/`。668 測試全過。
+**下一步**:merge 進 master。
+
+---
+
 ## 2026-10-13:投遞清單職缺可深評(✅ 已 merge 進 master)
 
 手動加的職缺(玉山 `8hyjk` 洗錢防制 AI/數據分析師)在 UI 沒有分數。新增 `jobfinder shortlist score [detail_id…]`:

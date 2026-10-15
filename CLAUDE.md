@@ -112,6 +112,9 @@ python scripts/claude_rescore.py status          # 重評舊資料(只限有全�
 python scripts/claude_rescore.py run --limit 135 --concurrency 2   # 寫 JSONL,可中斷續跑
 python scripts/claude_rescore.py apply           # 幾秒匯入 jobs.db;別在 08:00 排程時跑
 
+# LLM 回的簡體字:新回應在 schema 解析時自動轉(zh.ZhText);舊資料用這支補救,預設只預覽
+python scripts/zh_convert_db.py --apply          # 先備份三個 db;不動 raw_response;別在 08:00 排程時跑
+
 # 會連線 104 —— 每條都是一次性的,不要反覆跑
 python scripts/probe_api.py                      # 錄 fixture,已有檔案會拒絕執行
 python -m jobfinder.cli run --limit 5

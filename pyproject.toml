@@ -14,6 +14,7 @@ dependencies = [
     "python-dateutil>=2.9",
     # Windows 沒有系統 tzdata,ZoneInfo("Asia/Taipei") 會直接炸
     "tzdata>=2024.1",
+    "opencc>=1.1",
 ]
 
 [project.optional-dependencies]
