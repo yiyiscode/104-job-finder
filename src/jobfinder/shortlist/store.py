@@ -145,7 +145,7 @@ class ShortlistStore:
         return {r["detail_id"]: Fetch(**{**dict(r), "gone": bool(r["gone"])}) for r in rows}
 
     def to_fetch(self, known: set[str]) -> list[Entry]:
-        """還需要抓的:不在 jobs.db(``known``)、沒成功抓過、104 也沒說已關閉。"""
+        """還需要抓的:jobs.db 沒有全文(``known`` = 已有全文的)、沒成功抓過、104 也沒說已關閉。"""
         fetches = self.latest_fetches()
         return [
             e

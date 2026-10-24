@@ -2,8 +2,21 @@
 
 > 說「讀 RESUME.md 繼續」即可接續。背景與更早的優化方向見 [docs/handoff-2026-09-23.md](docs/handoff-2026-09-23.md)。
 
-**最後更新:2026-10-13**　`feat/claude-cli-scorer` 與 `feat/webui-filter-industry` 已 merge 進 master(`1970b55`);
+**最後更新:2026-10-24**　`feat/claude-cli-scorer` 與 `feat/webui-filter-industry` 已 merge 進 master(`1970b55`);
 門檻重校在分支 `feat/recalibrate-thresholds`,629 個測試全過。
+
+---
+
+## 2026-10-24:投遞清單用每日剩餘額度補抓(分支 `feat/shortlist-daily-fetch`,未 merge)
+
+使用者在 104 存的 53 筆(`missing JD/missing-job-2026-10-24.txt`,55 行去重)+ 履歷工具列為缺 JD 的 8n911、88oxa
+已匯入 shortlist.db(`local_data/shortlist-2026-10-24.csv`),53 筆播種「待定」。備份在 `local_data/backup-shortlist-20261024/`。
+發現 `to_fetch` 把「jobs.db 有列」當成「有全文」—— 被規則層/粗篩刷掉的永遠抓不到。改成看 raw_detail。
+pipeline 在當天詳細頁抓完後,剩餘名額先給清單、再給補深評佇列;jobs.db 有那一列的順手補 raw_detail。
+`run_daily.cmd` 接著跑 `shortlist score --limit 8`。待抓 49 筆,每天約 15 筆 → 約 4 天。674 測試全過。
+決策 memory `job-finder-shortlist-daily-fetch-decision`。
+**下一步**:merge;每天看 daily.log 的「清單補抓=N」與 `shortlist list`。
+履歷工具(D:\Get a better resume)對 5 碼代碼只讀 shortlist.db 的 fetches —— 清單中 JD 只在 jobs.db 的 13 筆(含 7ynrk、8opms)會一直顯示缺 JD,要在那邊加 jobs.db 後備查詢。
 
 ---
 

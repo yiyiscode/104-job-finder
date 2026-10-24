@@ -166,6 +166,20 @@ class JobRepo:
         )
         self.conn.commit()
 
+    def detail_index(self) -> dict[str, tuple[str, bool]]:
+        """detail_id(連結尾段)→ (job_no, 有沒有全文)。投遞清單用 detail_id 對到這裡。"""
+        rows = self.conn.execute(
+            "SELECT job_no, job_url, raw_detail IS NOT NULL AND raw_detail != '' AS has_detail"
+            " FROM jobs"
+        ).fetchall()
+        return {
+            r["job_url"].split("?", 1)[0].rstrip("/").rsplit("/", 1)[-1]: (
+                r["job_no"],
+                bool(r["has_detail"]),
+            )
+            for r in rows
+        }
+
     def save_detail(self, job_no: str, raw: dict[str, Any]) -> None:
         self.conn.execute(
             "UPDATE jobs SET raw_detail = ? WHERE job_no = ?",

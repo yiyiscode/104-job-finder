@@ -266,7 +266,7 @@ async def _shortlist(cfg: Config, args: argparse.Namespace) -> int:
     tz = ZoneInfo(cfg.runtime.timezone)
     data_dir = Path(args.data_dir)
     store = ShortlistStore(data_dir / SHORTLIST_DB)
-    aliases, circuit = _read_jobs_db(cfg, data_dir)
+    aliases, with_detail, circuit = _read_jobs_db(cfg, data_dir)
 
     if args.action == "import":
         from .shortlist.importer import import_csv
@@ -288,7 +288,7 @@ async def _shortlist(cfg: Config, args: argparse.Namespace) -> int:
         fetches = store.latest_fetches()
         for e in store.entries():
             f = fetches.get(e.detail_id)
-            if e.detail_id in aliases:
+            if e.detail_id in with_detail:
                 state = "jobs.db 已有"
             elif f is None:
                 state = "尚未抓取"
@@ -302,7 +302,7 @@ async def _shortlist(cfg: Config, args: argparse.Namespace) -> int:
     if args.action == "score":
         return await _shortlist_score(cfg, args, store, set(aliases), tz)
 
-    return await _shortlist_fetch(cfg, args, store, set(aliases), circuit, tz)
+    return await _shortlist_fetch(cfg, args, store, with_detail, circuit, tz)
 
 
 async def _shortlist_score(cfg, args, store, known: set[str], tz) -> int:
@@ -339,27 +339,27 @@ async def _shortlist_score(cfg, args, store, known: set[str], tz) -> int:
 
 
 def _read_jobs_db(cfg: Config, data_dir: Path):
-    """從 jobs.db 的**唯讀快照**讀 (detail_id → job_no, 熔斷器狀態)。
+    """從 jobs.db 的**唯讀快照**讀 (detail_id → job_no, 已有全文的 detail_id, 熔斷器狀態)。
 
     不開 ``Database``:它結束時會把整個 jobs.db 寫回,跟排程撞在一起就會蓋掉對方。
     """
     import tempfile
 
     from .scrape.blocking import CircuitState
-    from .webui.candidates import detail_id_of
     from .webui.snapshot import connect_readonly, take_snapshot
 
     jobs_db = data_dir / cfg.paths.db_filename
     if not jobs_db.exists():
-        return {}, CircuitState.closed()
+        return {}, set(), CircuitState.closed()
     snap = take_snapshot(jobs_db, Path(tempfile.gettempdir()) / "jobfinder-shortlist")
     conn = connect_readonly(snap)
     try:
-        aliases = {
-            detail_id_of(r["job_url"]): r["job_no"]
-            for r in conn.execute("SELECT job_no, job_url FROM jobs")
-        }
-        return aliases, JobRepo(conn, cfg.dedupe).get_circuit()
+        repo = JobRepo(conn, cfg.dedupe)
+        index = repo.detail_index()
+        aliases = {d: job_no for d, (job_no, _) in index.items()}
+        # 有列不等於有全文:被規則層/粗篩刷掉的沒有詳細頁,清單還是要抓
+        with_detail = {d for d, (_, has) in index.items() if has}
+        return aliases, with_detail, repo.get_circuit()
     finally:
         conn.close()
 
@@ -538,10 +538,13 @@ def _build_source_factory(cfg: Config, args: argparse.Namespace):
 
 
 async def _run(cfg: Config, args: argparse.Namespace) -> int:
+    from .shortlist.store import SHORTLIST_DB, ShortlistStore
+
     deps = Deps(
         source_factory=_build_source_factory(cfg, args),
         scorer=_build_scorer(cfg, args),
         notifier=_build_notifier(cfg, args),
+        shortlist=ShortlistStore(Path(args.data_dir) / SHORTLIST_DB),
     )
     # 重播與 fixture 模式本來就是拿來反覆跑的:既不受「每日一次」限制,
     # 也不該被去重擋掉(不然第二次跑就永遠是 0 筆,調 prompt 完全沒東西可看)。
@@ -561,7 +564,8 @@ async def _run(cfg: Config, args: argparse.Namespace) -> int:
 
     print(
         f"\n狀態={report.status} 抓取={report.jobs_fetched} 新={report.jobs_new}"
-        f" 深評={report.jobs_deep_scored} 補評={report.backfilled} 推播={len(report.notified)}"
+        f" 深評={report.jobs_deep_scored} 補評={report.backfilled}"
+        f" 清單補抓={report.shortlist_fetched} 推播={len(report.notified)}"
         f" 請求={report.requests_used} 成本=${report.llm_cost_usd:.4f}"
     )
     for warning in report.warnings:

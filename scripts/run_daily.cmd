@@ -51,6 +51,11 @@ if errorlevel 1 (
 ".venv\Scripts\python.exe" -m jobfinder.cli run >> "local_data\daily.log" 2>&1
 set RC=%ERRORLEVEL%
 
+REM 投遞清單:pipeline 用剩餘詳細頁額度補抓到的全文,在這裡深評。只打 LLM、不打 104。
+REM 一筆約 1 分鐘(Claude),--limit 8 讓整個排程留在 30 分鐘逾時內;沒評完的明天接著評。
+".venv\Scripts\python.exe" -m jobfinder.cli shortlist score --limit 8 >> "local_data\daily.log" 2>&1
+echo [%DATE% %TIME%] 清單深評 exit code=%ERRORLEVEL% >> "local_data\daily.log"
+
 REM 第 3 道閘門「必備命中率」。只打 OpenRouter、不打 104,所以 pipeline 失敗或熔斷也照跑。
 REM 必須排在 pipeline 之後、依序執行:它讀 jobs.db 快照,不能跟正在寫回的 pipeline 同時跑。
 REM 它的成敗不影響排程的 exit code —— 那個代表的是「今天有沒有抓到職缺」。

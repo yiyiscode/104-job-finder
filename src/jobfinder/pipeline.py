@@ -11,12 +11,13 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from collections.abc import Callable
 from contextlib import AbstractAsyncContextManager
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
 
 from .config import Config
@@ -35,6 +36,9 @@ from .scrape import blocking
 from .storage import Database, JobRepo
 from .targeting import apply_targeting
 
+if TYPE_CHECKING:
+    from .shortlist.store import ShortlistStore
+
 log = logging.getLogger(__name__)
 
 SourceFactory = Callable[[], AbstractAsyncContextManager[JobSource]]
@@ -45,6 +49,8 @@ class Deps:
     source_factory: SourceFactory
     scorer: Scorer
     notifier: Notifier
+    #: 投遞清單:有給才用剩餘詳細頁額度補抓清單裡還沒全文的職缺
+    shortlist: ShortlistStore | None = None
 
 
 def _to_rejected(scored: ScoredJob) -> RejectedJob:
@@ -236,7 +242,10 @@ async def _fetch_and_screen(cfg, deps, repo, report, now, limit, rescore_all=Fal
                 log.info("詳細頁預算用盡:%s", exc)
                 report.warnings.append("詳細頁預算用盡,部分職缺只用列表資訊評分")
 
-        # 當天的詳細頁抓完了,剩下的額度拿來補抓佇列裡的舊職缺
+        # 當天的詳細頁抓完了,剩下的額度先給投遞清單(使用者親手挑的),再給補深評佇列
+        report.shortlist_fetched = await _fetch_shortlist(
+            deps.shortlist, source, repo, now, limit, rescore_all
+        )
         backfill = await _fetch_backfill(source, repo, now, limit, rescore_all)
         report.requests_used = source.requests_used
 
@@ -245,6 +254,41 @@ async def _fetch_and_screen(cfg, deps, repo, report, now, limit, rescore_all=Fal
     report.schema_drift_count += len(details.drift)
 
     return details, screen_outcome, backfill
+
+
+async def _fetch_shortlist(store, source, repo, now, limit, rescore_all) -> int:
+    """用當天沒用完的詳細頁額度,補抓投遞清單裡還沒有全文的職缺。
+
+    跟補深評佇列同一套規矩:不多發請求、只在真的連線時做、封鎖訊號照常往上丟。
+    「已有全文」看的是 jobs.db 的 ``raw_detail``,不是 jobs.db 有沒有那一列 ——
+    被規則層或粗篩刷掉的職缺有列、沒全文。抓到的存 shortlist.db;jobs.db 有那一列的
+    也順手補上 ``raw_detail``(有 job_no,不會造成重複)。深評交給排程接著跑的 ``shortlist score``。
+    """
+    budget = getattr(source, "budget", None)
+    if store is None or budget is None or limit or rescore_all:
+        return 0
+    room = min(budget.details_remaining, budget.navigations_remaining)
+    index = repo.detail_index()
+    with_detail = {d for d, (_, has) in index.items() if has}
+    entries = store.to_fetch(with_detail)[:room]
+    if not entries:
+        return 0
+
+    from .shortlist.fetch import fetch_entries
+
+    result = await fetch_entries(entries, source, store, lambda: now)
+    fetches = store.latest_fetches()
+    for detail_id in result.fetched:
+        if detail_id in index:
+            repo.save_detail(index[detail_id][0], json.loads(fetches[detail_id].raw_detail))
+    log.info(
+        "補抓投遞清單:%d 筆排入、抓到 %d、已關閉 %d、暫時失敗 %d",
+        len(entries),
+        len(result.fetched),
+        len(result.gone),
+        len(result.failed),
+    )
+    return len(result.fetched)
 
 
 async def _fetch_backfill(source, repo, now, limit, rescore_all) -> list[tuple]:
