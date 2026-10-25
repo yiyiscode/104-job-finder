@@ -15,6 +15,9 @@
 pipeline 在當天詳細頁抓完後,剩餘名額先給清單、再給補深評佇列;jobs.db 有那一列的順手補 raw_detail。
 `run_daily.cmd` 接著跑 `shortlist score --limit 8`。待抓 49 筆,每天約 15 筆 → 約 4 天。674 測試全過。
 決策 memory `job-finder-shortlist-daily-fetch-decision`。
+**10-25 第一次排程(15:39 開機補跑)✅**:清單補抓 17 筆全成功(0 關閉、0 失敗),請求 34/40,
+`shortlist score` 評 8 筆(50–77 分),命中率也順帶算到清單職缺;全程 9 分 40 秒。
+`shortlist list`:已抓 20、jobs.db 已有全文 21、尚未抓取 32 → 約再 2 天。
 **下一步**:merge;每天看 daily.log 的「清單補抓=N」與 `shortlist list`。
 履歷工具(D:\Get a better resume)對 5 碼代碼只讀 shortlist.db 的 fetches —— 清單中 JD 只在 jobs.db 的 13 筆(含 7ynrk、8opms)會一直顯示缺 JD,要在那邊加 jobs.db 後備查詢。
 
