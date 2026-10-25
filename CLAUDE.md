@@ -161,7 +161,7 @@ src/jobfinder/
   config.py      Pydantic 設定驗證。硬上限在此強制,超限拒絕啟動
   models.py      領域模型 JobSummary / JobDetail / ScoredJob / RunReport
   ports.py       三個 Protocol
-  pipeline.py    唯一的流程編排。不做任何 IO,全靠注入
+  pipeline.py    唯一的流程編排。對外 IO(104/LLM/Telegram)全靠注入;本機 DB 由它直接讀寫
   normalize.py   raw JSON → 領域模型。⚠️ 唯一認識 104 JSON 結構的地方
   http_source.py ⭐ 預設抓取來源。純 httpx,無瀏覽器
   fixture_source.py  --from-fixtures / --replay 的離線來源
