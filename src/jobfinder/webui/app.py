@@ -418,7 +418,9 @@ def _score_breakdown(job: JobRow) -> None:
     avg, n = score_chart.averages(load_rows())
     with st.container(border=True):
         st.markdown("**評分依據**")
-        st.html(score_chart.radar_svg(job.score_parts, avg, dark=st.context.theme.type == "dark"))
+        # 不能用 st.html:它的消毒器會把 <svg> 整個濾掉,畫面一片空白也不報錯
+        svg = score_chart.radar_svg(job.score_parts, avg, dark=st.context.theme.type == "dark")
+        st.markdown(svg, unsafe_allow_html=True)
         st.dataframe(
             pd.DataFrame(score_chart.breakdown_rows(job.score_parts, avg)),
             hide_index=True,
