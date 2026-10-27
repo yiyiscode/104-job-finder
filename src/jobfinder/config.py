@@ -391,6 +391,8 @@ class Secrets(BaseSettings):
     openrouter_api_key: str = ""
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""
+    #: 選填。公司評價找徵才官網時先問 Google(Serper);沒設就只用 claude 自己的網搜
+    serper_api_key: str = ""
 
     def require_all(self) -> None:
         missing = [

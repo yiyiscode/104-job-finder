@@ -110,6 +110,7 @@ python -m jobfinder.cli backfill list
 # 公司評價(companies.db):claude -p 開網搜、不連 104(權限層封鎖 104 網域)。排程每天補查 3 家
 python -m jobfinder.cli company list                  # 標投 + 清單候補的公司與查詢狀態
 python -m jobfinder.cli company review --dry-run      # 會查哪些;給公司名 = 指定查(UI 按鈕也是走這條)
+# 徵才官網:.env 有 SERPER_API_KEY 就先用 Google(Serper)結果當候選,沒有/失敗就只靠 claude 網搜
 
 # Claude 訂閱評分(llm.provider: claude_cli):只打 claude -p、不連 104
 python scripts/claude_probe.py --limit 10        # 量額度:跑前跑後各看一次 /usage

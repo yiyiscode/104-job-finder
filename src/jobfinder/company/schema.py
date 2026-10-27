@@ -59,6 +59,10 @@ class CompanyReview(BaseModel):
     data_team: Facet
     career_url: str = Field(description="公司自己的徵才/招募頁網址;找不到給空字串")
     career_note: ZhText = Field(description="怎麼投:官網系統要另建履歷、只收 104、等")
+    #: career_url 從哪來。舊資料沒有這欄 → 預設空字串
+    career_source: Literal["google", "websearch", ""] = Field(
+        default="", description="google = 取自提供的 Google 搜尋結果;websearch = 自己搜到的"
+    )
     sources: list[Source]
 
 
@@ -105,6 +109,12 @@ def sanitize(review: CompanyReview) -> CompanyReview:
         where = _host(career_url) or career_url
         note = f"只找到人力銀行/求職平台上的頁面({where}),沒有公司自己的徵才官網。"
         career_url = ""
+    source = review.career_source if career_url else ""
     return review.model_copy(
-        update={"sources": sources, "career_url": career_url, "career_note": note}
+        update={
+            "sources": sources,
+            "career_url": career_url,
+            "career_note": note,
+            "career_source": source,
+        }
     )

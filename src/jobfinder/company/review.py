@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from ..scoring.claude_cli import ClaudeCliClient, ClaudeQuotaExhausted
+from .career_search import Candidate, format_candidates
 from .schema import CompanyReview, sanitize
 from .store import CompanyStore
 
@@ -30,7 +33,8 @@ SYSTEM_COMPANY = """你是台灣求職者的公司調查助理。
 5. sources 列出你實際引用的頁面(網址 + 標題 + YYYY-MM;看不出日期寫「不明」),
    每個面向至少要有一個來源,不然那個面向就是「資料不足」。
 6. career_url 是**公司自己的**招募/徵才頁(例如 careers.xxx.com、官網的「人才招募」頁),
-   用 WebFetch 確認它存在。
+   用 WebFetch 確認它存在。**有附「Google 搜尋結果」時優先從裡面挑**(career_source 給 google);
+   裡面都不是公司自己的招募頁,才自己搜尋(career_source 給 websearch);都找不到給空字串。
    104、1111、LinkedIn、CakeResume 等人力銀行或求職平台的頁面不算 —— 只有這些的話給空字串,
    並在 career_note 寫「只在人力銀行刊登」。
 7. career_note 寫怎麼投:官網系統要另建履歷、是否有對應職缺、只收 104 等。
@@ -38,9 +42,9 @@ SYSTEM_COMPANY = """你是台灣求職者的公司調查助理。
    tone:good = 多數正面、mixed = 好壞參半或依部門而定、bad = 多數負面、unknown = 資料不足。"""
 
 
-def build_company_user(company: str, job_titles: list[str]) -> str:
+def build_company_user(company: str, job_titles: list[str], google: str = "") -> str:
     jobs = "\n".join(f"- {t}" for t in job_titles[:8]) or "- (無)"
-    return f"公司:{company}\n\n使用者在考慮的職缺(看部門用):\n{jobs}"
+    return f"公司:{company}\n\n使用者在考慮的職缺(看部門用):\n{jobs}{google}"
 
 
 class StructuredClient(Protocol):
@@ -84,17 +88,22 @@ async def run_reviews(
     client: StructuredClient,
     model: str,
     now_fn,
+    search: Callable[[str], list[Candidate]] | None = None,
 ) -> ReviewReport:
-    """targets = [(公司名, 職缺標題們)]。逐家序列查,一家約 1–3 分鐘。"""
+    """targets = [(公司名, 職缺標題們)]。逐家序列查,一家約 1–3 分鐘。
+
+    ``search`` = 徵才官網的 Google 搜尋(Serper);沒給或失敗就只靠 claude 自己搜。
+    """
     report = ReviewReport(candidates=len(targets))
     consecutive = 0
     for name, titles in targets:
         store.mark_running(name, now_fn())
+        google = format_candidates(await asyncio.to_thread(search, name)) if search else ""
         try:
             review, _ = await client.structured(
                 model=model,
                 system=SYSTEM_COMPANY,
-                user=build_company_user(name, titles),
+                user=build_company_user(name, titles, google),
                 schema_model=CompanyReview,
                 schema_name="company_review",
             )

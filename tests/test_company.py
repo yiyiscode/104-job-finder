@@ -229,3 +229,75 @@ async def test_web_client_enables_search_and_blocks_104_at_permission_layer(fake
     denied = argv[argv.index("--disallowedTools") + 1 :]
     assert all(d in denied for d in DENIED_TOOLS)
     assert "104.com.tw" in json.dumps(DENIED_TOOLS)
+
+
+# ── 徵才官網:Google(Serper)優先 ─────────────────────────────────
+
+from jobfinder.company import career_search  # noqa: E402
+
+SERPER_REPLY = {
+    "organic": [
+        {"title": "光寶 104", "link": "https://www.104.com.tw/company/abc", "snippet": ""},
+        {"title": "LinkedIn", "link": "https://tw.linkedin.com/company/liteon", "snippet": ""},
+        {
+            "title": "光寶科技 人才招募",
+            "link": "https://www.liteon.com/zh-tw/careers",
+            "snippet": "加入光寶",
+        },
+    ]
+}
+
+
+def test_google_candidates_drop_job_boards_and_send_the_query():
+    seen = {}
+
+    def post(key, payload, timeout):
+        seen.update(key=key, payload=payload)
+        return SERPER_REPLY
+
+    cands = career_search.google_candidates("光寶科技", "k", post=post)
+    assert [c.url for c in cands] == ["https://www.liteon.com/zh-tw/careers"]
+    assert seen["key"] == "k" and "光寶科技" in seen["payload"]["q"]
+    assert seen["payload"]["gl"] == "tw"
+
+
+def test_google_search_fails_open():
+    def boom(*_):
+        raise OSError("quota")
+
+    assert career_search.google_candidates("光寶科技", "k", post=boom) == []
+    assert career_search.google_candidates("光寶科技", "", post=boom) == []  # 沒 key 不打
+    assert career_search.format_candidates([]) == ""
+
+
+async def test_google_candidates_go_into_the_prompt(tmp_path):
+    store = CompanyStore(tmp_path / "companies.db")
+    client = FakeClient(review(career_source="google"))
+    cand = career_search.Candidate("人才招募", "https://careers.example.com", "")
+    await run_reviews(
+        [("A公司", [])],
+        store=store,
+        client=client,
+        model="sonnet",
+        now_fn=lambda: NOW,
+        search=lambda name: [cand],
+    )
+    assert "Google 搜尋結果" in client.users[0] and "careers.example.com" in client.users[0]
+    assert store.all()[company_key("A公司")].review.career_source == "google"
+
+
+def test_cleared_career_url_also_clears_its_source():
+    r = sanitize(review(career_url="https://www.104.com.tw/company/x", career_source="google"))
+    assert (r.career_url, r.career_source) == ("", "")
+
+
+def test_reviews_saved_before_career_source_existed_still_load(tmp_path):
+    store = CompanyStore(tmp_path / "companies.db")
+    store.save_ok("A公司", review(), "sonnet", NOW)
+    old = review().model_dump()
+    old.pop("career_source")
+    conn = __import__("sqlite3").connect(tmp_path / "companies.db")
+    conn.execute("UPDATE company_reviews SET review = ?", (json.dumps(old, ensure_ascii=False),))
+    conn.commit()
+    conn.close()
+    assert store.all()[company_key("A公司")].review.career_source == ""

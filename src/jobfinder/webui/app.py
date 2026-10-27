@@ -557,6 +557,9 @@ def _company_panel(name: str, all_stored: dict[str, StoredCompany], widget_key: 
     st.markdown("**🔗 徵才官網**")
     if review.career_url:
         st.link_button("開啟徵才官網", review.career_url)
+        source = {"google": "取自 Google 搜尋", "websearch": "claude 網搜找到"}
+        if review.career_source in source:
+            st.caption(source[review.career_source] + ",已用 WebFetch 確認存在")
     else:
         st.caption("❌ 沒找到公司自己的徵才官網")
     if review.career_note:

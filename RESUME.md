@@ -34,6 +34,11 @@ UI「公司評價」頁 + 職缺分析對話框「🏢 公司」分頁,沒資料
 決策 memory `job-finder-company-review-decision`;demo `design-demos/2026-10-27-公司評價頁.html`。
 **下一步**:明天看 daily.log 的「公司評價」一行與整體耗時是否還在 30 分鐘內。
 
+**10-27 再晚**:深評附成績單(`paths.references`,transcript.md 不進版控;A/B 8 筆平均 +0.75,不重校);
+已標投遞頁一頁 20 筆 + 全部深評高到低;評分維度雷達圖 + 表(方案 C 上下);
+徵才官網先用 Serper(Google)候選 —— **待使用者到 serper.dev 申請 key 填進 .env 的 SERPER_API_KEY**。
+ML/DS 第二志願的深評 prompt 修改已評估、**使用者決定先不改**(memory job-finder-ml-second-track-decision)。
+
 ---
 
 ## 2026-10-15:LLM 簡體字轉繁體(分支 `fix/traditional-chinese`,未 merge)

@@ -329,14 +329,19 @@ async def _company(cfg: Config, args: argparse.Namespace) -> int:
         )
         return 0
 
+    from .company.career_search import google_candidates
     from .company.review import run_reviews, web_client
 
+    serper_key = Secrets().serper_api_key
+    if not serper_key:
+        print("(沒設 SERPER_API_KEY:徵才官網只用 claude 自己的網搜)")
     report = await run_reviews(
         targets,
         store=store,
         client=web_client(ccfg.timeout_seconds),
         model=ccfg.model,
         now_fn=lambda: datetime.now(tz),
+        search=(lambda name: google_candidates(name, serper_key)) if serper_key else None,
     )
     report.candidates = pending
     print(report.summary_line())
