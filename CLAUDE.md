@@ -146,6 +146,7 @@ Windows 工作排程器 (08:00 每日,錯過開機後補跑)
   └─ targeting.py 規則層:產業(半導體/金融代碼前綴)+ 公司規模(≥500人)
   └─ Stage 1 粗篩(批次 15 筆) → Stage 2 深評(逐筆)→ 程式端校正
   └─ 投遞清單:剩餘詳細頁額度先補抓 shortlist.db 沒全文的(jobs.db 有列就順手補 raw_detail)
+       jobs.db 有列、有全文但沒深評的 → 每次補評 ≤6 筆、存 jobs.db(不進日報)
   └─ 補深評佇列:剩餘詳細頁額度補抓 backfill_queue → 深評(不進日報)
   └─ Telegram 日報只發一則(notify.style: digest;cards = 摘要 + 每職缺一則卡片)
 ```

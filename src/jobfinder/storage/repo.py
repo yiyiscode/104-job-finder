@@ -399,6 +399,28 @@ class JobRepo:
         ).fetchone()
         return bool(row and row["n"] > 0)
 
+    def unscored_with_detail(self, job_nos: list[str]) -> list[tuple[JobSummary, JobDetail]]:
+        """這些職缺裡、有全文但還沒深評的,依傳入順序。投遞清單補深評用。"""
+        from ..normalize import normalize_detail_response  # 延遲載入,避免循環相依
+
+        out: list[tuple[JobSummary, JobDetail]] = []
+        for job_no in job_nos:
+            row = self.conn.execute(
+                "SELECT raw_summary, raw_detail, matched_keywords FROM jobs"
+                " WHERE job_no = ? AND raw_detail IS NOT NULL AND raw_detail != ''"
+                " AND NOT EXISTS (SELECT 1 FROM scores WHERE job_no = ? AND stage = 'deep')",
+                (job_no, job_no),
+            ).fetchone()
+            raw_summary = _loads(row["raw_summary"], None) if row else None
+            if not raw_summary:
+                continue
+            summary = self._summary_from_raw(raw_summary, _loads(row["matched_keywords"], []))
+            if summary is None:
+                continue
+            detail = normalize_detail_response(_loads(row["raw_detail"], {}), job_no)
+            out.append((summary, detail))
+        return out
+
     def load_replay(self, run_id: int) -> list[tuple[JobSummary, JobDetail | None]]:
         """拿某次 run 的原始 JSON 重跑評分,不必重爬。
 

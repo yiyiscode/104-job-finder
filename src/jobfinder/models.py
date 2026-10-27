@@ -187,6 +187,8 @@ class RunReport(BaseModel):
     backfilled: int = 0
     #: 投遞清單裡、這次用剩餘詳細頁額度補抓到全文的職缺數(深評交給 ``shortlist score``)
     shortlist_fetched: int = 0
+    #: 投遞清單裡、jobs.db 有列但沒深評的職缺,這次補評的數量(不進日報)
+    shortlist_scored: int = 0
 
     notified: list[ScoredJob] = Field(default_factory=list)
     rejected: list[RejectedJob] = Field(default_factory=list)

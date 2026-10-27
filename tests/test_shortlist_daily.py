@@ -95,6 +95,37 @@ async def test_closed_job_is_not_fetched_again(cfg, tmp_path, store):
     assert source.detail_calls == []
 
 
+def deep_scored(cfg, tmp_path):
+    with Database(str(tmp_path), cfg.paths.db_filename) as db:
+        rows = db.conn.execute("SELECT DISTINCT job_no FROM scores WHERE stage='deep'")
+        return {r["job_no"] for r in rows}
+
+
+async def test_jobs_db_row_is_deep_scored_after_fetch_but_not_pushed(cfg, tmp_path, store):
+    """被粗篩刷掉 → 清單補抓到全文 → 同一次執行補深評;分數存 jobs.db,不進日報。"""
+    await run(cfg, tmp_path, FakeSource(make_jobs(2)), None, day=0, scorer=DropAllScorer())
+    add(store, "job0")
+    report = await run(cfg, tmp_path, BudgetedSource(details=18), store)
+
+    assert report.shortlist_scored == 1
+    assert report.notified == []
+    assert deep_scored(cfg, tmp_path) == {"job0"}  # 不在清單的 job1 不評
+
+
+async def test_shortlist_deep_scoring_is_capped_per_run(cfg, tmp_path, store):
+    from jobfinder.pipeline import SHORTLIST_DEEP_PER_RUN
+
+    n = SHORTLIST_DEEP_PER_RUN + 2
+    await run(cfg, tmp_path, FakeSource(make_jobs(n)), None, day=0, scorer=DropAllScorer())
+    add(store, *[f"job{i}" for i in range(n)])
+    first = await run(cfg, tmp_path, BudgetedSource(details=18), store)
+    second = await run(cfg, tmp_path, BudgetedSource(details=18), store, day=2)
+
+    assert first.shortlist_scored == SHORTLIST_DEEP_PER_RUN
+    assert second.shortlist_scored == 2  # 剩下的明天接著評,評過的不重評
+    assert len(deep_scored(cfg, tmp_path)) == n
+
+
 async def test_offline_and_limit_runs_never_fetch_shortlist(cfg, tmp_path, store):
     add(store, "aaaa1")
     report = await run(cfg, tmp_path, FakeSource([]), store)

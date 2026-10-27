@@ -565,7 +565,8 @@ async def _run(cfg: Config, args: argparse.Namespace) -> int:
     print(
         f"\n狀態={report.status} 抓取={report.jobs_fetched} 新={report.jobs_new}"
         f" 深評={report.jobs_deep_scored} 補評={report.backfilled}"
-        f" 清單補抓={report.shortlist_fetched} 推播={len(report.notified)}"
+        f" 清單補抓={report.shortlist_fetched} 清單補評={report.shortlist_scored}"
+        f" 推播={len(report.notified)}"
         f" 請求={report.requests_used} 成本=${report.llm_cost_usd:.4f}"
     )
     for warning in report.warnings:

@@ -19,6 +19,12 @@ pipeline 在當天詳細頁抓完後,剩餘名額先給清單、再給補深評�
 `shortlist score` 評 8 筆(50–77 分),命中率也順帶算到清單職缺;全程 9 分 40 秒。
 `shortlist list`:已抓 20、jobs.db 已有全文 21、尚未抓取 32 → 約再 2 天。
 **下一步**:merge;每天看 daily.log 的「清單補抓=N」與 `shortlist list`。
+
+**10-27**:匯入光寶 10 筆(待定,`local_data/shortlist-2026-10-27-liteon.csv`;備份 `backup-shortlist-20261027/`)。
+10-25/10-27 兩天補抓 40 筆全成功。發現兩件事並修掉(677 測試全過):
+1. jobs.db 有列、補到全文但沒深評的(被規則層/粗篩刷掉的 11 筆)沒有任何流程會評 → pipeline 每次補評 ≤6 筆、存 jobs.db。
+2. **「每日一次」護欄漏洞**:`has_run_today` 用 SQLite `date()`,把 +08:00 換成 UTC → 台北 00:00–08:00 的執行算成前一天。
+   10-27 因此跑兩次(run 61 00:44、run 62 13:55,共 67 個請求,沒被擋)。改成比 started_at 前 10 碼。
 履歷工具(D:\Get a better resume)對 5 碼代碼只讀 shortlist.db 的 fetches —— 清單中 JD 只在 jobs.db 的 13 筆(含 7ynrk、8opms)會一直顯示缺 JD,要在那邊加 jobs.db 後備查詢。
 
 ---

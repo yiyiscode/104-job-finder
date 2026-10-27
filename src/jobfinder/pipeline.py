@@ -142,6 +142,9 @@ async def run_daily(
         scored = await _deep_score_all(cfg, deps, repo, report, screen_outcome, details)
         # 補深評的不進今天的日報 —— 日報只推「今天新出現的」。分數照存,UI 看得到。
         report.backfilled = await _deep_score_backfill(deps, repo, report, backfill, now)
+        report.shortlist_scored = await _deep_score_shortlist(
+            deps, repo, report, limit, rescore_all
+        )
 
         from .scoring.rules import select_for_notification
 
@@ -353,6 +356,43 @@ async def _deep_score_backfill(deps, repo, report, pairs, now) -> int:
         done += 1
     if done:
         log.info("補深評 %d 筆舊職缺(不進今天的日報)", done)
+    return done
+
+
+#: 每次執行最多補評幾筆清單職缺。Claude 深評一筆約 1 分鐘,排程整體逾時 30 分鐘
+SHORTLIST_DEEP_PER_RUN = 6
+
+
+async def _deep_score_shortlist(deps, repo, report, limit, rescore_all) -> int:
+    """投遞清單裡、jobs.db 有列、有全文、但沒深評的職缺(被規則層/粗篩刷掉,後來才補到全文)。
+
+    jobs.db 沒有的清單職缺由 ``shortlist score`` 評、存 shortlist.db;這裡補 jobs.db 那一半,
+    分數存 jobs.db(有 job_no,不會重複)。跟補深評一樣不進今天的日報。
+    """
+    if deps.shortlist is None or limit or rescore_all:
+        return 0
+    index = repo.detail_index()
+    job_nos = [index[e.detail_id][0] for e in deps.shortlist.entries() if e.detail_id in index]
+    done = 0
+    for job, detail in repo.unscored_with_detail(job_nos)[:SHORTLIST_DEEP_PER_RUN]:
+        if getattr(deps.scorer, "budget_exceeded", False):
+            break
+        try:
+            result, cost = await deps.scorer.deep(job, detail)
+        except Exception as exc:
+            log.warning("清單補深評 %s 失敗:%s", job.job_no, exc)
+            continue
+        report.llm_cost_usd += cost
+        repo.save_score(
+            result,
+            run_id=report.run_id,
+            raw_response=getattr(deps.scorer, "raw_responses", {}).get(job.job_no, ""),
+            now=report.started_at,
+        )
+        repo.mark_scored([job.job_no])
+        done += 1
+    if done:
+        log.info("清單補深評 %d 筆(jobs.db 有列、之前沒深評;不進今天的日報)", done)
     return done
 
 
