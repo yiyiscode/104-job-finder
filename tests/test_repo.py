@@ -122,6 +122,17 @@ def test_has_run_today_blocks_a_second_run(repo):
     assert not repo.has_run_today(DAY0 + timedelta(days=1))
 
 
+def test_has_run_today_uses_local_date_not_utc(repo):
+    """2026-10-27 實際發生:台北 00:44 的補跑被 SQLite date() 換算成 UTC 的前一天,
+    13:55 又跑了一次,當天對 104 發了 67 個請求。"""
+    from zoneinfo import ZoneInfo
+
+    tz = ZoneInfo("Asia/Taipei")
+    repo.start_run(datetime(2026, 10, 27, 0, 44, tzinfo=tz))
+    assert repo.has_run_today(datetime(2026, 10, 27, 13, 55, tzinfo=tz))
+    assert not repo.has_run_today(datetime(2026, 10, 26, 23, 0, tzinfo=tz))
+
+
 def test_skipped_runs_do_not_consume_the_daily_quota(repo):
     """被熔斷擋下的執行根本沒碰到 104,不該用掉今天的額度。"""
     run_id = repo.start_run(DAY0)

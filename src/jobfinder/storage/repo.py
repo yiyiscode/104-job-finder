@@ -385,13 +385,17 @@ class JobRepo:
 
         只有「真的碰到 104」的執行才算數 —— 被熔斷擋下(skipped)、或一個請求都沒
         送到 104 就斷網(NetworkUnavailable 且 requests_used = 0)都不該用掉今天的額度。
+
+        ⚠️ 不能用 SQLite 的 ``date()``:它會把 ``+08:00`` 換算成 UTC,台北 00:00–08:00
+        的執行就被算成前一天(2026-10-27 因此一天跑了兩次)。``started_at`` 存的是
+        本地時間的 ISO 字串,直接比前 10 碼。
         """
         row = self.conn.execute(
             "SELECT COUNT(*) AS n FROM runs"
-            " WHERE date(started_at) = date(?) AND status != 'skipped'"
+            " WHERE substr(started_at, 1, 10) = ? AND status != 'skipped'"
             " AND NOT (COALESCE(error_kind, '') = 'NetworkUnavailable'"
             " AND COALESCE(requests_used, 0) = 0)",
-            (now.isoformat(),),
+            (now.date().isoformat(),),
         ).fetchone()
         return bool(row and row["n"] > 0)
 
