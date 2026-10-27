@@ -45,24 +45,41 @@ def test_pending_outside_shortlist_is_not_a_backup():
     assert _board([row(job_no="A")], {"A": "pending"}).backups == []
 
 
-def test_order_is_week_then_desire_then_score():
-    rows = [row(job_no="A", score=90), row(job_no="B", score=70), row(job_no="C", score=None)]
-    rows.append(row(job_no="D", score=99))
+def test_every_section_is_deep_score_high_to_low():
+    """2026-10-27 起不看週次與想去程度,只看深評;沒分數的排最後。"""
+    rows = [row(job_no="A", score=70), row(job_no="B", score=None), row(job_no="C", score=90)]
+    rows.append(row(job_no="D", score=80))
     board = _board(
         rows,
         dict.fromkeys("ABCD", "apply"),
-        plans={"A": NEXT_WEEK, "B": NEXT_WEEK, "C": NEXT_WEEK, "D": WEEK_3},
-        desires={"B": 5},
+        plans={"A": NEXT_WEEK, "B": NEXT_WEEK, "C": WEEK_3, "D": NEXT_WEEK},
+        desires={"A": 5},
     )
-    assert [r.job_no for r in board.later] == ["B", "A", "C", "D"]
+    assert [r.job_no for r in board.later] == ["C", "D", "A", "B"]
 
 
-def test_done_is_newest_sent_first():
-    rows = [row(job_no="A"), row(job_no="B")]
+def test_done_is_also_by_score_not_sent_date():
+    rows = [row(job_no="A", score=90), row(job_no="B", score=60)]
     board = _board(
         rows, dict.fromkeys("AB", "apply"), sent={"A": date(2026, 9, 1), "B": date(2026, 9, 20)}
     )
-    assert [r.job_no for r in board.done] == ["B", "A"]
+    assert [r.job_no for r in board.done] == ["A", "B"]
+
+
+def test_pool_mixes_sections_by_score():
+    rows = [row(job_no="A", score=50), row(job_no="B", score=95)]
+    board = _board(
+        rows, dict.fromkeys("AB", "apply"), plans={"A": THIS_WEEK}, sent={"B": THIS_WEEK}
+    )
+    assert [r.job_no for r in board.pool] == ["B", "A"]
+
+
+def test_page_bounds_clamps_and_slices():
+    assert planning.page_bounds(45, 0) == (0, 20, 0)
+    assert planning.page_bounds(45, 2) == (40, 45, 2)
+    assert planning.page_bounds(45, 9) == (40, 45, 2)  # 標記完列數變少,頁碼夾回最後一頁
+    assert planning.page_bounds(0, 3) == (0, 0, 0)
+    assert planning.page_count(40) == 2 and planning.page_count(41) == 3
 
 
 def test_week_filter_options_and_counts():

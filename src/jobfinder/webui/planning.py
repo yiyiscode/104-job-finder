@@ -44,8 +44,13 @@ class Board:
 
     @property
     def pool(self) -> list[JobRow]:
-        """履歷修改 tab 的母體:所有標「投」的,依 本週 → 之後 → 未排 → 已送出。"""
-        return self.due + self.later + self.unplanned + self.done
+        """履歷修改 tab 的母體:所有標「投」的,深評高到低(同分依 本週 → 之後 → 未排 → 已送出)。"""
+        return by_score(self.due + self.later + self.unplanned + self.done)
+
+
+def by_score(rs: Iterable[JobRow]) -> list[JobRow]:
+    """已標投遞頁的唯一排序:深評高到低,沒分數的排最後。穩定排序,同分保留原順序。"""
+    return sorted(rs, key=lambda r: (r.deep_score is None, -(r.deep_score or 0)))
 
 
 def build_board(
@@ -79,21 +84,10 @@ def build_board(
         else:
             board.later.append(r)
 
-    def order(rs: list[JobRow]) -> list[JobRow]:
-        """週次 → 想去程度(高到低)→ 深評(高到低)。沒有值的排後面。"""
-        return sorted(
-            rs,
-            key=lambda r: (
-                plans.get(r.job_no, date.max),
-                -(desires.get(r.job_no) or 0),
-                -(r.deep_score or 0),
-            ),
-        )
-
-    board.due, board.later = order(board.due), order(board.later)
-    board.unplanned, board.backups = order(board.unplanned), order(board.backups)
-    board.done.sort(key=lambda r: sent[r.job_no], reverse=True)
-    board.closed.sort(key=lambda r: closed[r.job_no], reverse=True)
+    # 2026-10-27 使用者要求:每一區都只看深評高到低(原本是 週次 → 想去 → 深評)
+    board.due, board.later = by_score(board.due), by_score(board.later)
+    board.unplanned, board.backups = by_score(board.unplanned), by_score(board.backups)
+    board.done, board.closed = by_score(board.done), by_score(board.closed)
     return board
 
 
@@ -196,3 +190,17 @@ def triage_writes(
             else:
                 missing.append(job_no)
     return writes, missing
+
+
+PAGE_SIZE = 20
+
+
+def page_bounds(total: int, page: int, size: int = PAGE_SIZE) -> tuple[int, int, int]:
+    """(start, end, 修正後的頁碼)。頁碼超出範圍就夾回去 —— 標記完列數變少時常發生。"""
+    pages = max(1, -(-total // size))
+    page = min(max(page, 0), pages - 1)
+    return page * size, min(total, (page + 1) * size), page
+
+
+def page_count(total: int, size: int = PAGE_SIZE) -> int:
+    return max(1, -(-total // size))

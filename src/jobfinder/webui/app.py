@@ -780,7 +780,7 @@ def applied_page() -> None:
             key="tailor_week",
         )
         pool = planning.filter_pool(board, option, plans)
-        st.caption("點一列看這家的履歷修改建議與 104 原文 · 排序:本週 → 之後 → 未排 → 已送出")
+        st.caption("點一列看這家的履歷修改建議與 104 原文 · 排序:深評高到低")
         picked = table(pool, f"tailor_{option}", mode="single-row")
         if not picked:
             st.info("點上面表格的一列,下方就會顯示履歷修改建議與 104 原文。")
@@ -794,11 +794,31 @@ def applied_page() -> None:
                 _jd_original(job)
 
 
+def _pager(name: str, total: int) -> tuple[int, int]:
+    """每頁 planning.PAGE_SIZE 筆,上一頁/下一頁。回傳這一頁的 [start, end)。"""
+    key = f"page_{name}"
+    start, end, page = planning.page_bounds(total, st.session_state.get(key, 0))
+    st.session_state[key] = page
+    pages = planning.page_count(total)
+    if pages > 1:
+        bar = st.container(horizontal=True, vertical_alignment="center", gap="small")
+        if bar.button("◀ 上一頁", key=f"{key}_prev", disabled=page == 0):
+            st.session_state[key] = page - 1
+            st.rerun()
+        bar.caption(f"第 {page + 1} / {pages} 頁 · 第 {start + 1}–{end} 筆,共 {total} 筆")
+        if bar.button("下一頁 ▶", key=f"{key}_next", disabled=page == pages - 1):
+            st.session_state[key] = page + 1
+            st.rerun()
+    return start, end
+
+
 def _applied_table(rs, name, mode, latest, desires, plans, sent, this_week) -> list[JobRow]:
-    """已標投遞頁共用的表格。回傳勾選的列。"""
+    """已標投遞頁共用的表格,一頁 20 筆。回傳勾選的列(只有這一頁的)。"""
     if not rs:
         st.caption("(沒有)")
         return []
+    start, end = _pager(name, len(rs))
+    rs = rs[start:end]
     table = pd.DataFrame(
         [
             {
@@ -826,7 +846,8 @@ def _applied_table(rs, name, mode, latest, desires, plans, sent, this_week) -> l
         width="stretch",
         on_select="rerun",
         selection_mode=mode,
-        key=f"applied_{name}_{st.session_state.applied_gen}",
+        # key 帶頁碼:換頁就清掉勾選,舊的列索引不會指到新一頁的別筆
+        key=f"applied_{name}_{st.session_state.applied_gen}_{start}",
         column_config={
             "week": st.column_config.TextColumn("週次", width="small"),
             "sent": st.column_config.DateColumn("送出日"),
@@ -998,9 +1019,13 @@ def _backup_triage(rs: list[JobRow]) -> None:
         st.caption("(沒有)")
         return
     gen = st.session_state.applied_gen
-    st.caption("⏸ = 這次先不決定(不寫入)。不投一定要選原因,原因是之後檢討閘門的資料。")
+    st.caption(
+        "⏸ = 這次先不決定(不寫入)。不投一定要選原因,原因是之後檢討閘門的資料。"
+        "**換頁前先按儲存** —— 沒存的點選換頁後會清掉。"
+    )
+    start, end = _pager("backups", len(rs))
     picks: dict[str, tuple[str | None, str | None]] = {}
-    for r in rs:
+    for r in rs[start:end]:
         left, right, view = st.columns([1.4, 5, 0.7], vertical_alignment="center")
         # 對話框不動底下的勾選:看完關掉,剛點的投/不投都還在
         if view.button("🔍 分析", key=f"tri_view_{r.job_no}", help="深評 + 命中率 + 104 原文"):
