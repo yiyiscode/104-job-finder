@@ -23,7 +23,7 @@ from jobfinder.hitrate.compute import resume_hash
 from jobfinder.hitrate.store import HitRateStore
 from jobfinder.shortlist.store import SHORTLIST_DB, ShortlistStore
 from jobfinder.webui import candidates as cand
-from jobfinder.webui import planning, trends
+from jobfinder.webui import planning, score_chart, trends
 from jobfinder.webui.decisions import (
     DESIRE_LABELS,
     SKIP_REASONS,
@@ -407,17 +407,35 @@ def _deep_score_details(job: JobRow) -> None:
         st.markdown("\n".join(f"- ⚠️ {r}" for r in job.red_flags))
     if job.resume_tip:
         st.markdown(f"**履歷建議** 💡 {job.resume_tip}")
-    if job.score_parts:
-        st.caption(
-            "細項 " + " · ".join(f"{name} {got}/{full}" for name, got, full in job.score_parts)
-        )
     if job.company_url:
         st.markdown(f"[🏢 這家公司的其他職缺]({job.company_url})")
+
+
+def _score_breakdown(job: JobRow) -> None:
+    """深評各維度:上雷達圖、下數字表,同一個框(design-demos/2026-10-27 方案 C 改上下)。"""
+    if not job.score_parts:
+        return
+    avg, n = score_chart.averages(load_rows())
+    with st.container(border=True):
+        st.markdown("**評分依據**")
+        st.html(score_chart.radar_svg(job.score_parts, avg, dark=st.context.theme.type == "dark"))
+        st.dataframe(
+            pd.DataFrame(score_chart.breakdown_rows(job.score_parts, avg)),
+            hide_index=True,
+            width="stretch",
+            column_config={
+                "得分率": st.column_config.ProgressColumn(
+                    "得分率", format="%d%%", min_value=0, max_value=100
+                ),
+            },
+        )
+        st.caption(f"滿分不同,圖上畫得分率。灰虛線 = {n} 筆深評的平均(有 Claude 評的只算 Claude)")
 
 
 def _analysis_summary(job: JobRow) -> None:
     if job.deep_score is not None:
         st.info(f"深評 {job.deep_score} 分:{job.one_liner}")
+        _score_breakdown(job)
         _deep_score_details(job)
     else:
         st.caption(f"深評:{job.score_status}")

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>評分維度圖 demo</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg:#ffffff; --surface:#fcfcfb; --line:#e6e5e0; --grid:#e9e8e3;
+    --text:#0b0b0b; --text2:#52514e; --muted:#8a8984;
+    --series-1:#2a78d6; --series-1-fill:rgba(42,120,214,.16);
+    --avg:#8a8984; --accent:#ff4b4b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --bg:#121211; --surface:#1a1a19; --line:#34332f; --grid:#2c2b28;
+      --text:#f0efec; --text2:#c3c2b7; --muted:#8f8e86;
+      --series-1:#3987e5; --series-1-fill:rgba(57,135,229,.22); --avg:#8f8e86;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg:#121211; --surface:#1a1a19; --line:#34332f; --grid:#2c2b28;
+    --text:#f0efec; --text2:#c3c2b7; --muted:#8f8e86;
+    --series-1:#3987e5; --series-1-fill:rgba(57,135,229,.22); --avg:#8f8e86;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 "Noto Sans TC","Microsoft JhengHei",sans-serif; }
+  .top { position:sticky; top:0; background:var(--bg); border-bottom:1px solid var(--line); padding:10px 16px; z-index:5; }
+  .tabs button, .jobs button { border:1px solid var(--line); background:var(--surface); color:var(--text); padding:5px 12px; border-radius:6px; cursor:pointer; margin:0 6px 6px 0; font:inherit; }
+  .tabs button.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .jobs button.on { border-color:var(--series-1); color:var(--series-1); font-weight:600; }
+  .why { color:var(--text2); font-size:13px; }
+  main { max-width:1100px; margin:auto; padding:16px; }
+  .panel { display:flex; gap:20px; flex-wrap:wrap; }
+  .col { flex:1 1 340px; min-width:0; }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px 16px; }
+  .info { background:rgba(42,120,214,.08); border-radius:6px; padding:8px 12px; margin-bottom:10px; }
+  .muted { color:var(--muted); font-size:13px; }
+  .legend { display:flex; gap:16px; font-size:13px; color:var(--text2); margin-top:6px; flex-wrap:wrap; }
+  .sw { display:inline-block; width:14px; height:3px; vertical-align:middle; margin-right:6px; border-radius:2px; }
+  .sw.dash { background:repeating-linear-gradient(90deg,var(--avg) 0 4px,transparent 4px 7px); }
+  .tip { position:fixed; pointer-events:none; background:var(--text); color:var(--bg); font-size:12px; padding:5px 8px; border-radius:5px; display:none; z-index:20; white-space:nowrap; }
+  svg text { fill:var(--text2); font-size:12px; }
+  svg .val { fill:var(--text); font-weight:600; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  td, th { padding:4px 6px; border-bottom:1px solid var(--line); text-align:left; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; }
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="tabs">
+    <button data-p="A" class="on">A · 雷達圖</button>
+    <button data-p="B">B · 得分條</button>
+    <button data-p="C">C · 雷達 + 數字表</button>
+  </div>
+  <div class="why" id="why"></div>
+</div>
+<main>
+  <div class="jobs" id="jobs"></div>
+  <div class="panel">
+    <div class="col">
+      <h3 id="title" style="margin:6px 0"></h3>
+      <div class="info" id="one"></div>
+      <div class="card" id="chart"></div>
+      <div class="legend" id="legend"></div>
+      <p class="muted">滿分不同(技術 35、年資 25、領域 15、成長 15、實務 10),圖上一律畫「得分率」,旁邊標實際分數。灰虛線 = 全部 491 筆 Claude 深評的平均。</p>
+    </div>
+    <div class="col">
+      <div class="card muted">(這裡是原本的「為什麼適合你／注意／履歷建議」與標記表單,位置不變)</div>
+    </div>
+  </div>
+</main>
+<div class="tip" id="tip"></div>
+<script>
+const DIMS = [["tech","技術匹配",35],["exp","年資可行",25],["domain","領域",15],["growth","成長價值",15],["practical","實務條件",10]];
+const AVG = { tech:17.4, exp:18.7, domain:6.1, growth:7.3, practical:6.1 };
+const JOBS = [
+  { name:"統一證券 — 人工智慧研發處-資料工程師", total:84, one:"資料工程主軸、金融產業,技術與年資都高度吻合。", s:{tech:30,exp:22,domain:13,growth:13,practical:6} },
+  { name:"光寶 — 資安資訊中心 AI 資料工程師/ML/DS", total:77, one:"年資不拘、ETL + ML 建模,缺 Spark 與湖倉經驗。", s:{tech:25,exp:23,domain:10,growth:12,practical:7} },
+  { name:"光寶 — AI Agent 應用工程師", total:59, one:"歡迎應屆,但屬 LLM 應用輔線(原始 71,verdict 降級到 59)。", s:{tech:25,exp:24,domain:5,growth:10,practical:7} },
+  { name:"光寶 — AI&DA AI 數據應用工程師", total:51, one:"偏 ML 建模與 AI Agent,要求 2~5 年。", s:{tech:20,exp:11,domain:6,growth:8,practical:6} },
+];
+const WHY = {
+  A:"A 雷達圖:一眼看出「形狀」—— 哪個維度凹下去。取捨:面積會放大差異、軸之間不好精確比較,要靠標籤補數字。",
+  B:"B 得分條:每個維度一條「得分/滿分」,灰刻度是平均。取捨:最精確、最好比較,但沒有雷達圖那種一眼看形狀的感覺。",
+  C:"C 雷達 + 數字表:左雷達看形狀,右表格看實際分數與比平均高低。取捨:資訊最完整,但佔的空間最大(分析對話框裡會比較擠)。",
+};
+let plan = "A", job = 0;
+const tip = document.getElementById("tip");
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function showTip(e, html) { tip.innerHTML = html; tip.style.display = "block"; tip.style.left = (e.clientX + 12) + "px"; tip.style.top = (e.clientY + 12) + "px"; }
+function hideTip() { tip.style.display = "none"; }
+function tipText(d, got) { return `${d[1]}:<b>${got}</b>/${d[2]}(${Math.round(got/d[2]*100)}%)· 平均 ${AVG[d[0]]}`; }
+
+function radar(s, size) {
+  const cx = size/2, cy = size/2 + 4, R = size/2 - 54, n = DIMS.length;
+  const pt = (i, r) => { const a = -Math.PI/2 + i*2*Math.PI/n; return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; };
+  let g = "";
+  for (const f of [.25,.5,.75,1]) g += `<polygon points="${DIMS.map((_,i)=>pt(i,R*f).join(",")).join(" ")}" fill="none" stroke="var(--grid)" stroke-width="1"/>`;
+  DIMS.forEach((d,i)=>{ const [x,y]=pt(i,R); g += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--grid)"/>`; });
+  const avgPts = DIMS.map((d,i)=>pt(i, R*AVG[d[0]]/d[2]).join(",")).join(" ");
+  g += `<polygon points="${avgPts}" fill="none" stroke="var(--avg)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  const pts = DIMS.map((d,i)=>pt(i, R*s[d[0]]/d[2]));
+  g += `<polygon points="${pts.map(p=>p.join(",")).join(" ")}" fill="var(--series-1-fill)" stroke="var(--series-1)" stroke-width="2" stroke-linejoin="round"/>`;
+  DIMS.forEach((d,i)=>{
+    const [x,y]=pts[i]; const [lx,ly]=pt(i,R+26);
+    const anchor = Math.abs(lx-cx)<4 ? "middle" : (lx>cx ? "start" : "end");
+    g += `<circle cx="${x}" cy="${y}" r="4.5" fill="var(--series-1)" stroke="var(--surface)" stroke-width="2"/>`;
+    g += `<circle cx="${x}" cy="${y}" r="14" fill="transparent" data-i="${i}" class="hit"/>`;
+    g += `<text x="${lx}" y="${ly-6}" text-anchor="${anchor}">${d[1]}</text><text class="val" x="${lx}" y="${ly+9}" text-anchor="${anchor}">${s[d[0]]}/${d[2]}</text>`;
+  });
+  return `<svg viewBox="0 0 ${size} ${size+8}" width="100%" style="max-width:${size}px;display:block;margin:auto" role="img" aria-label="評分維度雷達圖">${g}</svg>`;
+}
+function bars(s) {
+  const W = 460, rowH = 40, L = 84, Rpad = 56, bw = W - L - Rpad;
+  let g = "";
+  DIMS.forEach((d,i)=>{
+    const y = 10 + i*rowH, frac = s[d[0]]/d[2], avg = AVG[d[0]]/d[2];
+    g += `<text x="0" y="${y+15}">${d[1]}</text>`;
+    g += `<rect x="${L}" y="${y+4}" width="${bw}" height="14" rx="4" fill="var(--grid)"/>`;
+    g += `<rect x="${L}" y="${y+4}" width="${Math.max(4,bw*frac)}" height="14" rx="4" fill="var(--series-1)"/>`;
+    g += `<line x1="${L+bw*avg}" x2="${L+bw*avg}" y1="${y}" y2="${y+22}" stroke="var(--text2)" stroke-width="2"/>`;
+    g += `<text class="val" x="${L+bw+8}" y="${y+16}">${s[d[0]]}/${d[2]}</text>`;
+    g += `<rect x="0" y="${y}" width="${W}" height="${rowH-6}" fill="transparent" data-i="${i}" class="hit"/>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${10+DIMS.length*rowH}" width="100%" role="img" aria-label="評分維度得分條">${g}</svg>`;
+}
+function table(s) {
+  return `<table><thead><tr><th>維度</th><th class="n">得分</th><th class="n">得分率</th><th class="n">vs 平均</th></tr></thead><tbody>${
+    DIMS.map(d=>{ const got=s[d[0]], diff=(got-AVG[d[0]]).toFixed(1); return `<tr><td>${d[1]}</td><td class="n">${got}/${d[2]}</td><td class="n">${Math.round(got/d[2]*100)}%</td><td class="n">${diff>0?"▲ +":"▼ "}${diff}</td></tr>`; }).join("")
+  }</tbody></table>`;
+}
+function render() {
+  const j = JOBS[job];
+  document.getElementById("title").textContent = j.name;
+  document.getElementById("one").textContent = `深評 ${j.total} 分:${j.one}`;
+  const chart = document.getElementById("chart");
+  chart.innerHTML = plan === "A" ? radar(j.s, 380)
+    : plan === "B" ? bars(j.s)
+    : `<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center"><div style="flex:1 1 220px">${radar(j.s, 300)}</div><div style="flex:1 1 200px">${table(j.s)}</div></div>`;
+  document.getElementById("legend").innerHTML = plan === "B"
+    ? `<span><span class="sw" style="background:var(--series-1);height:8px"></span>這筆職缺</span><span><span class="sw" style="background:var(--text2);width:2px;height:12px"></span>全部深評平均</span>`
+    : `<span><span class="sw" style="background:var(--series-1)"></span>這筆職缺</span><span><span class="sw dash"></span>全部深評平均</span>`;
+  chart.querySelectorAll(".hit").forEach(el => {
+    const d = DIMS[+el.dataset.i];
+    el.addEventListener("mousemove", e => showTip(e, tipText(d, j.s[d[0]])));
+    el.addEventListener("mouseleave", hideTip);
+  });
+  document.getElementById("why").textContent = WHY[plan];
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.p === plan));
+  document.querySelectorAll(".jobs button").forEach((b,i) => b.classList.toggle("on", i === job));
+}
+document.getElementById("jobs").innerHTML = JOBS.map((j,i)=>`<button data-j="${i}">${j.total} · ${j.name.split(" — ")[0]} ${j.name.split(" — ")[1].slice(0,14)}</button>`).join("");
+document.querySelectorAll(".jobs button").forEach(b => b.onclick = () => { job = +b.dataset.j; render(); });
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => { plan = b.dataset.p; render(); });
+render();
+</script>
+</body>
+</html>
