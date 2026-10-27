@@ -28,3 +28,6 @@ desktop.ini
 
 # Claude Code 個人設定(本機路徑、個人權限)。共用的 hook 與專案指令在 .claude/settings.json,要進版控
 .claude/settings.local.json
+
+# 簡報產生器的依賴(docs/slides 用 bun install 裝)
+node_modules/
