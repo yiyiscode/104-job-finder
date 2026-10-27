@@ -27,6 +27,8 @@ HARD_MAX_LIVE_LIMIT = 5  # `--headful --limit N` 的 N 上限
 # 命中率(`jobfinder hitrate`)只打 OpenRouter 不打 104,上限是為了錢不是為了封鎖
 HARD_MAX_HITRATE_JOBS_PER_RUN = 100
 HARD_MAX_HITRATE_COST_USD = 0.50
+#: 公司評價一次最多查幾家。一家吃一次 Sonnet 網搜(訂閱額度),量大會擠掉當天的評分額度
+HARD_MAX_COMPANY_PER_RUN = 10
 
 #: 設定檔中出現這些字樣代表有人想加 104 登入憑證 —— 直接拒絕(SPEC.md 規則 9)。
 FORBIDDEN_CONFIG_KEYS = {
@@ -306,6 +308,20 @@ class HitRateCfg(BaseModel):
     db_filename: str = "hitrate.db"
 
 
+class CompanyCfg(BaseModel):
+    """公司評價。``claude -p`` 開網搜,只吃訂閱額度、不連 104;寫 companies.db。"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    enabled: bool = True
+    model: str = "sonnet"
+    #: 每日排程補查幾家。一家約 1–3 分鐘,排程整體逾時 30 分鐘
+    max_per_run: int = Field(default=3, ge=1, le=HARD_MAX_COMPANY_PER_RUN)
+    ttl_days: int = Field(default=90, ge=7)
+    timeout_seconds: float = Field(default=600, ge=60, le=900)
+    db_filename: str = "companies.db"
+
+
 class NotifyCfg(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -349,6 +365,7 @@ class Config(BaseModel):
     llm: LLMCfg
     scoring: ScoringCfg = Field(default_factory=ScoringCfg)
     hitrate: HitRateCfg = Field(default_factory=HitRateCfg)
+    company: CompanyCfg = Field(default_factory=CompanyCfg)
     notify: NotifyCfg = Field(default_factory=NotifyCfg)
     paths: PathsCfg = Field(default_factory=PathsCfg)
     runtime: RuntimeCfg = Field(default_factory=RuntimeCfg)

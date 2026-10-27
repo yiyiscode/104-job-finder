@@ -16,6 +16,9 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+from jobfinder.company.schema import FACETS, TONE_ICONS, company_key
+from jobfinder.company.store import COMPANIES_DB, CompanyStore, StoredCompany
+from jobfinder.company.targets import interested_companies
 from jobfinder.hitrate.compute import resume_hash
 from jobfinder.hitrate.store import HitRateStore
 from jobfinder.shortlist.store import SHORTLIST_DB, ShortlistStore
@@ -81,6 +84,8 @@ JOBS_DB = DATA_DIR / "jobs.db"
 DECISIONS_DB = DATA_DIR / "decisions.db"
 HITRATE_DB = DATA_DIR / "hitrate.db"
 SHORTLIST_PATH = DATA_DIR / SHORTLIST_DB
+COMPANIES_PATH = DATA_DIR / COMPANIES_DB
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 RESUME = Path(ARGS.resume)
 SNAPSHOT_DIR = Path(tempfile.gettempdir()) / "jobfinder-webui"
 
@@ -447,8 +452,191 @@ def _decision_panel(job: JobRow, desires: dict[str, int]) -> None:
 def _analysis_dialog(job: JobRow) -> None:
     """已標投遞頁看分析用:跟候選清單點一列看到的一樣,只是不放標記表單。"""
     st.subheader(f"{job.company} — {job.title}")
-    _analysis_summary(job)
-    _analysis_columns(job)
+    tab_job, tab_company = st.tabs(["📊 職缺分析", "🏢 公司"])
+    with tab_job:
+        _analysis_summary(job)
+        _analysis_columns(job)
+    with tab_company:
+        _company_panel(job.company, CompanyStore(COMPANIES_PATH).all(), f"dlg_{job.job_no}")
+
+
+# ── 公司評價 ──────────────────────────────────────────────────────
+#: 按下查詢到 CLI 把狀態寫成 running 之間有幾秒空窗,這段時間也當作查詢中,免得連按兩次
+LAUNCH_GRACE_SECONDS = 90
+#: UI 不載入 config;跟 config.yaml 的 company.ttl_days 預設值一致,只影響「過期」標示
+UI_TTL_DAYS = 90
+
+
+def _launch_company_review(name: str) -> None:
+    """另開背景程序跑 ``jobfinder company review``。
+
+    UI 不自己呼叫 claude:一家要 1–3 分鐘,Streamlit 的一次 rerun 撐不住,
+    而且關掉 UI 也不該把查到一半的結果丟掉。這條路只打 claude、不碰 104 與 jobs.db。
+    """
+    import os
+    import subprocess
+
+    flags = 0
+    if sys.platform == "win32":
+        flags = subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP
+    log = (DATA_DIR / "company_review.log").open("a", encoding="utf-8")
+    subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "jobfinder.cli",
+            "--config",
+            str(PROJECT_ROOT / "config" / "config.yaml"),
+            "--data-dir",
+            str(DATA_DIR.resolve()),
+            "company",
+            "review",
+            name,
+        ],  # fmt: skip
+        cwd=PROJECT_ROOT,
+        stdout=log,
+        stderr=subprocess.STDOUT,
+        stdin=subprocess.DEVNULL,
+        env={**os.environ, "PYTHONIOENCODING": "utf-8"},
+        creationflags=flags,
+        start_new_session=sys.platform != "win32",
+    )
+    st.session_state.setdefault("company_launched", {})[company_key(name)] = datetime.now(
+        cand.TAIPEI
+    )
+
+
+def _company_running(key: str, stored: StoredCompany | None, now: datetime) -> bool:
+    launched = st.session_state.get("company_launched", {}).get(key)
+    if launched and (now - launched).total_seconds() < LAUNCH_GRACE_SECONDS:
+        return True
+    return stored is not None and stored.running(now)
+
+
+def _company_panel(name: str, all_stored: dict[str, StoredCompany], widget_key: str) -> None:
+    key = company_key(name)
+    s = all_stored.get(key)
+    now = datetime.now(cand.TAIPEI)
+    running = _company_running(key, s, now)
+
+    if running:
+        st.info("🔎 查詢中(claude 網搜,約 1–3 分鐘)。可以先做別的,回來按重新整理。")
+        if st.button("🔄 重新整理", key=f"co_refresh_{widget_key}"):
+            st.rerun()
+    elif s is not None and s.status == "error":
+        st.warning(f"上次查詢失敗:{s.error}")
+
+    review = s.review if s else None
+    if review is None:
+        if not running:
+            st.caption("這家還沒有評價資料。排程每天會補查幾家;急的話直接查。")
+            if st.button("🔎 查詢公司評價", type="primary", key=f"co_go_{widget_key}"):
+                _launch_company_review(name)
+                st.rerun()
+        return
+
+    st.info(f"{TONE_ICONS[review.tone]} {review.overall}")
+    st.markdown("**🔗 徵才官網**")
+    if review.career_url:
+        st.link_button("開啟徵才官網", review.career_url)
+    else:
+        st.caption("❌ 沒找到公司自己的徵才官網")
+    if review.career_note:
+        st.caption(review.career_note)
+    for field_name, label in FACETS:
+        facet = getattr(review, field_name)
+        st.markdown(f"**{TONE_ICONS[facet.tone]} {label}**")
+        st.markdown(facet.summary)
+    if review.sources:
+        st.markdown("**來源**")
+        st.markdown("\n".join(f"- [{src.title}]({src.url})({src.date})" for src in review.sources))
+    foot = st.columns([4, 1], vertical_alignment="center")
+    foot[0].caption(
+        f"查詢日 {s.reviewed_at:%Y-%m-%d} · {s.model} · "
+        "claude 網搜整理,可能誤讀 —— 重要的點進來源核對"
+    )
+    if not running and foot[1].button("🔄 重查", key=f"co_again_{widget_key}"):
+        _launch_company_review(name)
+        st.rerun()
+
+
+def companies_page() -> None:
+    rows = load_rows()
+    _, latest, _ = marks(rows)
+    companies = interested_companies(rows, latest)
+    all_stored = CompanyStore(COMPANIES_PATH).all()
+    now = datetime.now(cand.TAIPEI)
+
+    st.title("公司評價")
+    done = sum(1 for c in companies if (s := all_stored.get(c.key)) and s.review)
+    st.caption(
+        f"範圍:標「投」+ 清單候補的公司 {len(companies)} 家 · 已查 {done} 家 · "
+        "排程每天補查 3 家,沒資料的可以點進去直接查"
+    )
+    if not companies:
+        st.info("還沒有標「投」或清單候補的職缺。")
+        return
+
+    def career(s: StoredCompany | None) -> str:
+        if s is None or s.review is None:
+            return ""
+        return "✅" if s.review.career_url else "❌"
+
+    def state(c) -> str:
+        s = all_stored.get(c.key)
+        if _company_running(c.key, s, now):
+            return "查詢中"
+        if s is None:
+            return "未查"
+        if s.status == "error" and s.review is None:
+            return "失敗"
+        return "" if s.fresh(now, UI_TTL_DAYS) else "過期"
+
+    table = pd.DataFrame(
+        [
+            {
+                "company": c.name,
+                "jobs": f"{len(c.jobs)}(投 {c.applied})",
+                "score": c.best_score or None,
+                "tone": TONE_ICONS[s.review.tone]
+                if (s := all_stored.get(c.key)) and s.review
+                else "",
+                "career": career(all_stored.get(c.key)),
+                "reviewed": s.reviewed_at.date() if s and s.reviewed_at else None,
+                "state": state(c),
+            }
+            for c in companies
+        ]
+    )
+    left, right = st.columns([1, 1])
+    with left:
+        event = st.dataframe(
+            table,
+            hide_index=True,
+            width="stretch",
+            height=560,
+            on_select="rerun",
+            selection_mode="single-row",
+            key="companies_table",
+            column_config={
+                "company": st.column_config.TextColumn("公司", width="medium"),
+                "jobs": st.column_config.TextColumn("職缺", width="small"),
+                "score": st.column_config.NumberColumn("最高深評", format="%d", width="small"),
+                "tone": st.column_config.TextColumn("整體", width="small"),
+                "career": st.column_config.TextColumn("徵才官網", width="small"),
+                "reviewed": st.column_config.DateColumn("查詢日"),
+                "state": st.column_config.TextColumn("狀態", width="small"),
+            },
+        )
+    with right:
+        picked = event.selection.rows if event else []
+        if not picked:
+            st.info("點左邊一家看評價摘要與徵才官網。")
+            return
+        c = companies[picked[0]]
+        st.subheader(c.name)
+        st.caption("職缺:" + "、".join(j.title for j in c.jobs[:6]))
+        _company_panel(c.name, all_stored, f"page_{c.key}")
 
 
 def _decision_form(job: JobRow, desires: dict[str, int]) -> None:
@@ -1080,6 +1268,7 @@ def main() -> None:
         [
             st.Page(candidates_page, title="候選清單", icon="📋", default=True),
             st.Page(applied_page, title="已標投遞", icon="✅"),
+            st.Page(companies_page, title="公司評價", icon="🏢"),
             st.Page(trends_page, title="技能趨勢", icon="📈"),
         ]
     ).run()

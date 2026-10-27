@@ -62,5 +62,10 @@ REM 它的成敗不影響排程的 exit code —— 那個代表的是「今天�
 ".venv\Scripts\python.exe" -m jobfinder.cli hitrate >> "local_data\daily.log" 2>&1
 echo [%DATE% %TIME%] 命中率 exit code=%ERRORLEVEL% >> "local_data\daily.log"
 
+REM 公司評價:claude 網搜,只吃訂閱額度、不打 104。排最後 —— 一家 1–3 分鐘,
+REM 萬一碰到 30 分鐘逾時被砍,損失的只有這一步(卡住的「查詢中」20 分鐘後自動解除)。
+".venv\Scripts\python.exe" -m jobfinder.cli company review >> "local_data\daily.log" 2>&1
+echo [%DATE% %TIME%] 公司評價 exit code=%ERRORLEVEL% >> "local_data\daily.log"
+
 echo [%DATE% %TIME%] 結束,exit code=%RC% >> "local_data\daily.log"
 exit /b %RC%

@@ -109,7 +109,11 @@ class ClaudeCliClient:
         effort: str | None = None,
         executable: str | None = None,
         max_concurrent: int = 2,
+        tools: tuple[str, ...] = (),
+        denied: tuple[str, ...] = (),
     ) -> None:
+        """``tools`` 預設全關(評分用)。公司評價要開 WebSearch/WebFetch,
+        ``denied`` 是權限層的封鎖規則(例如 ``WebFetch(domain:104.com.tw)``),比 prompt 可靠。"""
         # 找不到時不在這裡丟:排程環境的 PATH 可能跟互動終端機不同,
         # 在建構時就炸會讓 ClaudeWithFallback 連退回 OpenRouter 的機會都沒有
         self.executable = executable or shutil.which("claude")
@@ -117,6 +121,8 @@ class ClaudeCliClient:
         self.tracker = tracker or CostTracker(1_000.0)
         self.timeout_seconds = timeout_seconds
         self.effort = effort
+        self.tools = tools
+        self.denied = denied
         self.calls: list[CallUsage] = []
         self._semaphore = asyncio.Semaphore(max_concurrent)
         # 固定的空目錄:不讓 CLI 自動吃到專案的 CLAUDE.md。不每次 mkdtemp ——
@@ -133,13 +139,18 @@ class ClaudeCliClient:
             "-p",
             "--model", model,
             "--system-prompt", system,
-            "--tools", "",
+            "--tools", ",".join(self.tools),
             "--strict-mcp-config",
             "--setting-sources", "",
             "--no-session-persistence",
             "--output-format", "json",
             "--json-schema", json.dumps(schema, ensure_ascii=False),
         ]  # fmt: skip
+        if self.tools:
+            # -p 沒有人可以按「允許」:沒列進 allowedTools 的工具一呼叫就被拒
+            argv += ["--allowedTools", *self.tools]
+        if self.denied:
+            argv += ["--disallowedTools", *self.denied]
         if self.effort:
             argv += ["--effort", self.effort]
         return argv

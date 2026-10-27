@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>公司評價頁 demo</title>
+<style>
+  :root { --bg:#fff; --fg:#262730; --muted:#6b6f7b; --line:#e6e8ee; --soft:#f6f7fa; --accent:#ff4b4b;
+          --ok:#1f9d55; --warn:#c77c02; --bad:#d64545; --info:#e8f1fd; --infofg:#1c4f8f; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.6 "Noto Sans TC","Microsoft JhengHei",sans-serif; background:var(--bg); color:var(--fg); }
+  .top { position:sticky; top:0; background:#fff; border-bottom:1px solid var(--line); padding:10px 16px; z-index:5; }
+  .tabs button { border:1px solid var(--line); background:var(--soft); padding:6px 14px; border-radius:6px; cursor:pointer; margin-right:6px; font:inherit; }
+  .tabs button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .why { color:var(--muted); font-size:13px; margin-top:6px; }
+  .banner { background:#fff6e0; color:#7a5300; padding:6px 16px; font-size:13px; }
+  main { padding:16px; max-width:1200px; margin:auto; }
+  .plan { display:none; } .plan.on { display:block; }
+  h1 { font-size:26px; margin:4px 0 12px; } h3 { margin:14px 0 6px; font-size:16px; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th, td { border-bottom:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; }
+  tr.sel { background:#fff0f0; } tbody tr { cursor:pointer; } tbody tr:hover { background:var(--soft); }
+  .row { display:flex; gap:16px; flex-wrap:wrap; } .col { flex:1 1 360px; min-width:0; }
+  .card { border:1px solid var(--line); border-radius:8px; padding:12px 14px; background:#fff; }
+  .info { background:var(--info); color:var(--infofg); padding:8px 12px; border-radius:6px; }
+  .pill { display:inline-block; font-size:12px; padding:1px 8px; border-radius:10px; background:var(--soft); border:1px solid var(--line); margin-right:4px; }
+  .ok { color:var(--ok); } .warn { color:var(--warn); } .bad { color:var(--bad); }
+  .src { font-size:12px; color:var(--muted); } .src a { color:var(--muted); }
+  .btn { display:inline-block; padding:6px 12px; border:1px solid var(--line); border-radius:6px; background:#fff; cursor:pointer; text-decoration:none; color:var(--fg); font:inherit; }
+  .btn.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .subtabs button { border:none; background:none; padding:6px 10px; border-bottom:2px solid transparent; cursor:pointer; font:inherit; }
+  .subtabs button.on { border-color:var(--accent); color:var(--accent); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+  .grid .card { cursor:pointer; } .grid .card:hover { border-color:var(--accent); }
+  .muted { color:var(--muted); font-size:13px; }
+  .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; align-items:flex-start; justify-content:center; padding:40px 16px; z-index:10; overflow:auto; }
+  .modal-bg.on { display:flex; } .modal { background:#fff; border-radius:10px; max-width:1000px; width:100%; padding:18px 20px; }
+  pre { white-space:pre-wrap; font:13px/1.6 inherit; background:var(--soft); padding:8px; border-radius:6px; margin:0; }
+</style>
+</head>
+<body>
+<div class="banner">⚠️ demo:公司名稱取自你的清單,但<b>評價文字是版面示意,不是真實評價</b>。正式版的內容由 claude 網搜產生、逐條附來源。</div>
+<div class="top">
+  <div class="tabs">
+    <button data-p="A" class="on">A · 清單＋詳情</button>
+    <button data-p="B">B · 卡片牆</button>
+    <button data-p="C">C · 併進職缺分析</button>
+  </div>
+  <div class="why" id="why"></div>
+</div>
+<main>
+  <section class="plan on" id="A"></section>
+  <section class="plan" id="B"></section>
+  <section class="plan" id="C"></section>
+</main>
+<div class="modal-bg" id="modal"><div class="modal" id="modalBody"></div></div>
+
+<script>
+const WHY = {
+  A: "A:一頁看全部公司,左邊表格可排序/掃描,點一家右邊看詳情。取捨:跟職缺分開,要切頁才看得到。",
+  B: "B:每家一張卡,一眼看「整體印象 + 四面向燈號」,點開看全文。取捨:好掃但不好排序,公司多時要捲很久。",
+  C: "C:獨立頁仍在(同 A),另外在「🔍 分析」對話框多一個「🏢 公司」分頁。取捨:決定投不投時不用切頁,但要多維護一個入口。",
+};
+const COMPANIES = [
+  { name:"光寶科技股份有限公司", jobs:10, apply:2, career:"https://www.liteon.com/zh-tw/careers", careerNote:"官網有徵才頁,可直接投", updated:"2026-10-27",
+    overall:"(示意)大型電子製造,制度完整;部門間落差大,資安資訊中心與 AI&DA 辦公室評價分歧。", tone:"warn",
+    facets:{ "工作氛圍/主管/加班":["warn","(示意)多數評論提到依部門而定,研發單位專案期加班較多。"],
+             "薪資福利/年終":["ok","(示意)年終依獲利分紅,近年評論認為穩定。"],
+             "面試流程與題型":["ok","(示意)一面主管技術面 + 二面處長,有人提到考 SQL 與過往專案細節。"],
+             "資料/AI 團隊現況":["warn","(示意)AI&DA 辦公室為近年新設,職缺同時開多個 AI 職位。"] },
+    sources:[["面試趣","2026-08"],["PTT Tech_Job","2026-05"],["Dcard 工作板","2025-12"]] },
+  { name:"和泰聯網股份有限公司", jobs:1, apply:1, career:null, careerNote:"沒找到獨立徵才官網,只在 104 刊登", updated:"2026-10-25",
+    overall:"(示意)和泰集團旗下數位子公司,規模中型,數據團隊偏業務分析。", tone:"ok",
+    facets:{ "工作氛圍/主管/加班":["ok","(示意)評論普遍認為準時下班比例高。"],
+             "薪資福利/年終":["warn","(示意)評論數少,薪資資訊不足。"],
+             "面試流程與題型":["warn","(示意)找不到足夠的面試心得。"],
+             "資料/AI 團隊現況":["ok","(示意)以會員與車聯網數據分析為主。"] },
+    sources:[["面試趣","2026-03"],["公司官網新聞","2026-07"]] },
+  { name:"玉山商業銀行", jobs:2, apply:1, career:"https://www.esunbank.com/zh-tw/about/careers", careerNote:"官網有徵才系統,需另建履歷", updated:"2026-10-20",
+    overall:"(示意)金融業數位轉型代表之一,資料平台團隊評價正面。", tone:"ok",
+    facets:{ "工作氛圍/主管/加班":["ok","(示意)評論提到制度化、加班需申請。"],
+             "薪資福利/年終":["ok","(示意)年終月數在銀行業屬前段。"],
+             "面試流程與題型":["warn","(示意)流程較長,有線上測驗與多輪面試。"],
+             "資料/AI 團隊現況":["ok","(示意)有獨立 Data & AI 平台單位。"] },
+    sources:[["面試趣","2026-09"],["Glassdoor","2026-02"],["PTT Soft_Job","2026-06"]] },
+  { name:"某上櫃半導體設備商(尚未查)", jobs:1, apply:0, career:undefined, careerNote:"", updated:null, overall:null, tone:null, facets:{}, sources:[] },
+];
+const ICON = { ok:"🟢", warn:"🟡", bad:"🔴" };
+const esc = s => String(s ?? "");
+
+function careerCell(c) {
+  if (c.career === undefined) return '<span class="muted">尚未查</span>';
+  return c.career ? `<span class="ok">✅</span> <a href="${c.career}" target="_blank">官網</a>` : '<span class="bad">❌ 沒有</span>';
+}
+function detail(c) {
+  if (!c.overall) return `<div class="card"><h3>${c.name}</h3><p class="muted">還沒查過。排程每天補查;急的話跑 <code>jobfinder company review "${c.name}"</code>。</p></div>`;
+  return `<div class="card">
+    <h3 style="margin-top:0">${c.name}</h3>
+    <div class="info">${ICON[c.tone]} ${c.overall}</div>
+    <h3>🔗 徵才官網</h3>
+    <p>${c.career ? `<a class="btn primary" href="${c.career}" target="_blank">開啟徵才官網</a> ` : ""}<span class="muted">${c.careerNote}</span></p>
+    ${Object.entries(c.facets).map(([k,[t,v]]) => `<h3>${ICON[t]} ${k}</h3><div>${v}</div>`).join("")}
+    <h3>來源</h3>
+    <div class="src">${c.sources.map(([s,d]) => `<a href="#" onclick="return false">${s}</a>(${d})`).join(" · ")}</div>
+    <div class="src">查詢日 ${c.updated} · 90 天後自動重查 · 由 claude 網搜整理,點來源核對</div>
+  </div>`;
+}
+
+// ── A ──
+let selA = 0;
+function renderA() {
+  document.getElementById("A").innerHTML = `
+    <h1>公司評價</h1>
+    <p class="muted">範圍:已標投 + 清單候補的公司 ${COMPANIES.length} 家 · 已查 ${COMPANIES.filter(c=>c.overall).length} 家</p>
+    <div class="row">
+      <div class="col" style="flex:1 1 440px">
+        <table><thead><tr><th>公司</th><th>職缺</th><th>整體</th><th>徵才官網</th><th>查詢日</th></tr></thead>
+        <tbody>${COMPANIES.map((c,i)=>`<tr class="${i===selA?"sel":""}" onclick="selA=${i};renderA()">
+          <td>${c.name}</td><td>${c.jobs}(投 ${c.apply})</td><td>${c.tone?ICON[c.tone]:"—"}</td><td>${careerCell(c)}</td><td>${c.updated??"—"}</td></tr>`).join("")}</tbody></table>
+      </div>
+      <div class="col">${detail(COMPANIES[selA])}</div>
+    </div>`;
+}
+
+// ── B ──
+function renderB() {
+  document.getElementById("B").innerHTML = `
+    <h1>公司評價</h1>
+    <p class="muted">點卡片看全文</p>
+    <div class="grid">${COMPANIES.map((c,i)=>`<div class="card" onclick="openModal(detail(COMPANIES[${i}]))">
+      <b>${c.name}</b><div class="muted">${c.jobs} 筆職缺 · ${careerCell(c)}</div>
+      <div style="margin:6px 0">${c.overall ? esc(c.overall).slice(0,40)+"…" : '<span class="muted">尚未查</span>'}</div>
+      <div>${Object.entries(c.facets).map(([k,[t]])=>`<span class="pill">${ICON[t]} ${k.split("/")[0]}</span>`).join("")}</div>
+    </div>`).join("")}</div>`;
+}
+
+// ── C ──
+const JOB = { company:COMPANIES[0], title:"資安資訊中心-AI 資料工程師/ML 工程師/資料科學家", score:77,
+  one:"(示意)資料管線與 ML 落地並重,與履歷的 ETL/排程經驗高度相關。",
+  jd:"工作內容\n1. 建置與維護資料管線\n2. 開發 ML 模型並部署\n\n條件要求\n- 熟悉 Python、SQL\n- 有雲端平台經驗佳" };
+function renderC() {
+  document.getElementById("C").innerHTML = `
+    <h1>已標投遞</h1>
+    <p class="muted">清單候補(示意 1 列)—— 點「🔍 分析」看對話框裡新增的「🏢 公司」分頁;獨立的「公司評價」頁同 A。</p>
+    <div class="card row" style="align-items:center">
+      <span><span class="pill">✅ 投</span><span class="pill">❌ 不投</span><span class="pill">⏸</span></span>
+      <span style="flex:1"><b>${JOB.company.name}</b> — ${JOB.title}<br><span class="muted">🟢🟢 · ③ 未算 · 深評 ${JOB.score}</span></span>
+      <button class="btn" onclick="openC('jd')">🔍 分析</button>
+    </div>`;
+}
+function openC(tab) {
+  const t = (k,l) => `<button class="${tab===k?"on":""}" onclick="openC('${k}')">${l}</button>`;
+  const body = tab === "co" ? detail(JOB.company)
+    : `<div class="info">深評 ${JOB.score} 分:${JOB.one}</div><div class="row" style="margin-top:10px">
+        <div class="col"><h3>③ 命中率</h3><p class="muted">還沒算(明天排程)</p></div>
+        <div class="col"><h3>📄 104 原文</h3><pre>${JOB.jd}</pre></div></div>`;
+  openModal(`<h3 style="margin-top:0">${JOB.company.name} — ${JOB.title}</h3>
+    <div class="subtabs">${t("jd","📊 職缺分析")}${t("co","🏢 公司")}</div><div style="margin-top:10px">${body}</div>`);
+}
+
+function openModal(html) {
+  document.getElementById("modalBody").innerHTML = `<div style="text-align:right"><button class="btn" onclick="closeModal()">✕</button></div>${html}`;
+  document.getElementById("modal").classList.add("on");
+}
+function closeModal() { document.getElementById("modal").classList.remove("on"); }
+document.getElementById("modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+
+function show(p) {
+  document.querySelectorAll(".plan").forEach(s => s.classList.toggle("on", s.id === p));
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.p === p));
+  document.getElementById("why").textContent = WHY[p];
+}
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => show(b.dataset.p));
+renderA(); renderB(); renderC(); show("A");
+</script>
+</body>
+</html>

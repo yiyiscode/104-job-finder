@@ -97,3 +97,16 @@ def test_app_binds_localhost_only():
     """jobs.db 含實際求職資料,不能對區網公開。"""
     cli = (WEBUI.parent / "cli.py").read_text(encoding="utf-8")
     assert '"--server.address", "127.0.0.1"' in cli
+
+
+COMPANY = WEBUI.parent / "company"
+
+
+@pytest.mark.parametrize("path", sorted(COMPANY.glob("*.py")), ids=lambda p: p.name)
+def test_company_review_never_touches_104_or_jobs_db_writer(path):
+    """公司評價只打 claude(網搜),UI 按鈕也會觸發它 —— 不能順手碰 104 或 jobs.db 寫入端。"""
+    for name in _imports(path):
+        parts = name.lstrip(".").split(".")
+        bad = [p for p in parts if p in FORBIDDEN_EVERYWHERE]
+        assert not bad, f"company/{path.name} import 了 {name}"
+        assert not ("shortlist" in parts and SHORTLIST_NETWORK in parts), name

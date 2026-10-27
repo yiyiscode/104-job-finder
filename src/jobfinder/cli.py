@@ -110,6 +110,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     bf_sub.add_parser("list", help="列出佇列與每筆結果")
 
+    co = sub.add_parser(
+        "company", help="公司評價:claude 網搜整理評價 + 徵才官網(不連 104,吃訂閱額度)"
+    )
+    co_sub = co.add_subparsers(dest="action", required=True)
+    co_sub.add_parser("list", help="列出要查的公司與查詢狀態")
+    co_review = co_sub.add_parser("review", help="查還沒查過或過期的公司")
+    co_review.add_argument("names", nargs="*", help="只查這幾家(公司名);給了就不管有沒有過期")
+    co_review.add_argument("--limit", type=int, help="本次最多查幾家(不超過 config 的 max_per_run)")
+    co_review.add_argument("--dry-run", action="store_true", help="只列出會查哪些,不呼叫 claude")
+
     ui = sub.add_parser("ui", help="開啟本機 Web UI(候選清單 / 技能趨勢),只讀 jobs.db、不連 104")
     ui.add_argument("--port", type=int, default=8501)
     ui.add_argument(
@@ -258,6 +268,81 @@ async def _hitrate(cfg: Config, args: argparse.Namespace) -> int:
         for job_no, _ in report.rates:
             print(f"  會算:{job_no}")
     return 1 if report.stopped_reason.startswith("連續失敗") else 0
+
+
+async def _company(cfg: Config, args: argparse.Namespace) -> int:
+    from zoneinfo import ZoneInfo
+
+    from .company.schema import company_key
+    from .company.store import CompanyStore
+    from .company.targets import interested_companies, pick_targets
+    from .hitrate.runner import load_job_rows
+    from .webui.candidates import detail_aliases
+    from .webui.decisions import DecisionStore
+
+    ccfg = cfg.company
+    tz = ZoneInfo(cfg.runtime.timezone)
+    data_dir = Path(args.data_dir)
+    store = CompanyStore(data_dir / ccfg.db_filename)
+    jobs_db = data_dir / cfg.paths.db_filename
+    rows = load_job_rows(jobs_db) if jobs_db.exists() else []
+    latest = DecisionStore(data_dir / "decisions.db").latest(detail_aliases(rows))
+    companies = interested_companies(rows, latest)
+    stored = store.all()
+    now = datetime.now(tz)
+
+    if args.action == "list":
+        print(f"要查的公司 {len(companies)} 家(標投 + 清單候補):")
+        for c in companies:
+            s = stored.get(c.key)
+            state = "未查" if s is None else s.status
+            if s and s.reviewed_at:
+                state += f" · {s.reviewed_at:%Y-%m-%d}" + (
+                    "" if s.fresh(now, ccfg.ttl_days) else " 過期"
+                )
+            print(f"  {c.name:<24} 職缺 {len(c.jobs)}(投 {c.applied}) · {state}")
+        return 0
+
+    if args.names:
+        by_key = {c.key: c for c in companies}
+        targets = [
+            (c.name, [j.title for j in c.jobs]) if (c := by_key.get(company_key(n))) else (n, [])
+            for n in args.names
+        ]
+        pending = len(targets)
+    else:
+        if not ccfg.enabled:
+            print("company.enabled = false,跳過")
+            return 0
+        limit = ccfg.max_per_run if args.limit is None else min(args.limit, ccfg.max_per_run)
+        picked, pending = pick_targets(companies, stored, now, ccfg.ttl_days, limit)
+        targets = [(c.name, [j.title for j in c.jobs]) for c in picked]
+
+    if args.dry_run:
+        print(f"待查 {pending} 家,本次 {len(targets)} 家:")
+        for name, titles in targets:
+            print(f"  {name}({len(titles)} 筆職缺)")
+        return 0
+    if not targets:
+        print(
+            f"公司評價:沒有要查的(標投 + 清單候補 {len(companies)} 家都在 {ccfg.ttl_days} 天內查過)"
+        )
+        return 0
+
+    from .company.review import run_reviews, web_client
+
+    report = await run_reviews(
+        targets,
+        store=store,
+        client=web_client(ccfg.timeout_seconds),
+        model=ccfg.model,
+        now_fn=lambda: datetime.now(tz),
+    )
+    report.candidates = pending
+    print(report.summary_line())
+    for name, err in report.failed:
+        print(f"  ❌ {name}:{err[:200]}")
+    return 1 if report.failed and not report.done else 0
 
 
 async def _shortlist(cfg: Config, args: argparse.Namespace) -> int:
@@ -684,6 +769,8 @@ def main(argv: list[str] | None = None) -> int:
             return asyncio.run(_hitrate(cfg, args))
         if args.command == "shortlist":
             return asyncio.run(_shortlist(cfg, args))
+        if args.command == "company":
+            return asyncio.run(_company(cfg, args))
         if args.command == "backfill":
             return _backfill(cfg, args)
 

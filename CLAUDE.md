@@ -107,6 +107,10 @@ python -m jobfinder.cli shortlist score 8hyjk                # 深評已抓到�
 python -m jobfinder.cli backfill enqueue local_data/claude_probe/rescreen.json
 python -m jobfinder.cli backfill list
 
+# 公司評價(companies.db):claude -p 開網搜、不連 104(權限層封鎖 104 網域)。排程每天補查 3 家
+python -m jobfinder.cli company list                  # 標投 + 清單候補的公司與查詢狀態
+python -m jobfinder.cli company review --dry-run      # 會查哪些;給公司名 = 指定查(UI 按鈕也是走這條)
+
 # Claude 訂閱評分(llm.provider: claude_cli):只打 claude -p、不連 104
 python scripts/claude_probe.py --limit 10        # 量額度:跑前跑後各看一次 /usage
 python scripts/claude_rescore.py status          # 重評舊資料(只限有全文的)
@@ -173,6 +177,7 @@ src/jobfinder/
     urls.py      URL 組裝 + 路徑黑名單 + robots.txt 禁用參數
     browser.py / interceptor.py / search.py / detail.py / playwright_source.py
                  瀏覽器備援(mode: browser 才會用到)
+  company/       公司評價:claude 網搜 → companies.db。UI 只讀,按鈕另開 `company review` 背景程序
   storage/       Volume<->local 檔案同步、去重邏輯
   scoring/       兩階段 LLM 評分 + 程式端校正
   notify/        Telegram

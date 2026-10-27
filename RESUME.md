@@ -27,6 +27,13 @@ pipeline 在當天詳細頁抓完後,剩餘名額先給清單、再給補深評�
    10-27 因此跑兩次(run 61 00:44、run 62 13:55,共 67 個請求,沒被擋)。改成比 started_at 前 10 碼。
 履歷工具(D:\Get a better resume)對 5 碼代碼只讀 shortlist.db 的 fetches —— 清單中 JD 只在 jobs.db 的 13 筆(含 7ynrk、8opms)會一直顯示缺 JD,要在那邊加 jobs.db 後備查詢。
 
+**10-27 晚:公司評價頁(C 方案,同分支)。** `claude -p` 開 WebSearch/WebFetch(權限層封鎖 104 網域)→ `companies.db`。
+範圍 = 標投 + 清單候補的公司(61 家,依名稱正規化合併);排程每天最後一步補查 3 家、90 天過期重查;
+UI「公司評價」頁 + 職缺分析對話框「🏢 公司」分頁,沒資料時按鈕另開背景程序查(log 在 `local_data/company_review.log`)。
+光寶已實查成功(4 面向 + 4 個來源;官網憑證錯誤所以 career_url 誠實留空)。707 測試全過。
+決策 memory `job-finder-company-review-decision`;demo `design-demos/2026-10-27-公司評價頁.html`。
+**下一步**:明天看 daily.log 的「公司評價」一行與整體耗時是否還在 30 分鐘內。
+
 ---
 
 ## 2026-10-15:LLM 簡體字轉繁體(分支 `fix/traditional-chinese`,未 merge)

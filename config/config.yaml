@@ -238,6 +238,16 @@ hitrate:
   max_jobs_per_run: 30          # 【硬上限 100】補算舊資料時可暫時調高或重跑幾次
   cost_cap_usd: 0.15            # 【硬上限 0.50】約 $0.002–0.003/筆
 
+# 公司評價(Web UI「公司評價」頁、職缺分析對話框的「🏢 公司」分頁)。
+# claude -p 開 WebSearch/WebFetch,走訂閱額度、不連 104(權限層封鎖 104 網域)。
+# 範圍:標「投」+ 清單候補的公司。排程每天補查;UI 沒資料時也能按鈕手動查。
+company:
+  enabled: true
+  model: "sonnet"
+  max_per_run: 3                # 【硬上限 10】一家約 1–3 分鐘,排程整體逾時 30 分鐘
+  ttl_days: 90                  # 查過的 90 天內不重查
+  timeout_seconds: 600
+
 notify:
   provider: "telegram"
   parse_mode: "HTML"            # 不用 MarkdownV2:要跳脫 18 個字元,職缺標題必爆
