@@ -264,7 +264,7 @@ paths:
   resume: "profile-de.md"
   # 只附在深評 prompt 的參考資料(相對於履歷檔目錄)。不進粗篩、不進命中率 ——
   # 命中率以履歷雜湊為鍵,併進履歷會讓全部結果失效重算。transcript.md 含成績,不進版控。
-  references: []                # 使用者核對 transcript.md 後改成 ["transcript.md"]
+  references: ["transcript.md"] # 2026-10-27 使用者核對過;不存在時只警告、深評照跑
   db_filename: "jobs.db"
   profile_tarball: "chrome-profile.tar.gz"
   storage_state: "storage_state.json"
