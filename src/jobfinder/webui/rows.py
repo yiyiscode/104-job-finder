@@ -65,3 +65,19 @@ class JobRow:
     in_shortlist: bool = False
     #: 投遞清單補抓的狀態:「尚未抓取」/ 104 回的錯誤;抓到了或不需要抓時為空
     fetch_note: str = ""
+
+    @property
+    def score_status(self) -> str:
+        """沒有深評分數時,為什麼沒有。有分數回空字串。
+
+        「沒分數」有三種完全不同的意思:還沒輪到、被刷掉、根本沒進流程。UI 全顯示成
+        None 的話,看不出哪些會自己補上、哪些不會。
+        """
+        if self.deep_score is not None:
+            return ""
+        if self.in_shortlist:
+            # 清單職缺會由每日排程補抓全文、再補深評(shortlist score 或 pipeline 補評)
+            return "待深評" if self.has_detail else "待抓全文"
+        return {"filtered_out": "規則層淘汰", "screened_out": "粗篩淘汰"}.get(
+            self.pipeline_status, "未深評"
+        )

@@ -236,6 +236,7 @@ def candidates_page() -> None:
                 "gate2": gate2_label(r),
                 "gate3": gate3_label(r),
                 "score": r.deep_score,
+                "score_status": r.score_status,
                 "industry": r.industry_desc or r.industry,
                 "company": r.company,
                 "title": r.title,
@@ -297,6 +298,12 @@ def candidates_page() -> None:
             "salary": "薪資",
             "english": st.column_config.CheckboxColumn("英文"),
             "score": st.column_config.NumberColumn("深評", format="%d"),
+            "score_status": st.column_config.TextColumn(
+                "未評原因",
+                width="small",
+                help="沒有深評分數的原因。待抓全文/待深評 = 排程會自己補上;"
+                "粗篩淘汰/規則層淘汰 = 當初被刷掉,不會再評(除非加進投遞清單)",
+            ),
             "prog_rate": st.column_config.NumberColumn(
                 "命中率(程式)",
                 format="%d%%",
@@ -596,6 +603,7 @@ def _applied_table(rs, name, mode, latest, desires, plans, sent, this_week) -> l
                 "gates": LIGHT_ICONS[r.gates.gate1] + LIGHT_ICONS[r.gates.gate2],
                 "gate3": gate3_label(r),
                 "score": r.deep_score,
+                "score_status": r.score_status,
                 "area": r.area,
                 "salary": r.salary_text,
                 "note": latest[r.job_no].note if r.job_no in latest else "",
@@ -623,6 +631,12 @@ def _applied_table(rs, name, mode, latest, desires, plans, sent, this_week) -> l
             "gates": st.column_config.TextColumn("①②", width="small"),
             "gate3": st.column_config.TextColumn("③命中率(LLM)", width="medium"),
             "score": st.column_config.NumberColumn("深評", format="%d"),
+            "score_status": st.column_config.TextColumn(
+                "未評原因",
+                width="small",
+                help="沒有深評分數的原因。待抓全文/待深評 = 排程會自己補上;"
+                "粗篩淘汰/規則層淘汰 = 當初被刷掉,不會再評(除非加進投遞清單)",
+            ),
             "area": "地點",
             "salary": "薪資",
             "note": st.column_config.TextColumn("備註", width="large"),

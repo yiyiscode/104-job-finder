@@ -145,8 +145,9 @@ def shortlist_row(
     summary = detail_as_summary(payload) if payload else {}
     record = {
         "job_no": entry.detail_id,
-        "job_name": summary.get("jobName") or entry.title,
-        "cust_name": summary.get("custName") or entry.company,
+        # 只有網址匯入的職缺,抓到詳細頁之前沒有名稱 —— 給佔位字,不要讓 UI 顯示空白或 None
+        "job_name": summary.get("jobName") or entry.title or "(等排程抓全文)",
+        "cust_name": summary.get("custName") or entry.company or f"(尚未抓取){entry.detail_id}",
         "job_url": _JOB_URL + entry.detail_id,
         "area_desc": summary.get("jobAddrNoDesc") or "",
         "edu_desc": (normalize_detail_response(payload, entry.detail_id).edu or "")

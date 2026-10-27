@@ -104,6 +104,31 @@ def test_unfetched_shortlist_row_still_shows_with_list_info():
     assert not r.has_detail and r.fetch_note == "尚未抓取"
 
 
+def test_url_only_entry_gets_placeholder_names_until_fetched():
+    """只有網址匯入的職缺:抓到詳細頁之前公司/職稱是空的,UI 曾因此顯示 None。"""
+    bare = Entry("6xqff", "", "", NOW.isoformat())
+    r = shortlist_row(bare, None)
+    assert r.company == "(尚未抓取)6xqff" and r.title == "(等排程抓全文)"
+    assert shortlist_row(bare, _fetched("6xqff")).company == "財團法人祐生研究基金會"
+
+
+def test_score_status_says_why_there_is_no_deep_score():
+    assert shortlist_row(_entry(), None).score_status == "待抓全文"
+    assert shortlist_row(_entry(), _fetched()).score_status == "待深評"
+    scored = shortlist_row(_entry(), _fetched(), score={"total_score": 70})
+    assert scored.score_status == ""
+
+    r = shortlist_row(_entry(), _fetched())
+    r.in_shortlist = False
+    for status, label in [
+        ("filtered_out", "規則層淘汰"),
+        ("screened_out", "粗篩淘汰"),
+        ("new", "未深評"),
+    ]:
+        r.pipeline_status = status
+        assert r.score_status == label
+
+
 def test_gone_job_shows_104_error():
     gone = Fetch("94234", NOW.isoformat(), None, "11201 職務不存在", True)
     assert shortlist_row(_entry(), gone).fetch_note == "11201 職務不存在"
