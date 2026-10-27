@@ -84,6 +84,9 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help=f"本次最多抓幾筆,必填,硬上限 {HARD_MAX_LIVE_LIMIT}",
     )
+    sl_fetch.add_argument(
+        "detail_ids", nargs="*", help="只抓這幾筆(連結尾段,例如 8ucfq);不給 = 依清單順序"
+    )
     sl_fetch.add_argument("--dry-run", action="store_true", help="只列出會抓哪些,不連線")
     sl_score = sl_sub.add_parser(
         "score", help="深評已抓到全文、jobs.db 沒有的清單職缺(不連 104,會呼叫 LLM)"
@@ -312,12 +315,13 @@ async def _shortlist_score(cfg, args, store, known: set[str], tz) -> int:
     if args.limit < 1:
         raise SystemExit("--limit 至少 1")
     pending = store.to_score(known, rescore=args.rescore)
-    if args.detail_ids:
-        wanted = set(args.detail_ids)
+    wanted = set(args.detail_ids) if args.detail_ids else None
+    if wanted:
         pending = [e for e in pending if e.detail_id in wanted]
-        if missing := wanted - {e.detail_id for e in pending}:
+        # jobs.db 有列的交給下面那段,不算「找不到」
+        if missing := wanted - {e.detail_id for e in pending} - known:
             print(
-                f"不在待評裡(不在清單/還沒抓全文/jobs.db 已有/已評過要加 --rescore):"
+                f"不在待評裡(不在清單/還沒抓全文/已評過要加 --rescore):"
                 f"{'、'.join(sorted(missing))}",
                 file=sys.stderr,
             )
@@ -325,17 +329,40 @@ async def _shortlist_score(cfg, args, store, known: set[str], tz) -> int:
     print(f"待評 {len(pending)} 筆,本次 {len(batch)} 筆:")
     for e in batch:
         print(f"  {e.detail_id:<8} {e.company} — {e.title}")
-    if args.dry_run or not batch:
+    room = args.limit - len(batch)
+    if args.dry_run:
+        print(f"jobs.db 有列的清單職缺:執行時再補評沒深評的,最多 {room} 筆")
         return 0
 
-    from .shortlist.score import score_entries
+    scorer = _build_scorer(cfg, args)
+    failed = 0
+    if batch:
+        from .shortlist.score import score_entries
 
-    report = await score_entries(batch, store, _build_scorer(cfg, args), lambda: datetime.now(tz))
-    for detail_id, total in report.scored:
-        print(f"  ✅ {detail_id} → {total} 分")
-    for detail_id, reason in report.failed:
-        print(f"  ⚠️ {detail_id}:{reason}", file=sys.stderr)
-    return 1 if report.failed else 0
+        report = await score_entries(batch, store, scorer, lambda: datetime.now(tz))
+        for detail_id, total in report.scored:
+            print(f"  ✅ {detail_id} → {total} 分")
+        for detail_id, reason in report.failed:
+            print(f"  ⚠️ {detail_id}:{reason}", file=sys.stderr)
+        failed = len(report.failed)
+
+    in_jobs_db = {e.detail_id for e in store.entries()} & known
+    if wanted is not None:
+        in_jobs_db &= wanted
+    # 清單裡沒有 jobs.db 的列就完全不碰 jobs.db(Database 一開就會建檔、結束時整檔寫回)
+    if room > 0 and in_jobs_db:
+        # jobs.db 有列的(被規則層/粗篩刷掉過):全文與分數都寫 jobs.db,跟 pipeline 共用同一段
+        from .pipeline import deep_score_shortlist_rows
+
+        with Database(args.data_dir, cfg.paths.db_filename) as db:
+            repo = JobRepo(db.conn, cfg.dedupe)
+            scored, _ = await deep_score_shortlist_rows(
+                scorer, repo, store, room, None, datetime.now(tz), only=wanted
+            )
+        print(f"jobs.db 有列的補評 {len(scored)} 筆:")
+        for detail_id, total in scored:
+            print(f"  ✅ {detail_id} → {total} 分")
+    return 1 if failed else 0
 
 
 def _read_jobs_db(cfg: Config, data_dir: Path):
@@ -382,6 +409,8 @@ async def _shortlist_fetch(cfg, args, store, known: set[str], circuit, tz) -> in
         return 1
 
     pending = store.to_fetch(known)
+    if args.detail_ids:
+        pending = [e for e in pending if e.detail_id in set(args.detail_ids)]
     batch = pending[: args.limit]
     print(f"待抓 {len(pending)} 筆,本次 {len(batch)} 筆:")
     for e in batch:

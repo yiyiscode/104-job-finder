@@ -363,6 +363,48 @@ async def _deep_score_backfill(deps, repo, report, pairs, now) -> int:
 SHORTLIST_DEEP_PER_RUN = 6
 
 
+async def deep_score_shortlist_rows(
+    scorer, repo, store, limit, run_id, now, only: set[str] | None = None
+) -> tuple[list[tuple[str, int]], float]:
+    """清單職缺裡 jobs.db 有列的:先把清單抓到的全文補進 jobs.db,再評沒深評的。
+
+    pipeline 與 ``shortlist score`` 共用。不連 104 —— 全文只從 shortlist.db 搬過來。
+    ``only``:只處理這幾個 detail_id。回傳 ([(detail_id, 總分)], OpenRouter 實付)。
+    """
+    index = repo.detail_index()
+    fetches = store.latest_fetches()
+    wanted = [e.detail_id for e in store.entries() if e.detail_id in index]
+    if only is not None:
+        wanted = [d for d in wanted if d in only]
+    for d in wanted:
+        job_no, has_detail = index[d]
+        f = fetches.get(d)
+        if not has_detail and f is not None and f.raw_detail:
+            # 手動 shortlist fetch 抓到的只存 shortlist.db;沒搬過來的話 jobs.db 永遠沒全文
+            repo.save_detail(job_no, json.loads(f.raw_detail))
+    by_job = {index[d][0]: d for d in wanted}
+    scored: list[tuple[str, int]] = []
+    cost = 0.0
+    for job, detail in repo.unscored_with_detail(list(by_job))[:limit]:
+        if getattr(scorer, "budget_exceeded", False):
+            break
+        try:
+            result, c = await scorer.deep(job, detail)
+        except Exception as exc:
+            log.warning("清單補深評 %s 失敗:%s", job.job_no, exc)
+            continue
+        cost += c
+        repo.save_score(
+            result,
+            run_id=run_id,
+            raw_response=getattr(scorer, "raw_responses", {}).get(job.job_no, ""),
+            now=now,
+        )
+        repo.mark_scored([job.job_no])
+        scored.append((by_job[job.job_no], result.total))
+    return scored, cost
+
+
 async def _deep_score_shortlist(deps, repo, report, limit, rescore_all) -> int:
     """投遞清單裡、jobs.db 有列、有全文、但沒深評的職缺(被規則層/粗篩刷掉,後來才補到全文)。
 
@@ -371,26 +413,11 @@ async def _deep_score_shortlist(deps, repo, report, limit, rescore_all) -> int:
     """
     if deps.shortlist is None or limit or rescore_all:
         return 0
-    index = repo.detail_index()
-    job_nos = [index[e.detail_id][0] for e in deps.shortlist.entries() if e.detail_id in index]
-    done = 0
-    for job, detail in repo.unscored_with_detail(job_nos)[:SHORTLIST_DEEP_PER_RUN]:
-        if getattr(deps.scorer, "budget_exceeded", False):
-            break
-        try:
-            result, cost = await deps.scorer.deep(job, detail)
-        except Exception as exc:
-            log.warning("清單補深評 %s 失敗:%s", job.job_no, exc)
-            continue
-        report.llm_cost_usd += cost
-        repo.save_score(
-            result,
-            run_id=report.run_id,
-            raw_response=getattr(deps.scorer, "raw_responses", {}).get(job.job_no, ""),
-            now=report.started_at,
-        )
-        repo.mark_scored([job.job_no])
-        done += 1
+    scored, cost = await deep_score_shortlist_rows(
+        deps.scorer, repo, deps.shortlist, SHORTLIST_DEEP_PER_RUN, report.run_id, report.started_at
+    )
+    report.llm_cost_usd += cost
+    done = len(scored)
     if done:
         log.info("清單補深評 %d 筆(jobs.db 有列、之前沒深評;不進今天的日報)", done)
     return done

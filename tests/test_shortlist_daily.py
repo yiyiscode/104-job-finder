@@ -112,6 +112,20 @@ async def test_jobs_db_row_is_deep_scored_after_fetch_but_not_pushed(cfg, tmp_pa
     assert deep_scored(cfg, tmp_path) == {"job0"}  # 不在清單的 job1 不評
 
 
+async def test_manually_fetched_detail_moves_into_jobs_db_without_refetch(cfg, tmp_path, store):
+    """手動 shortlist fetch 只存 shortlist.db;之前 jobs.db 那列永遠拿不到全文、也就永遠不評。"""
+    await run(cfg, tmp_path, FakeSource(make_jobs(1)), None, day=0, scorer=DropAllScorer())
+    add(store, "job0")
+    store.record_fetch("job0", NOW, raw_detail="{}")  # 模擬手動 shortlist fetch 抓到的
+    source = BudgetedSource(details=18)
+    report = await run(cfg, tmp_path, source, store)
+
+    assert source.detail_calls == []  # 已經有全文,不再對 104 發請求
+    assert report.shortlist_scored == 1
+    with Database(str(tmp_path), cfg.paths.db_filename) as db:
+        assert JobRepo(db.conn, cfg.dedupe).detail_index()["job0"] == ("job0", True)
+
+
 async def test_shortlist_deep_scoring_is_capped_per_run(cfg, tmp_path, store):
     from jobfinder.pipeline import SHORTLIST_DEEP_PER_RUN
 
