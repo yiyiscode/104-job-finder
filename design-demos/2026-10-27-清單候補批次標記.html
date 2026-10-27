@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>清單候補批次標記</title>
+<style>
+  :root {
+    --bg: #ffffff; --panel: #f6f7f9; --line: #e3e6ea; --text: #1f2328; --muted: #6b7280;
+    --primary: #ff4b4b; --ok: #1a7f37; --ok-bg: #e9f6ec; --skip: #b42318; --skip-bg: #fdecea;
+    --hold: #8a6d00; --hold-bg: #fff7d6; --accent: #0969da;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", "Microsoft JhengHei", system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+  header { padding: 16px 24px 0; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 5; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 12px; }
+  .tabs { display: flex; gap: 4px; }
+  .tabs button { border: 1px solid var(--line); border-bottom: none; background: var(--panel); padding: 8px 16px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 14px; }
+  .tabs button.on { background: var(--bg); font-weight: 600; color: var(--primary); }
+  main { padding: 16px 24px 80px; max-width: 1280px; }
+  .tradeoff { background: var(--panel); border-left: 0; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; }
+  .tradeoff b { color: var(--text); }
+  .exp { border: 1px solid var(--line); border-radius: 8px; }
+  .exp > .head { padding: 10px 14px; font-weight: 600; background: var(--panel); border-radius: 8px 8px 0 0; }
+  .exp > .head span { font-weight: 400; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; white-space: nowrap; }
+  th { font-weight: 600; color: var(--muted); font-size: 12px; background: #fafbfc; position: sticky; top: 0; }
+  td.title { white-space: normal; min-width: 200px; max-width: 280px; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .muted { color: var(--muted); }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 12px; background: var(--panel); color: var(--muted); }
+  select { font: inherit; padding: 3px 6px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+  select.apply { background: var(--ok-bg); border-color: #9bd4aa; }
+  select.skip { background: var(--skip-bg); border-color: #f1a9a1; }
+  select.missing { outline: 2px solid var(--skip); }
+  tr.changed { background: #fffdf2; }
+  .bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+  .btn { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 7px 14px; cursor: pointer; font: inherit; }
+  .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn.ok { background: var(--ok-bg); border-color: #9bd4aa; color: var(--ok); }
+  .btn.skip { background: var(--skip-bg); border-color: #f1a9a1; color: var(--skip); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .log { margin-top: 14px; background: #0d1117; color: #c9d1d9; border-radius: 8px; padding: 12px 14px; font-family: Consolas, monospace; font-size: 12.5px; white-space: pre-wrap; min-height: 44px; }
+  .err { color: var(--skip); font-weight: 600; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .chip { border: 1px solid #f1a9a1; color: var(--skip); background: #fff; border-radius: 14px; padding: 3px 10px; cursor: pointer; font-size: 12.5px; }
+  .chip.on { background: var(--skip); color: #fff; }
+  .tri { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .tri button { border: 0; background: #fff; padding: 4px 10px; cursor: pointer; font: inherit; border-right: 1px solid var(--line); }
+  .tri button:last-child { border-right: 0; }
+  .tri button.on.apply { background: var(--ok); color: #fff; }
+  .tri button.on.skip { background: var(--skip); color: #fff; }
+  .tri button.on.hold { background: var(--hold-bg); color: var(--hold); }
+  tr.done td { opacity: .45; }
+  .reasonrow td { background: var(--skip-bg); border-bottom: 1px solid #f1a9a1; }
+  .count { font-weight: 600; }
+  .jd { margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; background: var(--panel); display: none; }
+  .note { color: var(--muted); font-size: 12.5px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>已標投遞 › 清單候補：一次決定投／不投</h1>
+  <p class="sub">示範用，不會寫進資料庫。資料是你清單裡真實的 14 筆「待確認」職缺（分數與命中率取自 10-27 的 jobs.db／shortlist.db）。</p>
+  <div class="tabs">
+    <button data-tab="A" class="on">方案 A：可編輯表格</button>
+    <button data-tab="B">方案 B：勾選＋批次按鈕</button>
+    <button data-tab="C">方案 C：逐列三鍵分流</button>
+  </div>
+</header>
+<main>
+  <section id="tab-A"></section>
+  <section id="tab-B" hidden></section>
+  <section id="tab-C" hidden></section>
+</main>
+
+<script>
+const REASONS = ["SI接案", "無新人培訓", "職務打雜", "命中率不足", "薪資低於底線", "要求英文", "其他"];
+const JOBS = [
+  { id: "92q7v", company: "關網資訊", title: "AI應用工程師", score: 83, rate: 50, gates: "🟢🟢", status: "" },
+  { id: "8i70m", company: "永豐商業銀行", title: "資訊處-生成式AI 開發工程師 IT Division", score: 81, rate: 50, gates: "🟢🟢", status: "" },
+  { id: "8yow4", company: "宇辰系統科技", title: "103.研發部-數據分析師", score: 80, rate: 83, gates: "🟢🟡", status: "" },
+  { id: "87ryu", company: "永豐商業銀行", title: "2026 Turing Plan 儲備AI科學家", score: 79, rate: 100, gates: "🟢🟢", status: "" },
+  { id: "93g1g", company: "元大證券投資信託", title: "AI應用開發工程師", score: 78, rate: 57, gates: "🟢🟢", status: "" },
+  { id: "89ofn", company: "國泰世華商業銀行", title: "【數位驅動】資料科學工程師_數據管理", score: 77, rate: 71, gates: "🟢🟢", status: "" },
+  { id: "6c5og", company: "華碩電腦", title: "RD20358 人工智慧軟體工程師(Medical AI)", score: 73, rate: 100, gates: "🟢🟢", status: "" },
+  { id: "93ofp", company: "蝦皮（新加坡商）", title: "Data Engineer / BI Data Integration", score: 71, rate: 83, gates: "🟢🟢", status: "" },
+  { id: "8x3s7", company: "瑞昱半導體", title: "商務分析與模型工程師", score: 70, rate: 56, gates: "🟢🟢", status: "" },
+  { id: "80any", company: "艾得利智能行銷科技", title: "【產品研發】Junior Frontend Engineer", score: 48, rate: 50, gates: "🟢🔴", status: "" },
+  { id: "6awl9", company: "百瑞精鼎國際", title: "Sr. Statistical Programmer 統計程式設計師", score: 33, rate: 17, gates: "🟢🟢", status: "" },
+  { id: "4bma8", company: "統一資訊", title: "數據工程師｜打造零售界的神級Data Build", score: null, rate: 100, gates: "🟢🟢", status: "待深評" },
+  { id: "910vl", company: "廣達電腦", title: "前端工程師 - J2549", score: null, rate: 75, gates: "🟢🟢", status: "待深評" },
+  { id: "6xqff", company: "（尚未抓取）6xqff", title: "（等排程抓全文）", score: null, rate: null, gates: "⚪⚪", status: "待抓全文" },
+];
+const LABEL = { apply: "✅ 投", skip: "❌ 不投", pending: "⏸ 維持待確認" };
+
+const fmtScore = j => j.score == null ? `<span class="muted">—</span>` : j.score;
+const fmtStatus = j => j.status ? `<span class="pill">${j.status}</span>` : "";
+const fmtRate = j => j.rate == null ? `<span class="muted">未計算</span>` : `${j.rate}%`;
+const link = j => `<a href="https://www.104.com.tw/job/${j.id}" target="_blank" rel="noopener">104</a>`;
+const head = (extra = "") => `<tr>${extra}<th>公司</th><th>職稱</th><th>①②</th><th>③命中率</th><th>深評</th><th>未評原因</th><th>原文</th></tr>`;
+const cells = j => `<td>${j.company}</td><td class="title">${j.title}</td><td>${j.gates}</td><td class="num">${fmtRate(j)}</td><td class="num">${fmtScore(j)}</td><td>${fmtStatus(j)}</td><td>${link(j)}</td>`;
+
+function writeLog(el, decisions) {
+  if (!decisions.length) { el.textContent = "（還沒有要寫入的標記）"; return; }
+  el.textContent = `decisions.db 會追加 ${decisions.length} 筆（只追加、不覆蓋舊紀錄）:\n` +
+    decisions.map(d => `  ${d.id.padEnd(6)} ${d.status.padEnd(7)} ${d.reason ?? ""}  ${d.company}`).join("\n") +
+    `\n\n標「投」的會移到「未排週次」，可以接著排週次；標「不投」的從清單候補消失。`;
+}
+
+/* ───────── 方案 A：可編輯表格 ───────── */
+function renderA() {
+  const state = Object.fromEntries(JOBS.map(j => [j.id, { status: "pending", reason: "" }]));
+  const root = document.getElementById("tab-A");
+  root.innerHTML = `
+    <div class="tradeoff"><b>取捨：</b>每列直接選「決定」和「不投原因」，原因可以逐筆不同、最貼近現在的資料規則；但 60 筆要一列一列點下拉，比較慢。</div>
+    <div class="exp"><div class="head">清單候補（${JOBS.length}）<span>── 改「決定」欄後按下方儲存；不投一定要選原因</span></div>
+      <table><thead>${head("<th>決定</th><th>不投原因</th>")}</thead><tbody></tbody></table></div>
+    <div class="bar"><button class="btn primary" id="a-save" disabled>儲存 0 筆變更</button><button class="btn" id="a-reset">全部還原</button><span id="a-err" class="err"></span></div>
+    <div class="log" id="a-log"></div>`;
+  const tbody = root.querySelector("tbody");
+  const draw = () => {
+    tbody.innerHTML = JOBS.map(j => {
+      const s = state[j.id];
+      const changed = s.status !== "pending";
+      return `<tr class="${changed ? "changed" : ""}" data-id="${j.id}">
+        <td><select class="dec ${s.status}">${Object.entries(LABEL).map(([v, l]) => `<option value="${v}" ${v === s.status ? "selected" : ""}>${l}</option>`).join("")}</select></td>
+        <td><select class="rsn ${s.status === "skip" && !s.reason ? "missing" : ""}" ${s.status === "skip" ? "" : "disabled"}>
+          <option value="">${s.status === "skip" ? "選原因…" : "—"}</option>${REASONS.map(r => `<option ${r === s.reason ? "selected" : ""}>${r}</option>`).join("")}</select></td>
+        ${cells(j)}</tr>`;
+    }).join("");
+    const n = Object.values(state).filter(s => s.status !== "pending").length;
+    const btn = root.querySelector("#a-save");
+    btn.textContent = `儲存 ${n} 筆變更`; btn.disabled = n === 0;
+  };
+  tbody.addEventListener("change", e => {
+    const id = e.target.closest("tr").dataset.id;
+    if (e.target.classList.contains("dec")) { state[id].status = e.target.value; if (e.target.value !== "skip") state[id].reason = ""; }
+    if (e.target.classList.contains("rsn")) state[id].reason = e.target.value;
+    root.querySelector("#a-err").textContent = ""; draw();
+  });
+  root.querySelector("#a-save").onclick = () => {
+    const missing = JOBS.filter(j => state[j.id].status === "skip" && !state[j.id].reason);
+    if (missing.length) { root.querySelector("#a-err").textContent = `有 ${missing.length} 筆標不投但沒選原因（紅框）`; return; }
+    writeLog(root.querySelector("#a-log"), JOBS.filter(j => state[j.id].status !== "pending").map(j => ({ ...j, ...state[j.id] })));
+  };
+  root.querySelector("#a-reset").onclick = () => { for (const k in state) state[k] = { status: "pending", reason: "" }; draw(); writeLog(root.querySelector("#a-log"), []); };
+  draw(); writeLog(root.querySelector("#a-log"), []);
+}
+
+/* ───────── 方案 B：勾選＋批次按鈕 ───────── */
+function renderB() {
+  const picked = new Set();
+  const decided = {};
+  const root = document.getElementById("tab-B");
+  root.innerHTML = `
+    <div class="tradeoff"><b>取捨：</b>跟現在「已標投遞」頁的操作一樣（勾選 → 下方按鈕），最快；但一批「不投」只能套同一個原因，原因不同就要分批勾。</div>
+    <div class="exp"><div class="head">清單候補（<span class="count" id="b-n">${JOBS.length}</span>）<span>── 勾選多筆 → 下方一次標記</span></div>
+      <table><thead>${head('<th><input type="checkbox" id="b-all"></th>')}</thead><tbody></tbody></table></div>
+    <div class="bar" id="b-bar"></div>
+    <div class="log" id="b-log"></div>`;
+  const tbody = root.querySelector("tbody");
+  const log = [];
+  const draw = () => {
+    const rest = JOBS.filter(j => !decided[j.id]);
+    root.querySelector("#b-n").textContent = rest.length;
+    tbody.innerHTML = rest.map(j => `<tr data-id="${j.id}" class="${picked.has(j.id) ? "changed" : ""}"><td><input type="checkbox" ${picked.has(j.id) ? "checked" : ""}></td>${cells(j)}</tr>`).join("");
+    const n = picked.size;
+    root.querySelector("#b-bar").innerHTML = n === 0 ? `<span class="muted">還沒勾選。</span>` : `
+      <span>已選 <b>${n}</b> 筆：${[...picked].map(id => JOBS.find(j => j.id === id).company).join("、")}</span>
+      <button class="btn ok" id="b-apply">✅ 改標投（${n}）</button>
+      <select id="b-reason"><option value="">不投原因…</option>${REASONS.map(r => `<option>${r}</option>`).join("")}</select>
+      <button class="btn skip" id="b-skip" disabled>❌ 改標不投（${n}）</button>
+      <button class="btn" id="b-week">📅 只排週次</button>`;
+    if (n) {
+      const rs = root.querySelector("#b-reason"), sk = root.querySelector("#b-skip");
+      rs.onchange = () => sk.disabled = !rs.value;
+      root.querySelector("#b-apply").onclick = () => commit("apply", null);
+      sk.onclick = () => commit("skip", rs.value);
+      root.querySelector("#b-week").onclick = () => { root.querySelector("#b-log").textContent = "（沿用現有功能：排週次，不改標記）"; };
+    }
+  };
+  const commit = (status, reason) => {
+    for (const id of picked) { decided[id] = status; log.push({ ...JOBS.find(j => j.id === id), status, reason }); }
+    picked.clear(); writeLog(root.querySelector("#b-log"), log); draw();
+  };
+  tbody.addEventListener("change", e => { const id = e.target.closest("tr").dataset.id; e.target.checked ? picked.add(id) : picked.delete(id); draw(); });
+  root.querySelector("#b-all").onchange = e => { JOBS.filter(j => !decided[j.id]).forEach(j => e.target.checked ? picked.add(j.id) : picked.delete(j.id)); draw(); };
+  draw(); writeLog(root.querySelector("#b-log"), []);
+}
+
+/* ───────── 方案 C：逐列三鍵分流 ───────── */
+function renderC() {
+  const state = Object.fromEntries(JOBS.map(j => [j.id, { status: null, reason: "" }]));
+  const root = document.getElementById("tab-C");
+  root.innerHTML = `
+    <div class="tradeoff"><b>取捨：</b>每列三顆按鈕，點「不投」就在下面展開原因小標籤，一列兩下完成；處理過的變淡但留在原位、隨時能改。最快又能逐筆給原因，但表格會比較高。</div>
+    <div class="exp"><div class="head">清單候補（${JOBS.length}）<span>── 已處理 <b id="c-n">0</b> 筆</span></div>
+      <table><thead>${head("<th>決定</th>")}</thead><tbody></tbody></table></div>
+    <div class="bar"><button class="btn primary" id="c-save" disabled>儲存 0 筆</button><span id="c-err" class="err"></span></div>
+    <div class="log" id="c-log"></div>
+    <p class="note">「維持待確認」= 這次先不決定，不寫入任何東西。</p>`;
+  const tbody = root.querySelector("tbody");
+  const draw = () => {
+    tbody.innerHTML = JOBS.map(j => {
+      const s = state[j.id];
+      const btn = (v, l, cls) => `<button data-v="${v}" class="${cls} ${s.status === v ? "on" : ""}">${l}</button>`;
+      const row = `<tr data-id="${j.id}" class="${s.status && s.status !== "skip" ? "done" : ""}">
+        <td><span class="tri">${btn("apply", "✅ 投", "apply")}${btn("skip", "❌ 不投", "skip")}${btn("pending", "⏸", "hold")}</span></td>${cells(j)}</tr>`;
+      const reasons = s.status === "skip" ? `<tr class="reasonrow" data-id="${j.id}"><td colspan="8">不投原因：<span class="chips">${REASONS.map(r => `<span class="chip ${r === s.reason ? "on" : ""}" data-r="${r}">${r}</span>`).join("")}</span></td></tr>` : "";
+      return row + reasons;
+    }).join("");
+    const n = Object.values(state).filter(s => s.status === "apply" || s.status === "skip").length;
+    root.querySelector("#c-n").textContent = Object.values(state).filter(s => s.status).length;
+    const b = root.querySelector("#c-save"); b.textContent = `儲存 ${n} 筆`; b.disabled = n === 0;
+  };
+  tbody.addEventListener("click", e => {
+    const tr = e.target.closest("tr"); if (!tr) return; const id = tr.dataset.id;
+    if (e.target.dataset.v) { const v = e.target.dataset.v; state[id] = { status: state[id].status === v ? null : v, reason: "" }; }
+    if (e.target.dataset.r) state[id].reason = e.target.dataset.r;
+    root.querySelector("#c-err").textContent = ""; draw();
+  });
+  root.querySelector("#c-save").onclick = () => {
+    const missing = JOBS.filter(j => state[j.id].status === "skip" && !state[j.id].reason);
+    if (missing.length) { root.querySelector("#c-err").textContent = `有 ${missing.length} 筆標不投但沒選原因`; return; }
+    writeLog(root.querySelector("#c-log"), JOBS.filter(j => ["apply", "skip"].includes(state[j.id].status)).map(j => ({ ...j, ...state[j.id] })));
+  };
+  draw(); writeLog(root.querySelector("#c-log"), []);
+}
+
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b));
+  for (const t of ["A", "B", "C"]) document.getElementById(`tab-${t}`).hidden = t !== b.dataset.tab;
+});
+renderA(); renderB(); renderC();
+</script>
+</body>
+</html>

@@ -143,3 +143,31 @@ def test_closed_jobs_leave_the_todo_and_tailor_pool():
     assert [r.job_no for r in board.due] == ["B"]
     assert [r.job_no for r in board.done] == ["C"]
     assert "A" not in {r.job_no for r in board.pool}
+
+
+# ─── 清單候補一次分流(方案 C)──────────────────────────────────────
+
+
+def test_triage_writes_only_decided_rows():
+    writes, missing = planning.triage_writes(
+        {
+            "a": (planning.TRIAGE_APPLY, None),
+            "b": (planning.TRIAGE_SKIP, "SI接案"),
+            "c": (planning.TRIAGE_HOLD, None),  # 維持待確認:不寫
+            "d": (None, None),  # 沒動:不寫
+        }
+    )
+    assert writes == [("a", "apply", None), ("b", "skip", "SI接案")]
+    assert missing == []
+
+
+def test_triage_skip_without_reason_is_reported():
+    """不投一定要有原因;有缺時呼叫端整批不存。"""
+    writes, missing = planning.triage_writes({"a": (planning.TRIAGE_SKIP, None)})
+    assert missing == ["a"] and writes == []
+
+
+def test_triage_apply_ignores_a_leftover_reason():
+    """先點不投、選了原因、再改成投:原因不能跟著寫進去(decisions.db 會拒絕)。"""
+    writes, _ = planning.triage_writes({"a": (planning.TRIAGE_APPLY, "SI接案")})
+    assert writes == [("a", "apply", None)]

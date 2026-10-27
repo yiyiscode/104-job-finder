@@ -543,10 +543,12 @@ def applied_page() -> None:
         with st.expander(f"未排週次({len(board.unplanned)})—— 標了「投」但還沒決定哪週"):
             chosen += table(board.unplanned, "unplanned")
         with st.expander(
-            f"清單候補({len(board.backups)})—— 投遞清單裡標「待確認」的,只能排週次;"
-            "要投請先到候選清單改標「投」"
+            f"清單候補({len(board.backups)})—— 投遞清單裡標「待確認」的:逐筆點投/不投,一次儲存"
         ):
-            backup_chosen = table(board.backups, "backups")
+            _backup_triage(board.backups)
+            backup_chosen = []
+            if board.backups and st.toggle("只排週次(不改標記)", key="backup_plan_mode"):
+                backup_chosen = table(board.backups, "backups")
         # 評分區放在「已送出」之前:還沒送的才需要評,評完再決定要不要投
         _rate_unrated([r for r in board.pool + board.backups if r.job_no not in desires])
         with st.expander(f"✅ 已送出({len(board.done)})"):
@@ -773,6 +775,57 @@ def _confirm_closed(jobs: list[JobRow], day) -> None:
         _after_bulk_action()
     if b.button("取消", width="stretch"):
         st.rerun()
+
+
+TRIAGE_LABELS = {
+    planning.TRIAGE_APPLY: "✅ 投",
+    planning.TRIAGE_SKIP: "❌ 不投",
+    planning.TRIAGE_HOLD: "⏸",
+}
+
+
+def _backup_triage(rs: list[JobRow]) -> None:
+    """清單候補逐列分流(design-demos/2026-10-27 方案 C):點投/不投,不投展開原因,一次存。"""
+    if not rs:
+        st.caption("(沒有)")
+        return
+    gen = st.session_state.applied_gen
+    st.caption("⏸ = 這次先不決定(不寫入)。不投一定要選原因,原因是之後檢討閘門的資料。")
+    picks: dict[str, tuple[str | None, str | None]] = {}
+    for r in rs:
+        left, right = st.columns([1.4, 5], vertical_alignment="center")
+        choice = left.segmented_control(
+            "決定",
+            list(TRIAGE_LABELS),
+            format_func=TRIAGE_LABELS.get,
+            key=f"tri_{gen}_{r.job_no}",
+            label_visibility="collapsed",
+        )
+        score = r.deep_score if r.deep_score is not None else r.score_status
+        right.markdown(
+            f"**{r.company}** — {r.title}  \n"
+            f"{LIGHT_ICONS[r.gates.gate1]}{LIGHT_ICONS[r.gates.gate2]} · "
+            f"③ {gate3_label(r)} · 深評 {score} · [104 原文]({r.url})"
+        )
+        reason = None
+        if choice == planning.TRIAGE_SKIP:
+            reason = right.pills(
+                "不投原因",
+                SKIP_REASONS,
+                key=f"trr_{gen}_{r.job_no}",
+                label_visibility="collapsed",
+            )
+        picks[r.job_no] = (choice, reason)
+
+    writes, missing = planning.triage_writes(picks)
+    if st.button(f"💾 儲存 {len(writes) + len(missing)} 筆", type="primary", key=f"tri_save_{gen}"):
+        if missing:
+            st.error(f"有 {len(missing)} 筆標了不投但沒選原因,整批還沒存。")
+            return
+        now = datetime.now(cand.TAIPEI)
+        for job_no, status, reason in writes:
+            store().append(job_no, status, reason, "", now)
+        _after_bulk_action()
 
 
 def _after_bulk_action() -> None:

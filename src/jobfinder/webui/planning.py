@@ -171,3 +171,28 @@ def filter_pool(board: Board, option: str | date, plans: Mapping[str, date]) -> 
     if option == WEEK_SENT:
         return board.done
     return [r for r in board.later if plans.get(r.job_no) == option]
+
+
+#: 清單候補分流的三個選項。「維持」= 這次不決定,不寫入任何東西
+TRIAGE_APPLY, TRIAGE_SKIP, TRIAGE_HOLD = "apply", "skip", "hold"
+
+
+def triage_writes(
+    picks: Mapping[str, tuple[str | None, str | None]],
+) -> tuple[list[tuple[str, str, str | None]], list[str]]:
+    """清單候補一次分流 → (要寫入的 (job_no, status, reason), 標不投卻沒選原因的 job_no)。
+
+    沒選或選「維持」的不寫:待確認本來就是它現在的狀態,再寫一筆只會讓紀錄變雜。
+    不投必須有原因 —— 原因是之後檢討閘門的唯一資料,一筆都不能漏,所以有缺就整批不存。
+    """
+    writes: list[tuple[str, str, str | None]] = []
+    missing: list[str] = []
+    for job_no, (choice, reason) in picks.items():
+        if choice == TRIAGE_APPLY:
+            writes.append((job_no, "apply", None))
+        elif choice == TRIAGE_SKIP:
+            if reason:
+                writes.append((job_no, "skip", reason))
+            else:
+                missing.append(job_no)
+    return writes, missing
