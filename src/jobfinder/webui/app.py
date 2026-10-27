@@ -412,12 +412,11 @@ def _deep_score_details(job: JobRow) -> None:
 
 
 def _score_breakdown(job: JobRow) -> None:
-    """深評各維度:上雷達圖、下數字表,同一個框(design-demos/2026-10-27 方案 C 改上下)。"""
+    """深評各維度:上雷達圖、下數字表,預設收合(design-demos/2026-10-27 方案 C 改上下)。"""
     if not job.score_parts:
         return
     avg, n = score_chart.averages(load_rows())
-    with st.container(border=True):
-        st.markdown("**評分依據**")
+    with st.expander("📊 評分依據:各維度得分 vs 平均", expanded=False):
         # 不能用 st.html:它的消毒器會把 <svg> 整個濾掉,畫面一片空白也不報錯
         svg = score_chart.radar_svg(job.score_parts, avg, dark=st.context.theme.type == "dark")
         st.markdown(svg, unsafe_allow_html=True)
