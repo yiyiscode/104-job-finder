@@ -410,21 +410,19 @@ def _deep_score_details(job: JobRow) -> None:
         st.markdown(f"[🏢 這家公司的其他職缺]({job.company_url})")
 
 
-def _decision_panel(job: JobRow, desires: dict[str, int]) -> None:
-    st.divider()
-    st.subheader(f"{job.company} — {job.title}")
-    left, right = st.columns([3, 2])
-    with left:
-        if job.deep_score is not None:
-            st.info(f"深評 {job.deep_score} 分:{job.one_liner}")
-            _deep_score_details(job)
-        if job.gates.fails:
-            st.error("第 1 道排除:" + " · ".join(job.gates.fails))
-        if job.gates.flags:
-            st.warning(" · ".join(job.gates.flags))
-    with right:
-        _decision_form(job, desires)
+def _analysis_summary(job: JobRow) -> None:
+    if job.deep_score is not None:
+        st.info(f"深評 {job.deep_score} 分:{job.one_liner}")
+        _deep_score_details(job)
+    else:
+        st.caption(f"深評:{job.score_status}")
+    if job.gates.fails:
+        st.error("第 1 道排除:" + " · ".join(job.gates.fails))
+    if job.gates.flags:
+        st.warning(" · ".join(job.gates.flags))
 
+
+def _analysis_columns(job: JobRow) -> None:
     # 命中率與 104 原文並排:逐條判定要對著原文看才判斷得了對不對
     hit_col, jd_col = st.columns(2)
     with hit_col:
@@ -432,6 +430,25 @@ def _decision_panel(job: JobRow, desires: dict[str, int]) -> None:
         _skill_match_breakdown(job)
     with jd_col:
         _jd_original(job)
+
+
+def _decision_panel(job: JobRow, desires: dict[str, int]) -> None:
+    st.divider()
+    st.subheader(f"{job.company} — {job.title}")
+    left, right = st.columns([3, 2])
+    with left:
+        _analysis_summary(job)
+    with right:
+        _decision_form(job, desires)
+    _analysis_columns(job)
+
+
+@st.dialog("職缺分析", width="large")
+def _analysis_dialog(job: JobRow) -> None:
+    """已標投遞頁看分析用:跟候選清單點一列看到的一樣,只是不放標記表單。"""
+    st.subheader(f"{job.company} — {job.title}")
+    _analysis_summary(job)
+    _analysis_columns(job)
 
 
 def _decision_form(job: JobRow, desires: dict[str, int]) -> None:
@@ -664,6 +681,9 @@ def _bulk_actions(
     gen = st.session_state.applied_gen
     if not (to_plan or to_undo or to_reopen):
         st.info("還沒勾選。")
+    picked = [*to_plan, *to_undo, *to_reopen]
+    if len(picked) == 1 and st.button("🔍 看這筆的分析(深評 + 命中率 + 104 原文)"):
+        _analysis_dialog(picked[0])
     if to_send:
         st.markdown(f"#### 📨 已選 {len(to_send)} 筆:" + "、".join(j.company for j in to_send))
         d1, d2 = st.columns([1, 2], vertical_alignment="bottom")
@@ -793,7 +813,10 @@ def _backup_triage(rs: list[JobRow]) -> None:
     st.caption("⏸ = 這次先不決定(不寫入)。不投一定要選原因,原因是之後檢討閘門的資料。")
     picks: dict[str, tuple[str | None, str | None]] = {}
     for r in rs:
-        left, right = st.columns([1.4, 5], vertical_alignment="center")
+        left, right, view = st.columns([1.4, 5, 0.7], vertical_alignment="center")
+        # 對話框不動底下的勾選:看完關掉,剛點的投/不投都還在
+        if view.button("🔍 分析", key=f"tri_view_{r.job_no}", help="深評 + 命中率 + 104 原文"):
+            _analysis_dialog(r)
         choice = left.segmented_control(
             "決定",
             list(TRIAGE_LABELS),
