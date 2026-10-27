@@ -341,6 +341,8 @@ class PathsCfg(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     resume: str = "profile.md"
+    #: 只附在深評 prompt 的參考資料(例如成績單);相對於履歷檔的目錄。不影響粗篩與命中率
+    references: list[str] = Field(default_factory=list)
     db_filename: str = "jobs.db"
     profile_tarball: str = "chrome-profile.tar.gz"
     storage_state: str = "storage_state.json"

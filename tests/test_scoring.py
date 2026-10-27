@@ -551,3 +551,17 @@ async def test_fake_scorer_penalises_senior_requirements():
     junior, _ = await scorer.deep(make_job(), JobDetail(job_no="a1b2c", work_exp="不拘"))
     senior, _ = await scorer.deep(make_job(), JobDetail(job_no="a1b2c", work_exp="8年以上"))
     assert junior.total > senior.total
+
+
+def test_references_go_to_deep_scoring_only(tmp_path):
+    """成績單只進深評:併進 full 會讓命中率(以 full 的雜湊為鍵)全部失效。"""
+    from jobfinder.scoring.resume import load_resume
+
+    (tmp_path / "profile.md").write_text("# 我\n\n## 技能\nSQL", encoding="utf-8")
+    (tmp_path / "transcript.md").write_text("# 修課紀錄\n統計學 99", encoding="utf-8")
+    plain = load_resume(tmp_path / "profile.md")
+    resume = load_resume(tmp_path / "profile.md", ["transcript.md", "missing.md"])
+
+    assert resume.full == plain.full and resume.brief == plain.brief
+    assert "統計學 99" in resume.deep and "統計學 99" not in resume.full
+    assert plain.deep == plain.full

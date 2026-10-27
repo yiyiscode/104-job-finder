@@ -78,7 +78,7 @@ async def run(args: argparse.Namespace) -> int:
     if args.dry_run or not targets:
         return 0
 
-    resume = load_resume(ROOT / cfg.paths.resume)
+    resume = load_resume(ROOT / cfg.paths.resume, cfg.paths.references)
     llm = cfg.llm.model_copy(
         update={
             "deep": cfg.llm.deep.model_copy(update={"model": args.model}),

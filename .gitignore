@@ -31,3 +31,6 @@ desktop.ini
 
 # 簡報產生器的依賴(docs/slides 用 bun install 裝)
 node_modules/
+
+# 成績單(個資,含分數):只在本機,深評經 paths.references 讀取
+transcript.md

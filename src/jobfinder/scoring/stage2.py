@@ -31,7 +31,7 @@ async def deep_score(
     raw, cost = await client.structured(
         model=llm.deep.model,
         system=SYSTEM_DEEP,
-        user=build_deep_user(resume.full, job, detail),
+        user=build_deep_user(resume.deep, job, detail),
         schema_model=DeepScore,
         schema_name="deep_score",
         temperature=llm.deep.temperature,

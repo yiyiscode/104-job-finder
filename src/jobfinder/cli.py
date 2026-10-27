@@ -622,7 +622,9 @@ def _build_scorer(cfg: Config, args: argparse.Namespace):
         raise SystemExit("缺少 OPENROUTER_API_KEY。開發請加 --fake-llm。")
     else:
         client = OpenRouterClient(secrets.openrouter_api_key, cfg.llm)
-    return TwoStageScorer(client, cfg.llm, cfg.scoring, load_resume(cfg.paths.resume))
+    return TwoStageScorer(
+        client, cfg.llm, cfg.scoring, load_resume(cfg.paths.resume, cfg.paths.references)
+    )
 
 
 def _build_source_factory(cfg: Config, args: argparse.Namespace):
